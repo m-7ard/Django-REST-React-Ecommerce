@@ -1,0 +1,14 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+
+# npm / js
+node_modules
+npm-debug.log
+
+# misc
+.env

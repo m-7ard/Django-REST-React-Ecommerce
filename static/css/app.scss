@@ -1,0 +1,187 @@
+@use './global' as *;
+
+#root {
+    overflow: hidden;
+}
+
+.app {
+    @include flex-column(0, 0);
+    @include absolute-boundary(0, 0, 0, 0);
+    background-color: #F2F4F3;
+
+    max-width: 440px;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    overflow-x: hidden;
+    margin: 0 auto;
+
+    color: #0A0908;
+
+    &__header {
+        @include flex-column(0, 0);
+    }
+
+    &__header-section {
+        @include flex-row($space-medium $space-large, $space-large);
+        align-items: center;
+
+        &--top {
+            justify-content: space-between;
+        }
+
+        &--main {
+            background-color: #e9cc3f;
+            border-top: 1px solid get-theme-attr($gunmetal-theme, active, bg);
+            border-bottom: 1px solid get-theme-attr($gunmetal-theme, active, bg);
+        }
+    }
+
+    &__header-group {
+        @include flex-row(0, $space-large);
+        align-items: center
+    }
+
+    &__header-link {
+        @include base-button;
+        font-size: get-font-size(secondary, small);
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__header-searchbar {
+        @include flex-row(0, 0);
+        flex-grow: 1;
+        height: 100%;
+        border-radius: $radius-medium;
+        overflow: hidden;
+        border: 1px solid get_theme_attr($gunmetal_theme, neutral, bg);
+        box-sizing: border-box;
+        background-color: map-get($light, light);
+
+        [data-role="input"] {
+            @include medium-button;
+            position: relative;
+            flex-grow: 1;
+            background-color: transparent;
+
+            input {
+                @include absolute-boundary(0, 0, 0, 0);
+                @include ellipsis;
+                padding: $space-small;
+            }
+        }
+
+        [data-role="category-select"] {
+            @include base-button;
+            @include small-button;
+            border-radius: 0;
+            background-color: #5E503F;
+            color: map-get($light, light);
+        }
+    }
+
+    &__header-select {
+        $theme: $gunmetal_theme;
+        &[data-state="open"] [data-role="root"] {
+            border-radius: $radius-medium $radius-medium 0 0;
+        }
+
+        [data-role="root"] {
+            @include base-button;
+            @include medium-button;
+            @include colors-from-theme($theme, neutral, $hover: active);
+            width: 9rem;        
+            box-sizing: border-box;
+        }
+
+        [data-role="option-list"] {
+            min-width: 9rem;          
+            overflow: hidden;
+            border-radius: 0 0 $radius-small;  
+            box-sizing: border-box;
+        }
+
+        [data-role="option"] {
+            @include base-button;
+            @include medium-button;
+            @include colors-from-theme($theme, neutral, $hover: active, $checked: active);
+            border-radius: 0px;
+            
+            border: 1px solid transparent;
+            box-sizing: border-box;
+            &:has(:checked) {
+                border: 1px solid get_theme_attr($theme, inactive, bg);
+            }
+        }
+    }
+
+    &__functional-button {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+    }
+
+    &__logo {
+        @include base-button;
+        color: map-get($light, light);
+    }
+
+    &__icon {
+        color: #0A0908;
+    }
+
+    &__body {
+        @include flex-row($space-medium, $space-medium);
+        flex-grow: 1;
+    }
+}
+
+.frontpage {
+    @include flex-column(0, $space-medium);
+    flex-grow: 1;
+
+    &__gallery {
+        @include has-shadow;
+        @include flex-row($space-medium, $space-medium);
+
+        background-color: white;
+    }
+}
+
+
+[data-role="select"] {
+    @include flex-column(0, 0);
+
+    &[data-state="open"] {
+        [data-role="option-list"] {
+            visibility: visible;
+        }
+
+        [data-role="marker"] {
+            transform: rotate(0);
+        }
+    }
+
+    [data-role="marker"] {
+        transform: rotate(-90deg);
+    }
+
+    [data-role="label"] {
+        @include ellipsis;
+    }
+
+    [data-role="option-list"] {
+        @include flex-column(0, 0);
+        position: fixed;
+        visibility: hidden;
+        overflow: auto;
+        z-index: 2; 
+    }
+    
+    [data-role="option"] {
+        @include base-button;
+        @include input-replacement;
+    }
+}
