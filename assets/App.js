@@ -22,7 +22,7 @@ export default function App() {
             <div className="app__body">
                 <Outlet />
             </div>
-
+            
         </div>
     );
 };

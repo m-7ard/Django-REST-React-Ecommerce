@@ -7,12 +7,9 @@
 .app {
     @include flex-column(0, 0);
     @include absolute-boundary(0, 0, 0, 0);
-    background-color: #F2F4F3;
 
-    max-width: 440px;
-    border-right: 1px solid black;
-    border-left: 1px solid black;
-    overflow-x: hidden;
+    max-width: 1440px;
+    /* TODO: make some media queries for highlight */
     margin: 0 auto;
 
     color: #0A0908;
@@ -30,9 +27,7 @@
         }
 
         &--main {
-            background-color: #e9cc3f;
-            border-top: 1px solid get-theme-attr($gunmetal-theme, active, bg);
-            border-bottom: 1px solid get-theme-attr($gunmetal-theme, active, bg);
+            background-color: $orange;
         }
     }
 
@@ -56,7 +51,7 @@
         height: 100%;
         border-radius: $radius-medium;
         overflow: hidden;
-        border: 1px solid get_theme_attr($gunmetal_theme, neutral, bg);
+        border: 1px solid map-get($light, dark);
         box-sizing: border-box;
         background-color: map-get($light, light);
 
@@ -71,14 +66,6 @@
                 @include ellipsis;
                 padding: $space-small;
             }
-        }
-
-        [data-role="category-select"] {
-            @include base-button;
-            @include small-button;
-            border-radius: 0;
-            background-color: #5E503F;
-            color: map-get($light, light);
         }
     }
 
@@ -141,12 +128,187 @@
 .frontpage {
     @include flex-column(0, $space-medium);
     flex-grow: 1;
+    overflow: hidden;
 
     &__gallery {
-        @include has-shadow;
-        @include flex-row($space-medium, $space-medium);
-
+        @include flex-column($space-large, $space-large);
         background-color: white;
+        border: 1px solid map-get($light, dark);
+        width: 100%;
+        box-sizing: border-box;
+
+        &-title {
+            font-size: get-font-size(primary, medium);
+            font-weight: bold;
+            color: map-get($black, dark);
+        }
+
+        &-divider {
+            border-top: 1px solid map-get($light, dark);
+            height: 0px;
+        }
+
+        &-header {
+            display: grid;
+            grid-template: auto / 1fr auto auto;
+            gap: $space-medium;
+            align-items: center;
+        }
+
+        &-content {
+            @include flex-row($space-small, $space-large);
+            border-right: $space-small solid transparent;
+            overflow: auto;
+
+            &::-webkit-scrollbar {
+                background-color: transparent;
+                height: 0px;
+            }    
+        }
+
+        &-control {
+            @include base-button;
+            border: 1px solid map-get($light, dark);
+            border-radius: $radius-medium;
+        }
+    }
+
+    &__highlight {
+        @include flex-row(0, $space-large);
+
+        &-box {
+            @include flex-column($space-large, $space-large);
+            background-color: white;
+            border: 1px solid map-get($light, dark); 
+            flex: 1 0 0;
+            overflow: hidden;
+        }
+
+        &-header {
+            @include flex-row(0, 0);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        &-item {
+            display: grid;
+            grid-template: repeat(4, auto) / 4rem 1fr;
+            gap: 0 $space-large;
+            overflow: hidden;
+        }
+
+        &-image {
+            background-color: white;
+            aspect-ratio: 1 / 1;
+            grid-row: 1 / -1;
+            border: 1px solid map-get($light, dark); 
+        }
+
+        &-title {
+            font-size: get-font-size(primary, small);
+            font-weight: 700;
+            color: map-get($black, dark);
+        }
+
+        &-link {
+            font-size: get-font-size(secondary, small);
+            color: blue;
+        }
+
+        &-label {
+            @include ellipsis;
+            overflow: hidden;
+            font-size: get-font-size(secondary, small);
+            font-weight: 500;
+            color: map-get($black, dark);
+
+            &--main {
+                font-weight: 700;
+            }
+        }
+
+        &-price {
+            font-size: get-font-size(secondary, medium);
+            font-weight: 700;
+            color: #D8510E;
+        }
+
+        &-divider {
+            border-top: 1px solid map-get($light, dark);
+            height: 0px;
+        }
+    }
+
+    &__ad {
+        @include flex-column($space-large $space-large $space-large $space-large, $space-large);
+        @include has-shadow;
+        background-color: $orange;
+        position: relative;
+        flex-shrink: 0;
+
+        &--featured {
+            width: 7rem;
+        }
+
+        &--normal {
+            @media only screen and (min-width: 440px) {
+                width: 4.25rem;
+            }
+
+            @media only screen and (min-width: 500px) {
+                width: 5rem;
+            }
+
+            @media only screen and (min-width: 600px) {
+                width: 6rem;
+            }
+        }
+
+        &-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 1px solid map-get($light, dark);
+            background-color: white;
+        }
+
+        &-title {
+            @include ellipsis;
+            font-size: get-font-size(secondary, large);
+            color: map-get($black, dark);
+            font-weight: 700;
+        }
+
+        &-price {
+            @include ellipsis;
+            font-size: get-font-size(secondary, medium);
+            color: map-get($black, neutral);
+            font-weight: 500;
+        }
+
+        &-pricetag {
+            @include has-shadow;
+            @include base-button;
+            @include small-button;
+            background-color: #D8510E;
+            color: white;
+            font-size: get-font-size(secondary, medium);
+            font-weight: 700;
+            position: absolute;
+            top: $space-small;
+            right: $space-small;
+            user-select: none;
+        }
+    }
+
+    &__main {
+        gap: $space-large;
+
+
+            max-width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+
     }
 }
 

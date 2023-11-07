@@ -34,7 +34,8 @@
 }
 
 @mixin has-shadow {
-    box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
+    box-shadow:0 2px 6px 0 rgba(0,0,0,.5);
+    //box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
 }
 
 @mixin absolute-box($height, $width) {
@@ -60,7 +61,7 @@
 @mixin flex-column($padding, $gap) {
 	display: flex;
 	flex-direction: column;
-    pad: $padding;
+    padding: $padding;
     gap: $gap;
 }
 
@@ -169,10 +170,13 @@ $font-sizes: (
 
 $light: (
     light: #F2F4F3,
+    dark: #D6DDD9,
 );
 
 $black: (
     dark: #0A0908,
+    neutral: #26231f,
+    light: #423D36
 );
 
 $brown_theme: (
@@ -216,7 +220,7 @@ $gunmetal_theme: (
     ),
     inactive: (
         bg: #2B414B,
-        fg: map-get($light, light),
+        fg: map-get($light, dark),
     ),
 );
 
@@ -242,3 +246,6 @@ $space-large: 0.75rem;
 $radius-small: 2px;
 $radius-medium: 4px;
 $radius-large: 9999px;
+
+
+$orange: #d8b60e;

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-
+  
 
 export default function Select({name, options, initial, selectClassName}) {
     const [open, setOpen] = useState(false);
@@ -13,11 +13,13 @@ export default function Select({name, options, initial, selectClassName}) {
   
     useEffect(() => {
         const handleWindowClick = (event) => {
-            console.log(event.target.closest('[data-role="select"]') === selectRef.current)
+            if (!(event.button === 0)) {
+                return;
+            };
 
-            if (open && selectRef.current && !selectRef.current.contains(event.target)) {
+            if (selectRef.current && !selectRef.current.contains(event.target)) {
                 setOpen(false);
-            }
+            };
         };
     
         const handleWindowResize = () => {
@@ -26,14 +28,14 @@ export default function Select({name, options, initial, selectClassName}) {
             }
         };
     
-        window.addEventListener('click', handleWindowClick);
+        window.addEventListener('mouseup', handleWindowClick);
         window.addEventListener('resize', handleWindowResize);
     
         return () => {
-            window.removeEventListener('click', handleWindowClick);
+            window.removeEventListener('mouseup', handleWindowClick);
             window.removeEventListener('resize', handleWindowResize);
         };
-    });
+    }, [selectRef]);
   
     const positionOptionList = (root) => {
         const dimensions = root.getBoundingClientRect();
