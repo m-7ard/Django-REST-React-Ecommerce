@@ -7,15 +7,25 @@
 .app {
     @include flex-column(0, 0);
     @include absolute-boundary(0, 0, 0, 0);
-
-    max-width: 1440px;
-    /* TODO: make some media queries for highlight */
     margin: 0 auto;
-
     color: #0A0908;
+
+    &__divider {
+        border-top: 1px solid map-get($light, dark);
+        height: 0px;
+    }
 
     &__header {
         @include flex-column(0, 0);
+    }
+
+    &__go-to {
+        @include base-button;
+        @include flex-column(0, 0);
+        align-items: center;
+        font-size: get-font-size(secondary, small);
+        color: map-get($black, dark);
+        font-weight: 500;
     }
 
     &__header-section {
@@ -23,11 +33,18 @@
         align-items: center;
 
         &--top {
-            justify-content: space-between;
+            background-color: snow;
+            justify-content: flex-end;;
+        }
+
+        &--bottom {
+            border-bottom: 1px solid map-get($light, dark);
+            background-color: snow;
         }
 
         &--main {
             background-color: $orange;
+            justify-content: center;
         }
     }
 
@@ -38,28 +55,42 @@
 
     &__header-link {
         @include base-button;
-        font-size: get-font-size(secondary, small);
+        font-size: get-font-size(secondary, medium);
         
         &:hover {
             text-decoration: underline;
         }
     }
 
-    &__header-searchbar {
+    &__header-search-bar {
+        display: flex;
+        max-width: 49rem;
+        gap: inherit;
+        flex: 1;
+    }
+
+    &__header-search-widget {
         @include flex-row(0, 0);
+        overflow: hidden;
         flex-grow: 1;
         height: 100%;
-        border-radius: $radius-medium;
+    }
+
+    &__header-search-field {
+        @include flex-row(0, 0);
+        border-radius: $radius-medium 0 0 $radius-medium;
         overflow: hidden;
+        flex-grow: 1;
         border: 1px solid map-get($light, dark);
         box-sizing: border-box;
         background-color: map-get($light, light);
 
         [data-role="input"] {
             @include medium-button;
+            border-radius: 0;
             position: relative;
-            flex-grow: 1;
             background-color: transparent;
+            flex-grow: 1;
 
             input {
                 @include absolute-boundary(0, 0, 0, 0);
@@ -69,8 +100,20 @@
         }
     }
 
-    &__header-select {
+    &__header-search-button {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+        border-radius: 0 $radius-medium $radius-medium 0;
+    }
+
+    &__header-category-select {
+        @media only screen and (max-width: 500px) {
+            display: none;
+        }
+
         $theme: $gunmetal_theme;
+        
         &[data-state="open"] [data-role="root"] {
             border-radius: $radius-medium $radius-medium 0 0;
         }
@@ -104,12 +147,6 @@
         }
     }
 
-    &__functional-button {
-        @include base-button;
-        @include medium-button;
-        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
-    }
-
     &__logo {
         @include base-button;
         color: map-get($light, light);
@@ -120,19 +157,49 @@
     }
 
     &__body {
-        @include flex-row($space-medium, $space-medium);
+        @include flex-row($space-large, $space-large);
         flex-grow: 1;
     }
 }
 
 .frontpage {
-    @include flex-column(0, $space-medium);
+    @include flex-column(0, $space-large);
     flex-grow: 1;
     overflow: hidden;
 
+    &__header {
+        @include flex-row($space-large, 0);
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: bold;
+        color: map-get($black, dark);
+    }
+
+    &__link {
+        font-size: get-font-size(secondary, medium);
+        color: blue;
+    }
+
+    
+    &__recent-ads {
+        gap: $space-large;
+        max-width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    &__main {
+        @include flex-column(0, $space-large);
+    }
+
     &__gallery {
         @include flex-column($space-large, $space-large);
-        background-color: white;
+        background-color: snow;
         border: 1px solid map-get($light, dark);
         width: 100%;
         box-sizing: border-box;
@@ -175,13 +242,16 @@
 
     &__highlight {
         @include flex-row(0, $space-large);
+        flex-wrap: wrap;
+        justify-content: center;
 
         &-box {
             @include flex-column($space-large, $space-large);
-            background-color: white;
+            background-color: snow;
             border: 1px solid map-get($light, dark); 
             flex: 1 0 0;
             overflow: hidden;
+            min-width: 15rem;
         }
 
         &-header {
@@ -198,7 +268,7 @@
         }
 
         &-image {
-            background-color: white;
+            background-color: snow;
             aspect-ratio: 1 / 1;
             grid-row: 1 / -1;
             border: 1px solid map-get($light, dark); 
@@ -230,7 +300,7 @@
         &-price {
             font-size: get-font-size(secondary, medium);
             font-weight: 700;
-            color: #D8510E;
+            color: $red;
         }
 
         &-divider {
@@ -251,10 +321,6 @@
         }
 
         &--normal {
-            @media only screen and (min-width: 440px) {
-                width: 4.25rem;
-            }
-
             @media only screen and (min-width: 500px) {
                 width: 5rem;
             }
@@ -268,7 +334,7 @@
             width: 100%;
             aspect-ratio: 1 / 1;
             border: 1px solid map-get($light, dark);
-            background-color: white;
+            background-color: snow;
         }
 
         &-title {
@@ -281,7 +347,7 @@
         &-price {
             @include ellipsis;
             font-size: get-font-size(secondary, medium);
-            color: map-get($black, neutral);
+            color: map-get($black, light);
             font-weight: 500;
         }
 
@@ -289,8 +355,8 @@
             @include has-shadow;
             @include base-button;
             @include small-button;
-            background-color: #D8510E;
-            color: white;
+            background-color: $red;
+            color: snow;
             font-size: get-font-size(secondary, medium);
             font-weight: 700;
             position: absolute;
@@ -299,23 +365,35 @@
             user-select: none;
         }
     }
+}
 
-    &__main {
-        gap: $space-large;
+.account {
+    @include flex-row(0, 0);
+    flex: 1;
 
+    &__auth {
+        @include flex-column($space-large, $space-large);
+        background-color: snow;
+        border: 1px solid map-get($light, dark);
+        flex: 1;
+        max-width: 40rem;
+        margin: 0 auto;
 
-            max-width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        .form__body {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    }
 
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: 500;
+        color: map-get($black, dark);
     }
 }
 
-
 [data-role="select"] {
-    @include flex-column(0, 0);
-
     &[data-state="open"] {
         [data-role="option-list"] {
             visibility: visible;
@@ -345,5 +423,94 @@
     [data-role="option"] {
         @include base-button;
         @include input-replacement;
+    }
+}
+
+.form {
+    @include flex-column(0, $space-large);
+
+    &__body {
+        @include flex-column(0, $space-large);
+        padding-top: $space-large;
+    }
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        justify-content: center;
+    }
+
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: 700;
+        color: map-get($black, dark);
+    }
+
+    &__field {
+        @include flex-column(0, $space-small);
+    }
+
+    &__error {
+        font-size: get-font-size(secondary, medium);
+        font-weight: 500;
+        color: $red;
+
+        &::before {
+            content: '•';
+            margin-right: $space-small;
+        }
+    }
+
+    &__label {
+        font-size: get-font-size(secondary, medium);
+        font-weight: 500;
+        color: map-get($black, dark);
+    }
+
+    &__char-input {
+        @include medium-button;
+        @include ellipsis;
+        width: 100%;
+        box-sizing: border-box;
+        padding: $space-medium-large;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+    }
+
+    &__pill-select-widget {
+        @include flex-row(0, $space-large);
+        justify-content: space-around;
+        flex-wrap: wrap;
+
+        [data-role="option"] {
+            @include base-button;
+            @include medium-button;
+            @include input-replacement;
+            gap: $space-large;
+            padding: $space-large;
+            border: 1px solid map-get($light, dark);
+            color: map-get($black, dark);
+            font-weight: 500;
+            
+            &:has(:checked) .icon {
+                border: 1px solid map-get($black, light);
+                background-color: map-get($black, light);
+            }
+        }
+
+        .icon {
+            @include default-color-transition;
+            border: 2px solid map-get($light, dark);
+            border-radius: 9999px;
+        }
+    }
+
+    &__submit {
+        @include base-button;
+        @include large-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+        margin-left: auto;
+        width: fit-content;
+        font-weight: 400;
+
     }
 }

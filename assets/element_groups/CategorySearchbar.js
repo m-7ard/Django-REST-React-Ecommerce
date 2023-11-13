@@ -1,42 +1,29 @@
+import React from 'react';
 import Select from '../elements/Select';
-import React, {useState, useEffect, useContext} from 'react';
-import { useLoaderData } from "react-router-dom";
 
-export default function CategorySearchbar() {
-    const { baseCategoryData } = useLoaderData();
-    const baseCategory = {
-        value: baseCategoryData.pk,
-        label: baseCategoryData.name
-    };
-    const categories = [baseCategory, ...baseCategoryData.subcategories.map((category) => {
-        return {
-            value: category.pk,
-            label: category.name
-        }
-    })];
-
+export default function CategorySearchbar({baseCategory, categories}) {
     return (
-        <React.Fragment>
-            
+        <div className='app__header-search-bar'>
             <Select
                 name={'category'}
                 initial={baseCategory}
                 options={categories}
-                selectClassName={'app__header-select'}
+                selectClassName={'app__header-category-select'}
             />
-            <div className="app__header-searchbar">
-                <div data-role="input">
-                    <input type="text"/>
+            <div className='app__header-search-widget'>
+                <div className="app__header-search-field">
+                    <div data-role="input">
+                        <input type="text"/>
+                    </div>
+                </div>
+                <div className="app__header-search-button">
+                    <div className="icon icon--small">
+                        <i className="material-icons">
+                            search
+                        </i>
+                    </div>
                 </div>
             </div>
-            <div className="app__functional-button app__functional-button--blue">
-                <div className="icon icon--small">
-                    <i className="material-icons">
-                        search
-                    </i>
-                </div>
-                Search
-            </div>
-        </React.Fragment>
+        </div>
     );
 };

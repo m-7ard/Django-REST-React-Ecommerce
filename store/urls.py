@@ -4,8 +4,21 @@ from rest_framework import routers
 from . import views
 
 
+"""
+from django.urls import get_resolver 
+patterns = get_resolver().url_patterns
+for pattern in patterns:
+    try:
+        for p in pattern.url_patterns:
+        
+            print(p)
+    except:
+        print(pattern)
+
+Use this to list all urls and resolvers
+"""
+
 urlpatterns = [
-    path('', views.FrontpageView.as_view(), name='frontpage'),
 ]
 
 router = routers.DefaultRouter()

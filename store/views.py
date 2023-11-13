@@ -1,27 +1,23 @@
-from typing import Any
-from django.views.generic import TemplateView, DetailView, CreateView, UpdateView, FormView, DeleteView, View, ListView
+from django.views.generic import TemplateView
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework import status
 
 from .models import Category
 from .serializers import CategorySerializer
 
-class FrontpageView(TemplateView):
-    template_name = 'store/frontpage.html'
 
-    def get_context_data(self, **kwargs: Any):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = [{
-            'pk': category.pk,
-            'name': category.name,
-            'parent': getattr(category.parent, 'pk', None)
-        } for category in Category.objects.all()]
-        
-        return context
+class IndexView(TemplateView):
+    template_name = 'store/frontpage.html'
     
+
 class CategoryViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
     def perform_create(self, serializer):
-        # ensure current user is correctly populated on new objects
         serializer.save(user=self.request.user)
+

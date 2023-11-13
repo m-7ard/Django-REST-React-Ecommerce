@@ -28,6 +28,10 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    ACCOUNT_TYPES = (
+        ('individual', 'Individual Account'),
+        ('business', 'Business Account'),
+    )
     objects = CustomUserManager()
 
     email = models.EmailField("email", unique=True)
@@ -36,6 +40,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_banned = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
     display_name = models.CharField(max_length=50)
+    account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
+
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]

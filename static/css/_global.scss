@@ -146,8 +146,9 @@
 
 @mixin large-button {
     @include default-color-transition;
-    @include flex-row($space-medium $space-large, $space-medium);
-    font-size: get-font-size(primary, large);
+    @include flex-row($space-medium-large $space-large, $space-large);
+    font-size: get-font-size(primary, medium);
+    border-radius: $radius-medium;
 }
 
 $font-sizes: (
@@ -241,6 +242,7 @@ $metal_theme: (
 
 $space-small: 0.25rem;
 $space-medium: 0.35rem;
+$space-medium-large: 0.5rem;
 $space-large: 0.75rem;
 
 $radius-small: 2px;
@@ -248,4 +250,6 @@ $radius-medium: 4px;
 $radius-large: 9999px;
 
 
-$orange: #d8b60e;
+$orange: #E1C125;
+
+$red: #D8510E;

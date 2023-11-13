@@ -1,0 +1,34 @@
+import React from "react";
+import Ad from "./Ad";
+
+export default function Gallery({title}) {
+
+
+    return (
+        <div className='frontpage__gallery'>
+            <div className='frontpage__gallery-header'>
+                <div className='frontpage__gallery-title'>
+                    {title}
+                </div> 
+                <div className='frontpage__gallery-control'>
+                    <div className='icon icon--small'>
+                        <i className="material-icons">
+                            chevron_left
+                        </i>
+                    </div>
+                </div>
+                <div className='frontpage__gallery-control'>
+                    <div className='icon icon--small'>
+                        <i className="material-icons">
+                            chevron_right
+                        </i>
+                    </div>
+                </div>
+            </div>
+            <hr className='frontpage__gallery-divider'/> 
+            <div className='frontpage__gallery-content'>
+                <Ad featured={true} />
+            </div>
+        </div>
+    )
+}
