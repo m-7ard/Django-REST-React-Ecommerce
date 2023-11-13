@@ -1,23 +1,8 @@
-import React, { useContext, useEffect } from "react";
-import { createSearchParams, useNavigate } from "react-router-dom";
-import { UserContext } from "../App";
+import React from "react";
+import { useLoginRequired } from "../Utils";
 
 export default function Account() {
-    const navigate = useNavigate();
-
-    const { user, setUser } = useContext(UserContext);
-
-    useEffect(() => { 
-        if (!user) {
-            navigate({
-                pathname: "/login/",
-                search: createSearchParams({
-                    next: "/account/"
-                }).toString();
-            });
-        }
-    }, [])
-
+    useLoginRequired();
 
     return (
         <div className="account">
