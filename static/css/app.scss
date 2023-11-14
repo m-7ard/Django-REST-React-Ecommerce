@@ -28,18 +28,32 @@
         font-weight: 500;
     }
 
+    &__post-ad {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+        
+        @media only screen and (max-width: 500px) {
+            padding: $space-medium;
+
+            [data-role="text"] {
+                display: none;
+            }
+        }
+    }
+
     &__header-section {
         @include flex-row($space-medium $space-large, $space-large);
         align-items: center;
 
         &--top {
-            background-color: snow;
+            background-color: #ffffff;
             justify-content: flex-end;;
         }
 
         &--bottom {
             border-bottom: 1px solid map-get($light, dark);
-            background-color: snow;
+            background-color: #ffffff;
         }
 
         &--main {
@@ -159,6 +173,21 @@
     &__body {
         @include flex-row($space-large, $space-large);
         flex-grow: 1;
+        background-color: #ffffff;
+    }
+
+    &__auth-wrapper {
+        @include flex-column(0, $space-large);
+        flex-grow: 1;
+    }
+
+    &__link {
+        font-size: get-font-size(secondary, small);
+        color: blue;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 
@@ -199,7 +228,7 @@
 
     &__gallery {
         @include flex-column($space-large, $space-large);
-        background-color: snow;
+        background-color: #ffffff;
         border: 1px solid map-get($light, dark);
         width: 100%;
         box-sizing: border-box;
@@ -247,7 +276,7 @@
 
         &-box {
             @include flex-column($space-large, $space-large);
-            background-color: snow;
+            background-color: #ffffff;
             border: 1px solid map-get($light, dark); 
             flex: 1 0 0;
             overflow: hidden;
@@ -268,7 +297,7 @@
         }
 
         &-image {
-            background-color: snow;
+            background-color: #ffffff;
             aspect-ratio: 1 / 1;
             grid-row: 1 / -1;
             border: 1px solid map-get($light, dark); 
@@ -278,11 +307,6 @@
             font-size: get-font-size(primary, small);
             font-weight: 700;
             color: map-get($black, dark);
-        }
-
-        &-link {
-            font-size: get-font-size(secondary, small);
-            color: blue;
         }
 
         &-label {
@@ -334,7 +358,7 @@
             width: 100%;
             aspect-ratio: 1 / 1;
             border: 1px solid map-get($light, dark);
-            background-color: snow;
+            background-color: #ffffff;
         }
 
         &-title {
@@ -356,7 +380,7 @@
             @include base-button;
             @include small-button;
             background-color: $red;
-            color: snow;
+            color: #ffffff;
             font-size: get-font-size(secondary, medium);
             font-weight: 700;
             position: absolute;
@@ -364,34 +388,13 @@
             right: $space-small;
             user-select: none;
         }
+
+        
     }
 }
 
-.account {
-    @include flex-row(0, 0);
-    flex: 1;
+ 
 
-    &__auth {
-        @include flex-column($space-large, $space-large);
-        background-color: snow;
-        border: 1px solid map-get($light, dark);
-        flex: 1;
-        max-width: 40rem;
-        margin: 0 auto;
-
-        .form__body {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-    }
-
-    &__title {
-        font-size: get-font-size(primary, large);
-        font-weight: 500;
-        color: map-get($black, dark);
-    }
-}
 
 [data-role="select"] {
     &[data-state="open"] {
@@ -427,20 +430,33 @@
 }
 
 .form {
-    @include flex-column(0, $space-large);
+    @include flex-column($space-large, $space-large);
+    flex: 1;
+    border: 1px solid map-get($light, dark);
+    max-width: 49rem;
+    margin: 0 auto;
+    height: fit-content;
 
     &__body {
-        @include flex-column(0, $space-large);
-        padding-top: $space-large;
+        @include flex-column($space-large, $space-large);
     }
 
     &__header {
         @include flex-row($space-large, $space-large);
-        justify-content: center;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    &__footer {
+        @include flex-row($space-large, $space-large);
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     &__title {
-        font-size: get-font-size(primary, large);
+        font-size: get-font-size(special, small);
         font-weight: 700;
         color: map-get($black, dark);
     }
@@ -475,10 +491,19 @@
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
     }
+    
+    &__char-textarea {
+        @include medium-button;
+        @include ellipsis;
+        width: 100%;
+        box-sizing: border-box;
+        padding: $space-medium-large;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+    }
 
     &__pill-select-widget {
         @include flex-row(0, $space-large);
-        justify-content: space-around;
         flex-wrap: wrap;
 
         [data-role="option"] {
@@ -506,11 +531,22 @@
 
     &__submit {
         @include base-button;
-        @include large-button;
-        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+        @include medium-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        font-weight: 500;
+        padding: $space-medium-large;
+        width: 33%;
+        justify-content: center;
         margin-left: auto;
-        width: fit-content;
-        font-weight: 400;
 
+        @media only screen and (max-width: 500px) {
+            width: 100%;
+        }
+    }
+
+    &__reset {
+        font-weight: 400;
+        font-size: get-font-size(secondary, medium);
+        color: map-get($black, light);
     }
 }

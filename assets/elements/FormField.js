@@ -1,4 +1,4 @@
-import React, { Fragment } from "react"
+import React from "react"
 
 
 export default function FormField({ widget, name, label, errors }) {
@@ -9,7 +9,7 @@ export default function FormField({ widget, name, label, errors }) {
             <div className="form__label">
                 {label}
             </div>  
-            {widget.class(widget.props)}
+            <widget.component {...widget.props} />
             {errors[name] && (
                 errors[name].map((message) => {  
                     return (

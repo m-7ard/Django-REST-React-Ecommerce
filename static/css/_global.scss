@@ -34,7 +34,7 @@
 }
 
 @mixin has-shadow {
-    box-shadow:0 2px 6px 0 rgba(0,0,0,.5);
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,.5);
     //box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
 }
 
@@ -180,36 +180,6 @@ $black: (
     light: #423D36
 );
 
-$brown_theme: (
-    active: (
-        fg: map-get($light, light),
-        bg: #4E4335,
-    ),
-    neutral: (
-        fg: map-get($light, light),
-        bg: #5E503F,
-    ),
-    inactive: (
-        fg: map-get($light, light),
-        bg: #6C5C49,
-    ),
-);
-
-$taupe_theme: (
-    active: (
-        fg: map-get($light, light),
-        bg: #9D846C,
-    ),
-    neutral: (
-        fg: map-get($light, light),
-        bg: #A9927D,
-    ),
-    inactive: (
-        fg: map-get($light, light),
-        bg: #BEAD9D,
-    ),
-);
-
 $gunmetal_theme: (
     active: (
         bg: #1C2B31,
@@ -225,18 +195,21 @@ $gunmetal_theme: (
     ),
 );
 
-$metal_theme: (
+$orange: #D8B60E;
+$red: #D8510E;
+
+$yellow_theme: (
     active: (
-        fg: map-get($light, light),
-        bg: #162227,
+        fg: map-get($black, dark),
+        bg: #F1CF28,
     ),
     neutral: (
-        fg: map-get($light, light),
-        bg: #22333B,
+        fg: map-get($black, dark),
+        bg: #AFF128,
     ),
     inactive: (
-        fg: map-get($light, light),
-        bg: #344E5B,
+        fg: map-get($black, dark),
+        bg: #F16A28,
     ),
 );
 
@@ -250,6 +223,3 @@ $radius-medium: 4px;
 $radius-large: 9999px;
 
 
-$orange: #E1C125;
-
-$red: #D8510E;

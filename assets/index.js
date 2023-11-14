@@ -8,11 +8,12 @@ import {
 import React from 'react';
 import ReactDOM from "react-dom/client";
 
-import App, { loader as appLoader } from "./App";  
+import App from "./App";  
 import Frontpage from "./blocks/Frontpage";
 import Register from './blocks/Register';
 import Account from './blocks/Account';
 import Login from './blocks/Login';
+import PostAd from "./blocks/PostAd";
 
 
 window.addEventListener('load', () => {
@@ -22,7 +23,6 @@ window.addEventListener('load', () => {
             <Route
                 path='/'
                 element={<App />}
-                loader={appLoader}
             >
                 <Route index element={<Frontpage />} />
                 <Route 
@@ -40,7 +40,12 @@ window.addEventListener('load', () => {
                 <Route 
                     path='account/'
                     element={<Account />}
-                    loader={appLoader}
+                >
+                    
+                </Route>   
+                <Route 
+                    path='post-ad/'
+                    element={<PostAd />}
                 >
                     
                 </Route>   

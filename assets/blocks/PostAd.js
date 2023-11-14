@@ -1,20 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import React, { useState } from "react";
+
+import { useLoginRequired } from "../Utils";
 import FormField from "../elements/FormField";
 import CharInput from "../widgets/CharInput";
-import { UserContext } from "../App";
+import CharTextArea from "../widgets/CharTextarea";
 
-export default function Login() {
-    const navigate = useNavigate();
-    const { user, setUser } = useContext(UserContext);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const next = searchParams.get('next');
-
-    useEffect(() => {
-        if (user.is_authenticated) {
-            navigate('/');
-        }
-    })
+export default function PostAd() {
+    useLoginRequired();
+    const [errors, setErrors] = useState([]);
 
     const handleForm = async (event) => {
         event.preventDefault();
@@ -23,24 +16,14 @@ export default function Login() {
             method: form.method,
             body: new FormData(form),
         });
-        if (response.ok) {
-            const requestUser = await response.json();
-            setUser({...requestUser, is_authenticated: true});
-            navigate(next || '/');
-        }
-        else {
-            const data = await response.json();
-            setErrors(data);
-        }
+
     }
 
-    const [errors, setErrors] = useState([]);
-
     return (
-        <form className="form" method="POST" action="/api/login/" onSubmit={handleForm}>
+        <form className="form" method="POST" action="/api/ad/" onSubmit={handleForm}>
             <div className="form__header">
                 <div className="form__title">
-                    Login Into Existing Account
+                    Create New Ad
                 </div> 
             </div>
             <hr className="app__divider" />
@@ -60,8 +43,8 @@ export default function Login() {
 
                 )}
                 <FormField 
-                    name={'email'} 
-                    label={'Email'} 
+                    name={'title'} 
+                    label={'Title'} 
                     errors={errors}
                     widget={{
                         component: CharInput,
@@ -71,26 +54,32 @@ export default function Login() {
                     }}
                 />
                 <FormField 
-                    name={'password'} 
-                    label={'Password'} 
+                    name={'price'} 
+                    label={'Price'} 
                     errors={errors}
                     widget={{
                         component: CharInput,
                         props: {
-                            type: 'password',
+                            inputmode: 'numeric',
+                        }
+                    }}
+                />
+                <FormField 
+                    name={'description'} 
+                    label={'Description'} 
+                    errors={errors}
+                    widget={{
+                        component: CharTextArea,
+                        props: {
+                            maxlength: 256,
                         }
                     }}
                 />
             </div>
             <hr className="app__divider" />
             <div className="form__footer">
-                <Link to={'/register/'}>
-                    <div className="app__link">
-                        Don't have an account?
-                    </div>
-                </Link>
                 <button type="submit" className="form__submit">
-                    Login
+                    Post Ad
                 </button>
             </div>
         </form>

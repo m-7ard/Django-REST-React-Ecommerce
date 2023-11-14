@@ -1,56 +1,63 @@
 import React, { createContext, useEffect, useState } from 'react';
 import AppHeader from './blocks/AppHeader';
-import { Outlet, useNavigate } from "react-router-dom";
-
-
-async function getBaseCategoryData() {
-    const request = await fetch(URLS.BASE_CATEGORY);
-    const baseCategoryData = await request.json();
-    return baseCategoryData;
-}
-
-
-export async function loader() {
-    const baseCategoryData = await getBaseCategoryData();
-
-    return { 
-        baseCategoryData: baseCategoryData, 
-    };
-}
+import { Outlet, useLocation } from "react-router-dom";
 
 
 export const UserContext = createContext(null);
-export const NextPageContext = createContext('/');
+export const CategoryContext = createContext(null);
 
 
 export default function App() {
+    const location = useLocation();
     const [user, setUser] = useState(null);
+    const [categoryData, setCategoryData] = useState(null);
 
     useEffect(() => {
-        async function getRequestUser() {
+        async function getBaseCategory() {
+            const response = await fetch("/api/categories/");
+            const data = await response.json();
+            
+            for (let category of data) {
+                if (!category.parent) {
+                    setCategoryData({
+                        baseCategory: category,
+                        allCategories: data,
+                    })
+                    break
+                }
+            };
+        };
+
+        getBaseCategory();
+    }, []);
+
+    useEffect(() => {
+        async function setRequestUser() {
             const response = await fetch('/api/user/');
-            const requestUser = await response.json();
             if (response.ok) {
-                setUser(requestUser);
+                const requestUser = await response.json();
+                setUser({...requestUser, is_authenticated: true});
             }
             else {
-                setUser(null);
+                setUser({is_authenticated: false});
             }
         }
 
-        getRequestUser();
-    }, []);
-    
-    return (
+        setRequestUser();
+    }, [location]);
+
+
+    return (user && categoryData) && (
         <div className="app">
-            <NextPageContext.Provider>
+            <CategoryContext.Provider value={categoryData}>
                 <UserContext.Provider value={{ user: user, setUser: setUser }}>
                     <AppHeader />
                     <div className="app__body">
                         <Outlet />
                     </div>
                 </UserContext.Provider>
-            </NextPageContext.Provider>
+            </CategoryContext.Provider>
+                
         </div>
     );
 };

@@ -10,3 +10,10 @@ class Category(models.Model):
             return f'{self.parent.__str__()} > {self.name}'
         else:
             return self.name
+        
+
+"""
+
+TODO: make ad model
+
+"""

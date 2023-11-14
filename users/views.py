@@ -50,4 +50,4 @@ class CurrentUser(APIView):
             data = serializers.UserSerializer(user).data
             return Response(data, status=status.HTTP_200_OK)
         
-        return Response(None, status=status.HTTP_200_OK)
+        return Response(None, status=status.HTTP_404_NOT_FOUND)

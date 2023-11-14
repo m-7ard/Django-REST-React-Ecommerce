@@ -8,7 +8,7 @@ export function useLoginRequired() {
     const navigate = useNavigate();
     
     useEffect(() => { 
-        if (!user) {
+        if (!user.is_authenticated) {
             navigate({
                 pathname: "/login/",
                 search: createSearchParams({
