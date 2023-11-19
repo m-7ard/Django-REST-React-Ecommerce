@@ -55,18 +55,29 @@ export function normalizeData({data, valueKey, labelKey, parentKey}) {
 }
 
 export function normalizedDataHelpers(data) {
-    return {
-        getRoute: function getRoute(value) {
-            const parent = data.find(choice => choice.value == value).parent;
-            if (parent) {
-                return [...getRoute(parent), value];
-            }
-            else {
-                return [value];
-            };
-        },
-        getSubChoices: function getSubChoices(value) {
-            return data.filter((choice) => choice.parent == value);
-        },
+    function getRoute(value) {
+        const parent = getChoice(value).parent;
+        return parent ? [...getRoute(parent), value] : [value];
     }
+
+    function getSubChoices(value) {
+        return data.filter(choice => choice.parent === value);
+    }
+
+    function getChoice(value) {
+        return data.find(choice => choice.value === value);
+    }
+
+    function getRouteString(value) {
+        const choice = getChoice(value);
+        const parent = choice.parent;
+        return parent ? `${getRouteString(parent)} > ${choice.label}` : choice.label;
+    }
+
+    return {
+        getRoute,
+        getSubChoices,
+        getChoice,
+        getRouteString
+    };
 };

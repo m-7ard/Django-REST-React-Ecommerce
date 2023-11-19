@@ -1,30 +1,19 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
-import { CSRFToken, getCookie, normalizeData, useLoginRequired } from "../Utils";
+import { CSRFToken, useLoginRequired } from "../Utils";
 import FormField from "../elements/FormField";
 import CharInput from "../widgets/CharInput";
 import CharTextArea from "../widgets/CharTextarea";
-import Drawer from "../widgets/Drawer";
-import { CategoryContext } from "../App";
 import { useNavigate } from "react-router-dom";
-import newDrawer from "../widgets/newDrawer";
+import CategoryPicker from "../widgets/CategoryPicker";
+
 
 
 export default function PostAd() {
     useLoginRequired();
     const navigate = useNavigate();
     const [errors, setErrors] = useState([]);
-    const { allCategories, baseCategory } = useContext(CategoryContext);
 
-    const sanitizedCategories = normalizeData({
-        data: allCategories, 
-        valueKey: 'pk', 
-        labelKey: 'name', 
-        parentKey: 'parent'
-    })
-    const topLevelCategories = sanitizedCategories.filter(({parent}) => {
-        return parent === baseCategory.pk;
-    });
 
     const handleForm = async (event) => {
         event.preventDefault();
@@ -105,13 +94,8 @@ export default function PostAd() {
                     label={'Category'} 
                     errors={errors}
                     widget={{
-                        component: newDrawer,
-                        props: {
-                            className: 'form__drawer',
-                            name: 'test',
-                            normalizedData: sanitizedCategories,
-                            topLevelChoices: topLevelCategories
-                        }
+                        component: CategoryPicker,
+                        props: {},
                     }}
                 />
             </div>
