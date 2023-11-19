@@ -23,5 +23,6 @@ urlpatterns = [
 
 router = routers.DefaultRouter()
 router.register('api/categories', views.CategoryViewSet, basename='category')
+router.register('api/ads', views.AdViewSet, basename='ad')
 
 urlpatterns += router.urls

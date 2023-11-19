@@ -2,11 +2,11 @@ from django.views.generic import TemplateView
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework import status
 
-from .models import Category
-from .serializers import CategorySerializer
+from .models import Category, Ad
+from .serializers import CategorySerializer, AdModelSerializer
 
 
 class IndexView(TemplateView):
@@ -18,6 +18,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
+class AdViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = Ad.objects.all()
+    serializer_class = AdModelSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)

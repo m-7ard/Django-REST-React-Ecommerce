@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Category
+from .models import Category, Ad
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -8,17 +8,13 @@ class CategorySerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
     )
 
-    def to_representation(self, instance):
-        def get_subcategories(category):
-            subcategories = Category.objects.filter(parent=category)
-            if subcategories:
-                return CategorySerializer(subcategories, many=True).data
-            return []
-
-        data = super().to_representation(instance)
-        data['subcategories'] = get_subcategories(instance)
-        return data
-
     class Meta:
         model = Category
-        fields = ('pk', 'name', 'parent', 'subcategories')
+        fields = ['pk', 'name', 'parent']
+
+
+class AdModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = ['pk', 'title', 'description', 'price', 'category', 'created_by', 'date_created']
+        read_only_fields = ['pk', 'date_created']

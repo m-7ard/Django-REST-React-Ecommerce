@@ -92,11 +92,13 @@
     }
 };
 
-@mixin colors-from-theme($theme, $initial, $hover: null, $checked: null) {
-    $initial_colors: map-get($theme, $initial);
-    color: get-key-or-null($initial_colors, fg);
-    background-color: get-key-or-null($initial_colors, bg);
-    border-color: get-key-or-null($initial_colors, bc);
+@mixin colors-from-theme($theme, $initial: null, $hover: null, $checked: null) {
+    @if $initial {
+        $initial_colors: map-get($theme, $initial);
+        color: get-key-or-null($initial_colors, fg);
+        background-color: get-key-or-null($initial_colors, bg);
+        border-color: get-key-or-null($initial_colors, bc);
+    }
 
     @if $hover {
         $hover_colors: map-get($theme, $hover);

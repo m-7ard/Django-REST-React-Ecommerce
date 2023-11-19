@@ -549,4 +549,37 @@
         font-size: get-font-size(secondary, medium);
         color: map-get($black, light);
     }
+
+    &__drawer {
+        @include flex-column(0, 0);
+
+        & & {
+            padding-left: $space-large;
+        }
+
+        [data-role="branch"] {
+            &:has([data-role="branch"]) {
+                > [data-role="choice"] {
+                    @include colors-from-theme($yellow_theme, $initial: active);
+                }
+            }
+        }
+
+        [data-role="leaf"], [data-role="root"] {
+            @include input-replacement;
+            @include base-button;
+            @include small-button;
+            @include colors-from-theme($yellow_theme, $hover: neutral, $checked: active);
+            border-radius: 0px;
+            background-color: white;
+            font-weight: 500;
+            justify-content: space-between;
+            padding: 0 $space-medium-large;
+            height: 1.75rem;
+            outline: 1px solid map-get($light, dark);
+            box-sizing: border-box;
+            margin-top: 1px; 
+        }
+    }
 }
+

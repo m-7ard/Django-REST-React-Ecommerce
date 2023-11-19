@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
-import { useLoginRequired } from "../Utils";
+import { CSRFToken, getCookie, normalizeData, useLoginRequired } from "../Utils";
 import FormField from "../elements/FormField";
 import CharInput from "../widgets/CharInput";
 import CharTextArea from "../widgets/CharTextarea";
+import Drawer from "../widgets/Drawer";
+import { CategoryContext } from "../App";
+import { useNavigate } from "react-router-dom";
+import newDrawer from "../widgets/newDrawer";
+
 
 export default function PostAd() {
     useLoginRequired();
+    const navigate = useNavigate();
     const [errors, setErrors] = useState([]);
+    const { allCategories, baseCategory } = useContext(CategoryContext);
+
+    const sanitizedCategories = normalizeData({
+        data: allCategories, 
+        valueKey: 'pk', 
+        labelKey: 'name', 
+        parentKey: 'parent'
+    })
+    const topLevelCategories = sanitizedCategories.filter(({parent}) => {
+        return parent === baseCategory.pk;
+    });
 
     const handleForm = async (event) => {
         event.preventDefault();
@@ -16,11 +33,19 @@ export default function PostAd() {
             method: form.method,
             body: new FormData(form),
         });
-
+        if (response.ok) {
+            navigate('confirm/');
+        }
+        else {
+            const data = await response.json();
+            console.log(data)
+            setErrors(data);
+        }
     }
 
     return (
-        <form className="form" method="POST" action="/api/ad/" onSubmit={handleForm}>
+        <form className="form" method="POST" action="/api/ads/" onSubmit={handleForm}>
+            <CSRFToken/>
             <div className="form__header">
                 <div className="form__title">
                     Create New Ad
@@ -40,7 +65,6 @@ export default function PostAd() {
                             })
                         }
                     </div>
-
                 )}
                 <FormField 
                     name={'title'} 
@@ -50,6 +74,7 @@ export default function PostAd() {
                         component: CharInput,
                         props: {
                             type: 'text',
+                            maxLength: 64,
                         }
                     }}
                 />
@@ -60,7 +85,7 @@ export default function PostAd() {
                     widget={{
                         component: CharInput,
                         props: {
-                            inputmode: 'numeric',
+                            inputMode: 'numeric',
                         }
                     }}
                 />
@@ -71,7 +96,21 @@ export default function PostAd() {
                     widget={{
                         component: CharTextArea,
                         props: {
-                            maxlength: 256,
+                            maxLength: 4096,
+                        }
+                    }}
+                />
+                <FormField 
+                    name={'category'} 
+                    label={'Category'} 
+                    errors={errors}
+                    widget={{
+                        component: newDrawer,
+                        props: {
+                            className: 'form__drawer',
+                            name: 'test',
+                            normalizedData: sanitizedCategories,
+                            topLevelChoices: topLevelCategories
                         }
                     }}
                 />
