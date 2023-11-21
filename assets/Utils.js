@@ -54,7 +54,7 @@ export function normalizeData({data, valueKey, labelKey, parentKey}) {
     })
 }
 
-export function normalizedDataHelpers(data) {
+export function getNormalizedDataHelpers(data) {
     function getRoute(value) {
         const parent = getChoice(value).parent;
         return parent ? [...getRoute(parent), value] : [value];

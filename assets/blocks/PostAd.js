@@ -6,6 +6,7 @@ import CharInput from "../widgets/CharInput";
 import CharTextArea from "../widgets/CharTextarea";
 import { useNavigate } from "react-router-dom";
 import CategoryPicker from "../widgets/CategoryPicker";
+import AdImageInput from "../widgets/AdImageInput";
 
 
 
@@ -95,6 +96,15 @@ export default function PostAd() {
                     errors={errors}
                     widget={{
                         component: CategoryPicker,
+                        props: {},
+                    }}
+                />
+                <FormField 
+                    name={'images'} 
+                    label={'Images'} 
+                    errors={errors}
+                    widget={{
+                        component: AdImageInput,
                         props: {},
                     }}
                 />

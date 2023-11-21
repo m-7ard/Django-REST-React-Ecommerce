@@ -618,6 +618,25 @@
         font-weight: 400;
         color: map-get($black, dark);
     }
+
+    &__multi-image-input {
+        @include flex-row($space-medium-large, $space-large);
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+        border-radius: $space-medium;
+        
+        [data-role="image-button"] {
+            @include input-replacement;
+            display: flex;
+            justify-content: center;
+            padding: $space-large;
+            border: 1px solid map-get($light, dark);
+            color: get_theme_attr($gunmetal_theme, neutral, bg);
+            border-radius: $space-medium;
+            background-color: white;
+            width: 3rem;
+        }
+    }
 }
 
 
@@ -639,4 +658,46 @@
     flex: 1;
     height: 100%;
     overflow: auto;
+    border: 1px solid map-get($light, dark);
+    border-radius: $radius-medium;
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__title {
+        font-size: get-font-size(special, small);
+        font-weight: 700;
+        color: map-get($black, dark);
+    }
+
+    &__body {
+        @include flex-column($space-large, $space-large);
+        overflow: auto;
+        flex: 1;
+    }
+
+    &__footer {
+        @include flex-row($space-large, $space-large);
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    &__confirm {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        font-weight: 500;
+        padding: $space-medium-large;
+        width: fit-content;
+        margin-left: auto;
+
+        &--disabled {
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+    }
 }

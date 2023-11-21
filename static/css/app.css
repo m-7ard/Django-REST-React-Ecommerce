@@ -847,6 +847,37 @@
   font-weight: 400;
   color: #0A0908;
 }
+.form__multi-image-input {
+  display: flex;
+  padding: 0.5rem;
+  gap: 0.75rem;
+  border: 1px solid #D6DDD9;
+  background-color: #F2F4F3;
+  border-radius: 0.35rem;
+}
+.form__multi-image-input [data-role=image-button] {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem;
+  border: 1px solid #D6DDD9;
+  color: #22333B;
+  border-radius: 0.35rem;
+  background-color: white;
+  width: 3rem;
+}
+.form__multi-image-input [data-role=image-button] input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.form__multi-image-input [data-role=image-button] input::-webkit-file-upload-button {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
 
 .overlay {
   position: fixed;
@@ -868,4 +899,66 @@
   flex: 1;
   height: 100%;
   overflow: auto;
+  border: 1px solid #D6DDD9;
+  border-radius: 4px;
+}
+.prompt__header {
+  display: flex;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.prompt__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0A0908;
+}
+.prompt__body {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  overflow: auto;
+  flex: 1;
+}
+.prompt__footer {
+  display: flex;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.prompt__confirm {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  padding: 0.35rem 0.75rem;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  border-radius: 4px;
+  color: #0A0908;
+  background-color: #AFF128;
+  font-weight: 500;
+  padding: 0.5rem;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin-left: auto;
+}
+.prompt__confirm:hover {
+  color: #0A0908;
+  background-color: #F1CF28;
+}
+.prompt__confirm--disabled {
+  cursor: not-allowed;
+  filter: grayscale(100%);
 }/*# sourceMappingURL=app.css.map */
