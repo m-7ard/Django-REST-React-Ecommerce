@@ -1,13 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
+import { fileListToBase64, getCookie } from "../Utils";
 
 
 export default function AdImageInput({name}) {
-    function addImagesToUpload(event) {
-        const input = event.target;
-        console.log(input.files)
-        /* TODO: keep working on this, check old project attachment stuff
-         */
+    async function addImagesToUpload(event) {
+        const files = event.target.files;
+        const base64Files = await fileListToBase64(files);
+        const formData = new FormData()
+        Array.from(files).forEach((image) => {
+            formData.append('images', image);
+        })
+
+        await fetch('/validate_ad_images/', {
+            method: 'POST',
+            headers: { 
+                "X-CSRFToken": getCookie('csrftoken'),
+            },
+            body: formData
+        })
+        
+        setStagedImages([...stagedImages]);
     }
+
+    const [stagedImages, setStagedImages] = useState([]);
 
     return (
         <div className="form__multi-image-input">
@@ -19,9 +34,16 @@ export default function AdImageInput({name}) {
                 </div>
                 <input name={name} type="file" multiple />
             </div>
-            <div data-role="image-button">
-        
-            </div>
+            {stagedImages.map((url) => {
+                return (
+                    <div data-role="image-button">
+                        <div data-role="image-preview">
+                            <img src={url} />
+                        </div>
+                    </div>
+                )
+            })}
+
         </div>
     )
 }

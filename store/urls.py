@@ -19,6 +19,7 @@ Use this to list all urls and resolvers
 """
 
 urlpatterns = [
+    path('validate_ad_images/', views.AdImageFieldUploadView.as_view())
 ]
 
 router = routers.DefaultRouter()

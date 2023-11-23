@@ -81,3 +81,23 @@ export function getNormalizedDataHelpers(data) {
         getRouteString
     };
 };
+
+
+export async function fileListToBase64(fileList) {
+    function getBase64(file) {
+        const reader = new FileReader()
+        return new Promise(resolve => {
+            reader.onload = ev => {
+                resolve(ev.target.result)
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+    const promises = []
+  
+    for (let i = 0; i < fileList.length; i++) {
+      promises.push(getBase64(fileList[i]))
+    }
+  
+    return await Promise.all(promises)
+}

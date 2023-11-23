@@ -1,4 +1,6 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
+from django.core.files.storage import FileSystemStorage
+from Django_REST_ecommerce.settings import MEDIA_ROOT
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -26,3 +28,24 @@ class AdViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+class AdImageFieldUploadView(View):
+    def post(self, request, *args, **kwargs):
+        files = request.FILES.getlist('images')
+        response = {}
+        # 12582912 is a mb
+        for file in files:
+            errors = {}
+            if file.content_type not in ['image/png', 'image/jpg']:
+                errors['format'] = 'Wrong format image. Only PNG and JPG is allowed.'
+            if file.size > 12582912:
+                errors['format'] = 'Image too big. Only up to 12mb is allowed.'
+
+            if errors:
+                response[file.name] = errors
+            else:
+                """ TODO: continue this """
+                FileSystemStorage(MEDIA_ROOT)
+                response[file.name] =
+            

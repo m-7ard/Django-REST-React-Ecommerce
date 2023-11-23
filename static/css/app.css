@@ -866,6 +866,9 @@
   border-radius: 0.35rem;
   background-color: white;
   width: 3rem;
+  height: 2rem;
+  position: relative;
+  overflow: hidden;
 }
 .form__multi-image-input [data-role=image-button] input {
   position: absolute;
@@ -878,6 +881,17 @@
   inset: 0;
   cursor: pointer;
 }
+.form__multi-image-input [data-role=image-preview] {
+  position: absolute;
+  inset: 0;
+}
+.form__multi-image-input [data-role=image-preview] img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  overflow: clip;
+}
 
 .overlay {
   position: fixed;
@@ -886,6 +900,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .prompt {
