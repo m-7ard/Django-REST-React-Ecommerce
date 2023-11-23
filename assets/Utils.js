@@ -96,7 +96,7 @@ export async function fileListToBase64(fileList) {
     const promises = []
   
     for (let i = 0; i < fileList.length; i++) {
-      promises.push(getBase64(fileList[i]))
+        promises.push(getBase64(fileList[i]))
     }
   
     return await Promise.all(promises)

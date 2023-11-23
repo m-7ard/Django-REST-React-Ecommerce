@@ -153,6 +153,12 @@
     border-radius: $radius-medium;
 }
 
+@keyframes spin { 
+    100% { 
+        transform: rotate(360deg); 
+    } 
+}
+
 $font-sizes: (
     secondary: (
         small: 0.75rem,

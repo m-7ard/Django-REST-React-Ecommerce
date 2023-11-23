@@ -620,10 +620,13 @@
     }
 
     &__multi-image-input {
-        @include flex-row($space-medium-large, $space-large);
-        border: 1px solid map-get($light, dark);
-        background-color: map-get($light, light);
-        border-radius: $space-medium;
+        [data-role="widget"] {
+            @include flex-row($space-medium-large, $space-large);
+            border: 1px solid map-get($light, dark);
+            background-color: map-get($light, light);
+            border-radius: $space-medium;
+            flex-wrap: wrap;
+        }
         
         [data-role="image-button"] {
             @include input-replacement;
@@ -648,6 +651,15 @@
                 height: 100%;
                 object-fit: cover;
                 overflow: clip;
+            }
+        }
+
+        [data-role="uploading"] {
+            @include flex-row(0, $space-large);
+            align-items: center;
+
+            .icon {
+                animation: spin 4s linear infinite;
             }
         }
     }

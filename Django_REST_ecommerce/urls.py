@@ -11,5 +11,5 @@ urlpatterns = [
     path('', IndexView.as_view()),
     path('', include('store.urls')),
     path('', include('users.urls')),
-    re_path(r"^(?!api/).*", IndexView.as_view(), name='index'),
+    re_path(r"^(?!api/|media/).*", IndexView.as_view(), name='index'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

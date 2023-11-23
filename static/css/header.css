@@ -1,3 +1,8 @@
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 html {
   position: fixed;
   top: 0;

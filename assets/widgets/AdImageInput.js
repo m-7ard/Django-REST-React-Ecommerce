@@ -1,49 +1,87 @@
 import React, { useState } from "react";
-import { fileListToBase64, getCookie } from "../Utils";
+import { getCookie } from "../Utils";
 
 
 export default function AdImageInput({name}) {
     async function addImagesToUpload(event) {
-        const files = event.target.files;
-        const base64Files = await fileListToBase64(files);
-        const formData = new FormData()
-        Array.from(files).forEach((image) => {
-            formData.append('images', image);
-        })
+        setErrors([]);
 
-        await fetch('/validate_ad_images/', {
-            method: 'POST',
-            headers: { 
-                "X-CSRFToken": getCookie('csrftoken'),
-            },
-            body: formData
-        })
-        
-        setStagedImages([...stagedImages]);
+        const files = event.target.files;
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            const file = files[i];
+            setStagedImages((previous) => [...previous, file]);
+            formData.append('image', file);
+            const response = await fetch('/validate_image/', {
+                method: 'POST',
+                headers: { 
+                    "X-CSRFToken": getCookie('csrftoken'),
+                },
+                body: formData
+            });
+            if (response.ok) {
+                const imageData = await response.json();
+                setUploadedImages((previous) => [...previous, imageData]);
+            }
+            else {
+                const error = await response.json();
+                setErrors((previous) => [...previous, error]);
+            }
+            setStagedImages((previous) => previous.filter((image) => image !== file));
+        }
     }
 
     const [stagedImages, setStagedImages] = useState([]);
+    const [uploadedImages, setUploadedImages] = useState([]);
+    const [errors, setErrors] = useState([])
 
     return (
         <div className="form__multi-image-input">
-            <div data-role="image-button" onChange={addImagesToUpload}>
-                <div className="icon icon--large">
-                    <i className="material-icons">
-                        'add_photo_alternate'
-                    </i>
-                </div>
-                <input name={name} type="file" multiple />
-            </div>
-            {stagedImages.map((url) => {
-                return (
-                    <div data-role="image-button">
-                        <div data-role="image-preview">
-                            <img src={url} />
-                        </div>
+            <div data-role="widget">
+                <div data-role="image-button" onChange={addImagesToUpload}>
+                    <div className="icon icon--large">
+                        <i className="material-icons">
+                            'add_photo_alternate'
+                        </i>
                     </div>
-                )
-            })}
+                    <input type="file" multiple />
+                </div>
+                {uploadedImages.map((image) => {
+                    return (
+                        <div data-role="image-button">
+                            <div data-role="image-preview">
+                                <img src={image.url} />
+                            </div>
+                            <input name={name} value={image.name} type="hidden"/>
+                        </div>
+                    )
+                })}
 
+            </div>
+            <div data-role="messages">
+                {stagedImages.map(({name}) => {
+                    return (
+                        <div data-role="uploading">
+                            <div className="icon icon--small">
+                                <i className="material-icons">
+                                    'refresh'
+                                </i>
+                            </div>
+                            <div className="form__helper-text">
+                                Uploading: {name}
+                            </div>
+                        </div>
+                    )
+                })}
+                {errors.map(({name, msg}) => {
+                    return (
+                        <div className="form__error">
+                            {name}: {msg}
+                        </div>
+                    )
+                })}
+            </div>
         </div>
+
     )
 }

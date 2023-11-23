@@ -28,7 +28,6 @@ export default function PostAd() {
         }
         else {
             const data = await response.json();
-            console.log(data)
             setErrors(data);
         }
     }

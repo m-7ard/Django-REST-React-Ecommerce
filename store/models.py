@@ -22,3 +22,4 @@ class Ad(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, limit_choices_to=Q(subcategories=None))
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='ads', null=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    images = models.JSONField(default=list)
