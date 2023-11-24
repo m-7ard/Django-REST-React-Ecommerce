@@ -14,6 +14,10 @@ import Register from './blocks/Register';
 import Account from './blocks/Account';
 import Login from './blocks/Login';
 import PostAd from "./blocks/PostAd";
+import AdConfirmation from "./blocks/AdConfirmation";
+import AdDetails from "./blocks/AdDetails";
+import { loader as appLoader } from "./App";
+import { loader as adLoader } from "./blocks/AdDetails";
 
 
 window.addEventListener('load', () => {
@@ -23,6 +27,7 @@ window.addEventListener('load', () => {
             <Route
                 path='/'
                 element={<App />}
+                loader={appLoader}
             >
                 <Route index element={<Frontpage />} />
                 <Route 
@@ -45,11 +50,19 @@ window.addEventListener('load', () => {
                 </Route>   
                 <Route 
                     path='post-ad/'
-                    element={<PostAd />}
                 >
-                    
+                    <Route index element={<PostAd />} />
+                    <Route 
+                        path='success/'
+                        element={<AdConfirmation />}
+                    >
+                    </Route>   
                 </Route>   
-
+                <Route 
+                    path='ad/:pk/'
+                >
+                    <Route index element={<AdDetails />} loader={adLoader} />
+                </Route>
             </Route>
         )
     );

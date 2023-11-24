@@ -36,9 +36,8 @@ export default function Register() {
 
     const [errors, setErrors] = useState([]);
 
-
     return (
-        <form className="form" method="POST" action="/api/register/" onSubmit={handleForm}>
+        <form className="form pamphlet" method="POST" action="/api/register/" onSubmit={handleForm}>
             <div className="form__header">
                 <div className="form__title">
                     Register New Account

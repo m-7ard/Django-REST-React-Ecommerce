@@ -24,7 +24,8 @@ export default function PostAd() {
             body: new FormData(form),
         });
         if (response.ok) {
-            navigate('confirm/');
+            const ad = await response.json();
+            navigate('success/', {state: ad});
         }
         else {
             const data = await response.json();
@@ -33,7 +34,7 @@ export default function PostAd() {
     }
 
     return (
-        <form className="form" method="POST" action="/api/ads/" onSubmit={handleForm}>
+        <form className="form pamphlet" method="POST" action="/api/ads/" onSubmit={handleForm}>
             <CSRFToken/>
             <div className="form__header">
                 <div className="form__title">

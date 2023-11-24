@@ -4,6 +4,19 @@
     overflow: hidden;
 }
 
+.content-grid {
+    display: grid;
+    grid-template-columns: [full-width-start] 1fr [pamphlet-start] minmax(0, 49rem) [pamphlet-end] 1fr [full-width-end];
+
+    > :not(.pamphlet) {
+        grid-column: full-width;
+    }
+
+    > .pamphlet {
+        grid-column: pamphlet;
+    }
+}
+
 .app {
     @include flex-column(0, 0);
     @include absolute-boundary(0, 0, 0, 0);
@@ -171,7 +184,8 @@
     }
 
     &__body {
-        @include flex-row($space-large, $space-large);
+        padding: $space-large;
+        gap: $space-large;
         flex-grow: 1;
         background-color: #ffffff;
     }
@@ -187,6 +201,45 @@
 
         &:hover {
             text-decoration: underline;
+        }
+    }
+}
+
+.confirmation {
+    @include flex-column($space-large, $space-large);
+    align-items: center;
+
+    &__icon {
+		width: 10rem;
+		height: 10rem;
+		font-size: 10rem;
+        color: get_theme_attr($gunmetal_theme, neutral, bg);
+    }
+
+    &__title {
+        font-size: get-font-size(special, large);
+        font-weight: bold;
+        color: map-get($black, dark);
+        justify-content: center;
+        text-align: center;
+    }
+
+    &__section {
+        @include flex-row($space-large, $space-large);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    &__button {
+        @include base-button;
+        @include large-button;
+
+        &--ad {
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        }
+
+        &--new {
+            @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
         }
     }
 }
@@ -431,10 +484,7 @@
 
 .form {
     @include flex-column($space-large, $space-large);
-    flex: 1;
     border: 1px solid map-get($light, dark);
-    max-width: 49rem;
-    margin: 0 auto;
     height: fit-content;
 
     &__body {
@@ -726,5 +776,49 @@
             cursor: not-allowed;
             filter: grayscale(100%);
         }
+    }
+}
+
+
+.ad {
+    padding: $space-large;
+    gap: $space-large;
+    border: 1px solid map-get($light, dark);
+    height: fit-content;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+
+    &__header {
+        grid-column: 1 / -1;
+    }
+    
+    &__imagebox {
+        grid-column: 1 / 9;
+        display: grid;
+        grid-template-columns: subgrid;
+        gap: inherit;
+
+        [data-role="select-image"] {
+            background-color: map-get($light, light);
+            border: 1px solid map-get($light, dark);
+        }
+
+        [data-role="active-image"] {
+            background-color: map-get($light, light);
+            border: 1px solid map-get($light, dark);
+            grid-column: 2 / -1;
+            grid-row: 1 / -1;
+            height: 31.25rem;
+        }
+    }
+
+    &__main {
+        grid-column: 9 / -1;
+    }
+
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: bold;
+        color: map-get($black, dark);
     }
 }
