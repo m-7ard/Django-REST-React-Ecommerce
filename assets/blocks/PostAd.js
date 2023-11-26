@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 
-import { useLoginRequired } from "../Utils";
+import { CSRFToken, useLoginRequired } from "../Utils";
 import FormField from "../elements/FormField";
 import CharInput from "../widgets/CharInput";
 import CharTextArea from "../widgets/CharTextarea";
+import { useNavigate } from "react-router-dom";
+import CategoryPicker from "../widgets/CategoryPicker";
+import AdImageInput from "../widgets/AdImageInput";
+
+
 
 export default function PostAd() {
     useLoginRequired();
+    const navigate = useNavigate();
     const [errors, setErrors] = useState([]);
+
 
     const handleForm = async (event) => {
         event.preventDefault();
@@ -16,11 +23,19 @@ export default function PostAd() {
             method: form.method,
             body: new FormData(form),
         });
-
+        if (response.ok) {
+            const ad = await response.json();
+            navigate('success/', {state: ad});
+        }
+        else {
+            const data = await response.json();
+            setErrors(data);
+        }
     }
 
     return (
-        <form className="form" method="POST" action="/api/ad/" onSubmit={handleForm}>
+        <form className="form pamphlet" method="POST" action="/api/ads/" onSubmit={handleForm}>
+            <CSRFToken/>
             <div className="form__header">
                 <div className="form__title">
                     Create New Ad
@@ -40,7 +55,6 @@ export default function PostAd() {
                             })
                         }
                     </div>
-
                 )}
                 <FormField 
                     name={'title'} 
@@ -50,6 +64,7 @@ export default function PostAd() {
                         component: CharInput,
                         props: {
                             type: 'text',
+                            maxLength: 64,
                         }
                     }}
                 />
@@ -60,7 +75,7 @@ export default function PostAd() {
                     widget={{
                         component: CharInput,
                         props: {
-                            inputmode: 'numeric',
+                            inputMode: 'numeric',
                         }
                     }}
                 />
@@ -71,8 +86,26 @@ export default function PostAd() {
                     widget={{
                         component: CharTextArea,
                         props: {
-                            maxlength: 256,
+                            maxLength: 4096,
                         }
+                    }}
+                />
+                <FormField 
+                    name={'category'} 
+                    label={'Category'} 
+                    errors={errors}
+                    widget={{
+                        component: CategoryPicker,
+                        props: {},
+                    }}
+                />
+                <FormField 
+                    name={'images'} 
+                    label={'Images'} 
+                    errors={errors}
+                    widget={{
+                        component: AdImageInput,
+                        props: {},
                     }}
                 />
             </div>

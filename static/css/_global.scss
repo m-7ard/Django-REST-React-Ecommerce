@@ -92,11 +92,13 @@
     }
 };
 
-@mixin colors-from-theme($theme, $initial, $hover: null, $checked: null) {
-    $initial_colors: map-get($theme, $initial);
-    color: get-key-or-null($initial_colors, fg);
-    background-color: get-key-or-null($initial_colors, bg);
-    border-color: get-key-or-null($initial_colors, bc);
+@mixin colors-from-theme($theme, $initial: null, $hover: null, $checked: null) {
+    @if $initial {
+        $initial_colors: map-get($theme, $initial);
+        color: get-key-or-null($initial_colors, fg);
+        background-color: get-key-or-null($initial_colors, bg);
+        border-color: get-key-or-null($initial_colors, bc);
+    }
 
     @if $hover {
         $hover_colors: map-get($theme, $hover);
@@ -146,9 +148,15 @@
 
 @mixin large-button {
     @include default-color-transition;
-    @include flex-row($space-medium-large $space-large, $space-large);
+    @include flex-row($space-large, $space-large);
     font-size: get-font-size(primary, medium);
     border-radius: $radius-medium;
+}
+
+@keyframes spin { 
+    100% { 
+        transform: rotate(360deg); 
+    } 
 }
 
 $font-sizes: (
@@ -171,6 +179,7 @@ $font-sizes: (
 
 $light: (
     light: #F2F4F3,
+    neutral: #E4E9E6,
     dark: #D6DDD9,
 );
 
