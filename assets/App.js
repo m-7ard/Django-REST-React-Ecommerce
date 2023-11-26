@@ -45,7 +45,6 @@ export default function App() {
                     </div>
                 </UserContext.Provider>
             </CategoryContext.Provider>
-                
         </div>
     );
 };

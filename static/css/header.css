@@ -67,6 +67,10 @@ textarea {
   all: unset;
 }
 
+hr {
+  all: unset;
+}
+
 .icon {
   display: flex;
   align-items: center;
@@ -106,6 +110,29 @@ textarea {
   font-size: 2rem;
 }
 
-hr {
-  all: unset;
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+.avatar--small {
+  width: 2rem;
+  height: 2rem;
+}
+.avatar--medium {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.avatar--large {
+  width: 6rem;
+  height: 6rem;
+}
+.avatar img {
+  max-height: 100%;
+  max-width: 100%;
 }/*# sourceMappingURL=header.css.map */

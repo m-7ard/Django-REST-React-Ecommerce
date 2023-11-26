@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { getNormalizedDataHelpers } from "../Utils";
 
 
 export default function Drawer({ name, className, normalizedData, topLevelChoices, initialChoice, parentChoiceHandle }) {
-    const { getRoute, getSubChoices } = getNormalizedDataHelpers(normalizedData);
-    const [route, setRoute] = useState(initialChoice ? getRoute(initialChoice) : []);
+    const [route, setRoute] = useState(initialChoice ? normalizedData.getRoute(initialChoice) : []);
     const onChoiceSelect = (value) => {
-        setRoute(getRoute(value));
+        setRoute(normalizedData.getRoute(value));
         parentChoiceHandle && parentChoiceHandle(value);
     };
 
@@ -14,7 +12,7 @@ export default function Drawer({ name, className, normalizedData, topLevelChoice
         return (
             <ul data-role="choices">
                 {choices.map((choice) => {
-                    const subchoices = getSubChoices(choice.value);
+                    const subchoices = normalizedData.getSubChoices(choice.value);
                     if (subchoices.length) {
                         return (
                             <Branch choices={subchoices} root={choice} key={choice.value}/>

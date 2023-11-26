@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
 from .models import Category, Ad
+from users.serializers import UserSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -19,6 +20,7 @@ class AdModelSerializer(serializers.ModelSerializer):
     images = serializers.ListField(
         child=serializers.CharField()
     )
+    created_by = UserSerializer(required=False, allow_null=True)
 
     class Meta:
         model = Ad

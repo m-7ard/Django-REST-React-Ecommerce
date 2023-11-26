@@ -41,7 +41,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     display_name = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
-
+    avatar = models.ImageField(default='default.png')
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]

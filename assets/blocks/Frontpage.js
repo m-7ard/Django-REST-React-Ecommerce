@@ -3,6 +3,12 @@ import HighlightBox from '../elements/frontpage/HighlightBox';
 import Gallery from '../elements/frontpage/Gallery';
 import Ad from '../elements/frontpage/Ad';
 
+
+export async function loader() {
+    
+}
+
+
 export default function Frontpage() {
     return (
         <div className='frontpage'>

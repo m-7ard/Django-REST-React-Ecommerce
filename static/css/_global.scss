@@ -148,7 +148,7 @@
 
 @mixin large-button {
     @include default-color-transition;
-    @include flex-row($space-medium-large $space-large, $space-large);
+    @include flex-row($space-large, $space-large);
     font-size: get-font-size(primary, medium);
     border-radius: $radius-medium;
 }

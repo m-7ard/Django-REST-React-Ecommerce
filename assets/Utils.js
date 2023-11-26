@@ -101,3 +101,51 @@ export async function fileListToBase64(fileList) {
   
     return await Promise.all(promises)
 }
+
+
+export class NormalizedData {
+    constructor({data, valueKey, labelKey, parentKey}) {
+        this.data = this.normalizeData({data, valueKey, labelKey, parentKey});
+    }
+
+    normalizeData({data, valueKey, labelKey, parentKey}) {
+        return data.map((item) => {
+            return {
+                value: item[valueKey],
+                label: item[labelKey],
+                parent: item[parentKey],
+            };
+        });
+    }
+
+    getRoute(value) {
+        const parent = this.getChoice(value).parent;
+        return parent ? [...this.getRoute(parent), value] : [value];
+    }
+
+    getSubChoices(value) {
+        return this.data.filter(choice => choice.parent === value);
+    }
+
+    getChoice(value) {
+        return this.data.find(choice => choice.value === value);
+    }
+
+    getRouteString(value) {
+        const choice = this.getChoice(value);
+        const parent = choice.parent;
+        return parent ? `${this.getRouteString(parent)} > ${choice.label}` : choice.label;
+    }
+}
+
+
+export function addDotsToNumber(number) {
+    let numStr = number.toString();
+    let groups = [];
+    while (numStr.length > 0) {
+        groups.unshift(numStr.slice(-3));
+        numStr = numStr.slice(0, -3);
+    }
+
+    return groups.join('.');
+}

@@ -1,22 +1,19 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 
 import { CategoryContext } from "../App";
-import { normalizeData, getNormalizedDataHelpers } from "../Utils";
+import { normalizeData, getNormalizedDataHelpers, NormalizedData } from "../Utils";
 import Drawer from "./Drawer";
 
 export default function CategoryPicker({initial, name}) {
     const { allCategories, baseCategory } = useContext(CategoryContext);
-    const sanitizedCategories = normalizeData({
+    const NormalizedCategories = new NormalizedData({
         data: allCategories, 
         valueKey: 'pk', 
         labelKey: 'name', 
         parentKey: 'parent'
-    })
-    const topLevelCategories = sanitizedCategories.filter(({parent}) => {
-        return parent === baseCategory.pk;
     });
+    const topLevelCategories = NormalizedCategories.getSubChoices(baseCategory.pk);
     
-    const { getRouteString, getSubChoices } = new getNormalizedDataHelpers(sanitizedCategories);
     const [unconfirmedValue, setUnconfirmedValue] = useState(null);
     const [confirmedValue, setConfirmedValue] = useState(initial);
     const [open, setOpen] = useState(false);
@@ -48,10 +45,10 @@ export default function CategoryPicker({initial, name}) {
                             className={'form__drawer'} 
                             name={name} 
                             initialChoice={confirmedValue}
-                            normalizedData={sanitizedCategories} 
+                            normalizedData={NormalizedCategories} 
                             topLevelChoices={topLevelCategories} 
                             parentChoiceHandle={(value) => {
-                                const isLeaf = (getSubChoices(value).length === 0);
+                                const isLeaf = (NormalizedCategories.getSubChoices(value).length === 0);
                                 if (!isLeaf) {
                                     setUnconfirmedValue(null);
                                 }
@@ -86,7 +83,7 @@ export default function CategoryPicker({initial, name}) {
             <Fragment>
                 {confirmedValue && (
                     <div className="form__helper-text">
-                        Current Category: {getRouteString(confirmedValue)}
+                        Current Category: {NormalizedCategories.getRouteString(confirmedValue)}
                     </div>
                 )}
                 <div className="form__action" onClick={() => setOpen(true)}>
