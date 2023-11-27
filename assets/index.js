@@ -18,6 +18,7 @@ import AdConfirmation from "./blocks/AdConfirmation";
 import AdDetails from "./blocks/AdDetails";
 import { loader as appLoader } from "./App";
 import { loader as adLoader } from "./blocks/AdDetails";
+import { loader as frontpageLoader } from "./blocks/Frontpage";
 
 
 window.addEventListener('load', () => {
@@ -29,7 +30,7 @@ window.addEventListener('load', () => {
                 element={<App />}
                 loader={appLoader}
             >
-                <Route index element={<Frontpage />} />
+                <Route index element={<Frontpage />} loader={frontpageLoader} />
                 <Route 
                     path='register/'
                     element={<Register />}

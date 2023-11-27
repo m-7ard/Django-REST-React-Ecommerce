@@ -1,7 +1,7 @@
 import React from "react";
 import Ad from "./Ad";
 
-export default function Gallery({title}) {
+export default function Gallery({title, initial, isHighlight}) {
 
 
     return (
@@ -27,7 +27,14 @@ export default function Gallery({title}) {
             </div>
             <hr className='frontpage__gallery-divider'/> 
             <div className='frontpage__gallery-content'>
-                <Ad featured={true} />
+                {initial.map((data) => {
+                    return (
+                        <Ad 
+                            isHighlight={isHighlight} 
+                            data={data}
+                        />
+                    )
+                })}
             </div>
         </div>
     )

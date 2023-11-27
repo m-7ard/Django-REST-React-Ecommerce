@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.db.models.query import Q
 
@@ -13,7 +15,11 @@ class Category(models.Model):
             return f'{self.parent.__str__()} > {self.name}'
         else:
             return self.name
-        
+
+   
+def ad_default_expiry_date():
+    return datetime.now() + timedelta(days=30)
+
 
 class Ad(models.Model):
     title = models.CharField(max_length=64)
@@ -21,5 +27,14 @@ class Ad(models.Model):
     price = models.PositiveIntegerField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, limit_choices_to=Q(subcategories=None))
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='ads', null=True)
-    date_created = models.DateTimeField(auto_now_add=True)
     images = models.JSONField(default=list)
+    
+    date_created = models.DateTimeField(auto_now_add=True)
+    latest_push_date = models.DateTimeField(auto_now_add=True)
+    expiry_date = models.DateTimeField(default=ad_default_expiry_date)
+    highlight_expiry = models.DateTimeField(default=datetime.now)
+
+    def is_highlight(self):
+        return self.highlight_expiry > datetime.now()
+
+# class Order

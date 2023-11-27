@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { getAdData } from "../Fetchers";
 import { useLoaderData } from "react-router-dom";
 import { CategoryContext } from "../App";
-import { NormalizedData, addDotsToNumber, getNormalizedDataHelpers, normalizeData } from "../Utils";
+import { NormalizedData, addDotsToNumber } from "../Utils";
 
 
 export async function loader({params}) {
@@ -51,7 +51,6 @@ export default function AdDetails() {
                         {addDotsToNumber(ad.price)}$
                     </div>
                 </div>
-
                 <div className="ad__seller">
                     <div className="app__avatar">
                         <div className="avatar avatar--small">

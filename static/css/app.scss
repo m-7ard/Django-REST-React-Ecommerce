@@ -364,6 +364,13 @@
             aspect-ratio: 1 / 1;
             grid-row: 1 / -1;
             border: 1px solid map-get($light, dark); 
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                overflow: clip;
+            }
         }
 
         &-title {
@@ -398,30 +405,32 @@
 
     &__ad {
         @include flex-column($space-large $space-large $space-large $space-large, $space-large);
-        @include has-shadow;
         background-color: $orange;
         position: relative;
         flex-shrink: 0;
+        cursor: pointer;
 
         &--featured {
             width: 7rem;
         }
 
         &--normal {
-            @media only screen and (min-width: 500px) {
-                width: 5rem;
-            }
-
-            @media only screen and (min-width: 600px) {
-                width: 6rem;
-            }
+            width: 5rem;
+            /* TODO: simplify this stuff */
         }
 
         &-image {
             width: 100%;
-            aspect-ratio: 1 / 1;
             border: 1px solid map-get($light, dark);
             background-color: #ffffff;
+            aspect-ratio: 1 / 1;
+            overflow: clip;
+        
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
 
         &-title {
@@ -434,7 +443,7 @@
         &-price {
             @include ellipsis;
             font-size: get-font-size(secondary, medium);
-            color: map-get($black, light);
+            color: map-get($black, dark);
             font-weight: 500;
         }
 
@@ -931,9 +940,11 @@
         @include base-button;
         @include large-button;
         justify-content: center;
+        font-weight: 700;
 
         &--yellow {
             @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+            color: get_theme_attr($gunmetal_theme, neutral, bg);
         }
 
         &--black {

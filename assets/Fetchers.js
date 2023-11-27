@@ -18,3 +18,10 @@ export async function getAdData(pk) {
     const data = await response.json();
     return data;
 };
+
+
+export async function getFrontpageData() {
+    const response = await fetch('/frontpage_data/');
+    const data = await response.json();
+    return data;
+}

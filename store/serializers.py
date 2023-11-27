@@ -21,11 +21,29 @@ class AdModelSerializer(serializers.ModelSerializer):
         child=serializers.CharField()
     )
     created_by = UserSerializer(required=False, allow_null=True)
+    date_created = serializers.DateTimeField(format="%Y.%m.%d", required=False, read_only=True)
+    latest_push_date = serializers.DateTimeField(format="%Y.%m.%d %H:%M:%S", required=False, read_only=True)
+    highlight = serializers.SerializerMethodField()
 
     class Meta:
         model = Ad
-        fields = ['pk', 'title', 'description', 'price', 'category', 'created_by', 'date_created', 'images']
-        read_only_fields = ['pk', 'date_created']
+        fields = [
+            'pk', 
+            'title', 
+            'description',
+            'price', 
+            'category', 
+            'created_by', 
+            'images',
+            'date_created',
+            'latest_push_date',
+            'highlight'
+        ]
+        read_only_fields = [
+            'pk', 
+            'latest_push_date', 
+            'date_created'
+        ]
 
     def validate_images(self, value):
         file_name_list = value[:]
@@ -35,3 +53,6 @@ class AdModelSerializer(serializers.ModelSerializer):
                 file_name_list.remove(file_name)
         
         return file_name_list
+    
+    def get_highlight(self, obj):
+        return obj.is_highlight()
