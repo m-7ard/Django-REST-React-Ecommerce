@@ -27,14 +27,22 @@ export default function Gallery({title, initial, isHighlight}) {
             </div>
             <hr className='frontpage__gallery-divider'/> 
             <div className='frontpage__gallery-content'>
-                {initial.map((data) => {
-                    return (
-                        <Ad 
-                            isHighlight={isHighlight} 
-                            data={data}
-                        />
+                {
+                    initial.length && (
+                        initial.map((data) => {
+                            return (
+                                <Ad 
+                                    isHighlight={isHighlight} 
+                                    data={data}
+                                />
+                            )
+                        })
+                    ) || (
+                        <div className="frontpage__gallery-placeholder">
+                            'Nothing Here Yet'
+                        </div>
                     )
-                })}
+                }
             </div>
         </div>
     )

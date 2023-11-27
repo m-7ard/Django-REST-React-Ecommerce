@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 
 import { CategoryContext } from "../App";
-import { normalizeData, getNormalizedDataHelpers, NormalizedData } from "../Utils";
+import { NormalizedData } from "../Utils";
 import Drawer from "./Drawer";
 
 export default function CategoryPicker({initial, name}) {

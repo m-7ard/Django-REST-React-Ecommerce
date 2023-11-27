@@ -25,3 +25,17 @@ export async function getFrontpageData() {
     const data = await response.json();
     return data;
 }
+
+
+export async function getUserAds(pk) {
+    const response = await fetch(`/api/ads/list_user_ads/${pk}`);
+    const data = await response.json();
+    return data;
+}
+
+
+export async function getRequestUserAds(pk) {
+    const response = await fetch(`/api/ads/list_user_ads/`);
+    const data = await response.json();
+    return data;
+}

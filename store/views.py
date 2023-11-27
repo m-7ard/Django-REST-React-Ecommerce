@@ -5,6 +5,7 @@ from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
 from django.http.response import JsonResponse
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
@@ -12,7 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from Django_REST_ecommerce.settings import MEDIA_ROOT, MEDIA_URL
 from .models import Category, Ad
 from .serializers import CategorySerializer, AdModelSerializer
-
+from users.models import CustomUser
 
 class IndexView(TemplateView):
     template_name = 'store/frontpage.html'
@@ -31,6 +32,13 @@ class AdViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def list_user_ads(self, request, pk=None):
+        user = CustomUser.objects.get(pk=pk) if pk else request.user
+        user_ads = Ad.objects.filter(created_by=user)
+        serializer = AdModelSerializer(user_ads, many=True)
+        return Response(serializer.data)
 
 
 class AdImageFieldUploadView(View):

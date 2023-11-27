@@ -34,9 +34,9 @@ export default function Frontpage() {
                     </div>
                 </div>
                 <div className='frontpage__recent-ads'>
-                    {[1,2,3,4,5,6,7,1,2,3,4,5,6,7,1,2,3,4,5,6,7].map(() => {
+                    {recent_ads.map((data) => {
                         return (
-                            <Ad />
+                            <Ad isHighlight={false} data={data} />
                         )
                     })}  
                 </div>              

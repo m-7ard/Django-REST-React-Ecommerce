@@ -298,8 +298,14 @@
 
         &-title {
             font-size: get-font-size(primary, medium);
-            font-weight: bold;
+            font-weight: 700;
             color: map-get($black, dark);
+        }
+
+        &-placeholder {
+            font-size: get-font-size(primary, medium);
+            font-weight: 400;
+            color: map-get($light, dark);
         }
 
         &-divider {
@@ -416,7 +422,6 @@
 
         &--normal {
             width: 5rem;
-            /* TODO: simplify this stuff */
         }
 
         &-image {
@@ -967,6 +972,120 @@
     @media only screen and (max-width: 720px) {
         > * {
             grid-column: 1 / -1;
+        }
+    }
+}
+
+
+.prop {
+    &--horizontal {
+        @include flex-row($space-large, $space-large);
+    }
+
+    &--vertical {
+        @include flex-column($space-large, $space-large);
+    }
+
+    &__body {
+        @include flex-column(0, $space-large);
+    }
+
+    &__header {
+        @include flex-row(0, $space-large);
+    }
+
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: 700;
+        color: map-get($black, dark);
+    }
+
+    &__subtitle {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: map-get($black, light);
+    }
+
+    &__info {
+        font-size: get-font-size(primary, medium);
+        font-weight: 500;
+        color: map-get($black, dark);
+    }
+
+    &__detail {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: map-get($black, dark);
+    }
+
+    &__pairing {
+        @include flex-column(0, $space-small);
+    }
+
+    &__row {
+        @include flex-row(0, $space-large);
+
+        &.grow {
+            flex-grow: 1;
+        }
+    }
+
+    &__column {
+        @include flex-column(0, $space-large);
+
+        &.grow {
+            flex-grow: 1;
+        }
+    }
+}
+
+.account {
+    border: 1px solid map-get($light, dark);
+    
+    &__ad {
+        border: 1px solid map-get($light, dark);
+
+        &-main {
+            @include flex-row(0, $space-large);
+        }
+
+        &-image{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: map-get($light, light);
+            border: 1px solid map-get($light, dark);
+            min-width: 6rem;
+            aspect-ratio: 1 / 1;
+            
+            img {
+                max-width: 100%;
+                max-height: 100%;
+            }
+        }
+
+        &-button {
+            @include base-button;
+            @include small-button;
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);        
+            justify-content: center;
+            font-weight: 700;
+            color: get_theme_attr($gunmetal_theme, active, bg);
+        }
+
+        &-actions {
+            @include flex-row(0, $space-small $space-large);
+            flex-wrap: wrap;
+        }
+
+        @media only screen and (max-width: 400px) {
+           &-image {
+                width: 100%;
+           }
+
+           &-main {
+                @include flex-column(0, $space-large);
+           }
         }
     }
 }

@@ -23,6 +23,7 @@ class AdModelSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(required=False, allow_null=True)
     date_created = serializers.DateTimeField(format="%Y.%m.%d", required=False, read_only=True)
     latest_push_date = serializers.DateTimeField(format="%Y.%m.%d %H:%M:%S", required=False, read_only=True)
+    expiry_date = serializers.DateTimeField(format="%Y.%m.%d", required=False, read_only=True)
     highlight = serializers.SerializerMethodField()
 
     class Meta:
@@ -37,7 +38,8 @@ class AdModelSerializer(serializers.ModelSerializer):
             'images',
             'date_created',
             'latest_push_date',
-            'highlight'
+            'highlight',
+            'expiry_date',
         ]
         read_only_fields = [
             'pk', 

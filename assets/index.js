@@ -17,9 +17,9 @@ import PostAd from "./blocks/PostAd";
 import AdConfirmation from "./blocks/AdConfirmation";
 import AdDetails from "./blocks/AdDetails";
 import { loader as appLoader } from "./App";
-import { loader as adLoader } from "./blocks/AdDetails";
+import { loader as adDetailLoader } from "./blocks/AdDetails";
 import { loader as frontpageLoader } from "./blocks/Frontpage";
-
+import { loader as accountLoader } from "./blocks/Account";
 
 window.addEventListener('load', () => {
     const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -46,6 +46,7 @@ window.addEventListener('load', () => {
                 <Route 
                     path='account/'
                     element={<Account />}
+                    loader={accountLoader}
                 >
                     
                 </Route>   
@@ -62,7 +63,7 @@ window.addEventListener('load', () => {
                 <Route 
                     path='ad/:pk/'
                 >
-                    <Route index element={<AdDetails />} loader={adLoader} />
+                    <Route index element={<AdDetails />} loader={adDetailLoader} />
                 </Route>
             </Route>
         )
