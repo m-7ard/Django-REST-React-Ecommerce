@@ -72,8 +72,7 @@ class AdImageFieldUploadView(View):
     
         return JsonResponse(
             {
-                'name': stored_file_name,
-                'url': MEDIA_URL + stored_file_name,
+                'fileName': stored_file_name,
             },
             status=200
         )

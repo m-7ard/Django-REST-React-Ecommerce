@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { getCookie } from "../Utils";
 
 
-export default function AdImageInput({name}) {
+export default function AdImageInput({initial, name}) {
     async function addImagesToUpload(event) {
         setErrors([]);
 
@@ -20,8 +20,8 @@ export default function AdImageInput({name}) {
                 body: formData
             });
             if (response.ok) {
-                const imageData = await response.json();
-                setUploadedImages((previous) => [...previous, imageData]);
+                const { fileName } = await response.json();
+                setUploadedImages((previous) => [...previous, fileName]);
             }
             else {
                 const error = await response.json();
@@ -32,7 +32,7 @@ export default function AdImageInput({name}) {
     }
 
     const [stagedImages, setStagedImages] = useState([]);
-    const [uploadedImages, setUploadedImages] = useState([]);
+    const [uploadedImages, setUploadedImages] = useState(initial || []);
     const [errors, setErrors] = useState([])
 
     return (
@@ -46,13 +46,13 @@ export default function AdImageInput({name}) {
                     </div>
                     <input type="file" multiple />
                 </div>
-                {uploadedImages.map((image) => {
+                {uploadedImages.map((fileName) => {
                     return (
                         <div data-role="image-button">
                             <div data-role="image-preview">
-                                <img src={image.url} />
+                                <img src={`/media/${fileName}`} />
                             </div>
-                            <input name={name} value={image.name} type="hidden"/>
+                            <input name={name} value={fileName} type="hidden"/>
                         </div>
                     )
                 })}

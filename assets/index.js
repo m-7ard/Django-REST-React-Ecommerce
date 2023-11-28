@@ -14,12 +14,15 @@ import Register from './blocks/Register';
 import Account from './blocks/Account';
 import Login from './blocks/Login';
 import PostAd from "./blocks/PostAd";
-import AdConfirmation from "./blocks/AdConfirmation";
+import AdPostConfirmation from "./blocks/AdPostConfirmation";
 import AdDetails from "./blocks/AdDetails";
+import AdEdit from "./blocks/AdEdit";
+import AdEditConfirmation from "./blocks/AdEditConfirmation";
 import { loader as appLoader } from "./App";
 import { loader as adDetailLoader } from "./blocks/AdDetails";
 import { loader as frontpageLoader } from "./blocks/Frontpage";
 import { loader as accountLoader } from "./blocks/Account";
+
 
 window.addEventListener('load', () => {
     const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -56,7 +59,7 @@ window.addEventListener('load', () => {
                     <Route index element={<PostAd />} />
                     <Route 
                         path='success/'
-                        element={<AdConfirmation />}
+                        element={<AdPostConfirmation />}
                     >
                     </Route>   
                 </Route>   
@@ -64,6 +67,19 @@ window.addEventListener('load', () => {
                     path='ad/:pk/'
                 >
                     <Route index element={<AdDetails />} loader={adDetailLoader} />
+                    <Route
+                        path="edit/"
+                        element={<AdEdit />}
+                        loader={adDetailLoader}
+                    >
+
+                    </Route>
+                    <Route
+                        path="edit/success/"
+                        element={<AdEditConfirmation />}
+                    >
+
+                    </Route>
                 </Route>
             </Route>
         )

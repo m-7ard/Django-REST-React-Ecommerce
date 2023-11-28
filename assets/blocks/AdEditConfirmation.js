@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 
-export default function AdConfirmation() {
+export default function AdEditConfirmation() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
@@ -11,8 +11,8 @@ export default function AdConfirmation() {
             navigate({
                 pathname: "/",
             });
-        }
-    }, [])
+        };
+    }, []);
 
 
     return (
@@ -23,7 +23,7 @@ export default function AdConfirmation() {
                 </i>
             </div>
             <div className="confirmation__title">
-                Ad Successfully Created
+                Ad Successfully Edited
             </div>
             <section className="confirmation__section">
                 <Link to={`/ad/${state.pk}`}>
@@ -38,5 +38,5 @@ export default function AdConfirmation() {
                 </Link>
             </section>
         </div>
-    )
-}
+    );
+};

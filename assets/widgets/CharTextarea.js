@@ -1,8 +1,8 @@
 import React from "react";
 
 
-export default function CharTextArea(props) {
+export default function CharTextArea({initial, ...props}) {
     return (
-        <textarea className="form__char-textarea" {...props} rows={5}/>
+        <textarea defaultValue={initial} className="form__char-textarea" {...props} rows={5} />
     )
 }

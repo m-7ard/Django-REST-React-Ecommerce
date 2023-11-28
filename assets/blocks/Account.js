@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 
 import { addDotsToNumber, useLoginRequired } from "../Utils";
 import { getRequestUserAds } from "../Fetchers";
@@ -65,14 +65,16 @@ export default function Account() {
                         </div>
 
                         <div className="account__ad-actions">
-                            <div className="account__ad-button">
-                                Edit
-                                <div className="icon icon--small">
-                                    <i class="material-icons">
-                                        edit
-                                    </i>
+                            <Link to={`/ad/${ad.pk}/edit`}>
+                                <div className="account__ad-button">
+                                    Edit
+                                    <div className="icon icon--small">
+                                        <i class="material-icons">
+                                            edit
+                                        </i>
+                                    </div>
                                 </div>
-                            </div>
+                            </Link>
                             <div className="account__ad-button">
                                 Unlist
                                 <div className="icon icon--small">

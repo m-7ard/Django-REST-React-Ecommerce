@@ -507,23 +507,22 @@
 }
 
 .form {
-    @include flex-column($space-large, $space-large);
     border: 1px solid map-get($light, dark);
-    height: fit-content;
 
     &__body {
-        @include flex-column($space-large, $space-large);
+        @include flex-column(0, $space-large);
+        flex: 1;
     }
 
     &__header {
-        @include flex-row($space-large, $space-large);
+        @include flex-row(0, $space-large);
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
     }
 
     &__footer {
-        @include flex-row($space-large, $space-large);
+        @include flex-row(0, $space-large);
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
@@ -622,6 +621,11 @@
         font-weight: 400;
         font-size: get-font-size(secondary, medium);
         color: map-get($black, light);
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline
+        }
     }
 
     &__drawer {
@@ -986,12 +990,24 @@
         @include flex-column($space-large, $space-large);
     }
 
+    .grow {
+        flex: 1;
+    }
+
     &__body {
         @include flex-column(0, $space-large);
     }
 
     &__header {
         @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__footer {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: space-between;
     }
 
     &__title {
@@ -1024,18 +1040,10 @@
 
     &__row {
         @include flex-row(0, $space-large);
-
-        &.grow {
-            flex-grow: 1;
-        }
     }
 
     &__column {
         @include flex-column(0, $space-large);
-
-        &.grow {
-            flex-grow: 1;
-        }
     }
 }
 
