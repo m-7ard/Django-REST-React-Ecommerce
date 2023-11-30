@@ -1,32 +1,33 @@
-import React from "react";
-import { useLoaderData, useNavigate } from "react-router-dom";
-import GenericForm from "../elements/GenericForm";
-import { getAdData } from "../Fetchers";
-import CharInput from "../widgets/CharInput";
-import CharTextArea from "../widgets/CharTextarea";
-import CategoryPicker from "../widgets/CategoryPicker";
-import AdImageInput from "../widgets/AdImageInput";
+import React from 'react';
+import { useLoaderData, useNavigate } from 'react-router-dom';
+import GenericForm from '../elements/GenericForm';
+import { getAdData } from '../Fetchers';
 
+import {
+    CharInput,
+    CharTextArea,
+    CategoryPicker,
+    AdImageInput,
+} from '../Widgets';
 
-export async function loader({params}) {
+export async function loader({ params }) {
     const ad = await getAdData(params.pk);
     return { ad };
-};
-
+}
 
 export default function AdEdit() {
     const navigate = useNavigate();
     const { ad } = useLoaderData();
 
     return (
-        <GenericForm 
-            extraClass={"pamphlet"}
-            method={"PATCH"}
+        <GenericForm
+            extraClass="pamphlet"
+            method="PATCH"
             action={`/api/ads/${ad.pk}/`}
-            title={"Edit Ad"}
-            button={{"label": "Edit Ad"}}
-            hasCSRF={true}
-            resettable={true}
+            title="Edit Ad"
+            button={{ label: 'Edit Ad' }}
+            hasCSRF
+            resettable
             fields={[
                 {
                     name: 'title',
@@ -37,8 +38,8 @@ export default function AdEdit() {
                             type: 'text',
                             maxLength: 64,
                             defaultValue: ad.title,
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'price',
@@ -48,8 +49,8 @@ export default function AdEdit() {
                         props: {
                             inputMode: 'numeric',
                             defaultValue: ad.price,
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'description',
@@ -59,8 +60,8 @@ export default function AdEdit() {
                         props: {
                             maxLength: 4096,
                             initial: ad.description,
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'category',
@@ -70,7 +71,7 @@ export default function AdEdit() {
                         props: {
                             initial: ad.category,
                         },
-                    }
+                    },
                 },
                 {
                     name: 'images',
@@ -80,13 +81,12 @@ export default function AdEdit() {
                         props: {
                             initial: ad.images,
                         },
-                    }
+                    },
                 },
             ]}
-            onSuccess={async (response) => {
-                const ad = await response.json();
-                navigate('success/', {state: ad});
+            onSuccess={async () => {
+                navigate('success/', { state: ad });
             }}
         />
-    )
-};
+    );
+}

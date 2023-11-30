@@ -290,6 +290,7 @@
     }
 
     &__gallery {
+        @include has-shadow;
         @include flex-column($space-large, $space-large);
         background-color: #ffffff;
         border: 1px solid map-get($light, dark);
@@ -339,6 +340,7 @@
     }
 
     &__highlight {
+        @include has-shadow;
         @include flex-row(0, $space-large);
         flex-wrap: wrap;
         justify-content: center;
@@ -567,7 +569,6 @@
     
     &__char-textarea {
         @include medium-button;
-        @include ellipsis;
         width: 100%;
         box-sizing: border-box;
         padding: $space-medium-large;
@@ -618,6 +619,7 @@
     }
 
     &__reset {
+        all: unset;
         font-weight: 400;
         font-size: get-font-size(secondary, medium);
         color: map-get($black, light);
@@ -757,7 +759,6 @@
 
 
 .prompt {
-    @include flex-column($space-large, $space-large);
     background-color: white;
     max-width: 49rem;
     max-height: 30rem;
@@ -765,22 +766,9 @@
     height: 100%;
     overflow: auto;
     border: 1px solid map-get($light, dark);
-    border-radius: $radius-medium;
-
-    &__header {
-        @include flex-row($space-large, $space-large);
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    &__title {
-        font-size: get-font-size(special, small);
-        font-weight: 700;
-        color: map-get($black, dark);
-    }
 
     &__body {
-        @include flex-column($space-large, $space-large);
+        @include flex-column(0, $space-large);
         overflow: auto;
         flex: 1;
     }

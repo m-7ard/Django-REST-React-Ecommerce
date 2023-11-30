@@ -2,9 +2,10 @@ import React from "react";
 
 import { useLoginRequired } from "../Utils";
 import CharInput from "../widgets/CharInput";
-import CharTextArea from "../widgets/CharTextarea";
+import CharTextArea from "../widgets/CharTextArea";
 import CategoryPicker from "../widgets/CategoryPicker";
 import AdImageInput from "../widgets/AdImageInput";
+import GenericForm from "../elements/GenericForm";
 
 
 export default function PostAd() {

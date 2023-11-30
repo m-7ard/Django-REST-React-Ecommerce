@@ -17,6 +17,7 @@ export default function CategoryPicker({initial, name}) {
     const [unconfirmedValue, setUnconfirmedValue] = useState(null);
     const [confirmedValue, setConfirmedValue] = useState(initial);
     const [open, setOpen] = useState(false);
+    
     useEffect(() => {
         if (!open) {
             setUnconfirmedValue(confirmedValue);
@@ -26,9 +27,9 @@ export default function CategoryPicker({initial, name}) {
     if (open) {
         return (
             <div className="overlay">
-                <div className="prompt">
-                    <div className="prompt__header">
-                        <div className="prompt__title">
+                <div className="prompt prop prop--vertical">
+                    <div className="prop__header">
+                        <div className="prop__title">
                             Choose Category
                         </div>
                         <div className="prompt__close" onMouseUp={() => setOpen(false)}>
@@ -40,7 +41,7 @@ export default function CategoryPicker({initial, name}) {
                         </div>
                     </div>
                     <hr className="app__divider" />
-                    <div className="prompt__body">
+                    <div className="prompt__body grow">
                         <Drawer 
                             className={'form__drawer'} 
                             name={name} 
@@ -59,7 +60,7 @@ export default function CategoryPicker({initial, name}) {
                         />
                     </div>
                     <hr className="app__divider" />
-                    <div className="prompt__footer">
+                    <div className="prop__footer">
                         <div 
                             className={unconfirmedValue ? "prompt__confirm" : "prompt__confirm prompt__confirm--disabled" }
                             onClick={() => {
