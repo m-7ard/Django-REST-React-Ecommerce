@@ -1,18 +1,13 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Outlet, useLoaderData, useLocation } from 'react-router-dom';
 import AppHeader from './blocks/AppHeader';
-import { Outlet, useLoaderData, useLocation } from "react-router-dom";
 import { getCategoryData } from './Fetchers';
-
-
-export const UserContext = createContext(null);
-export const CategoryContext = createContext(null);
-
+import { UserContext, CategoryContext } from './Context';
 
 export async function loader() {
     const categoryData = await getCategoryData();
     return { ...categoryData };
 }
-
 
 export default function App() {
     const location = useLocation();
@@ -24,21 +19,20 @@ export default function App() {
             const response = await fetch('/api/user/');
             if (response.ok) {
                 const requestUser = await response.json();
-                setUser({...requestUser, is_authenticated: true});
+                setUser({ ...requestUser, is_authenticated: true });
             }
             else {
-                setUser({is_authenticated: false});
+                setUser({ is_authenticated: false });
             }
         }
 
         setRequestUser();
     }, [location]);
 
-
     return (user && categoryData) && (
         <div className="app">
             <CategoryContext.Provider value={categoryData}>
-                <UserContext.Provider value={{ user: user, setUser: setUser }}>
+                <UserContext.Provider value={{ user, setUser }}>
                     <AppHeader />
                     <div className="app__body content-grid">
                         <Outlet />
@@ -47,4 +41,4 @@ export default function App() {
             </CategoryContext.Provider>
         </div>
     );
-};
+}

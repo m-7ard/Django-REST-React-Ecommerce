@@ -1,7 +1,8 @@
-import React, {useState, useEffect, useRef} from 'react';
-  
+import React, { useState, useEffect, useRef } from 'react';
 
-export default function Select({name, options, initial, selectClassName}) {
+export default function Select({
+    name, options, initial, selectClassName,
+}) {
     const [open, setOpen] = useState(false);
     const [root, setRoot] = useState(initial);
     const [optionListPositioning, setOptionListPositioning] = useState({
@@ -9,63 +10,62 @@ export default function Select({name, options, initial, selectClassName}) {
         left: 0,
     });
     const selectRef = useRef(null);
-  
-  
+
     useEffect(() => {
         const handleWindowClick = (event) => {
             if (!(event.button === 0)) {
                 return;
-            };
+            }
 
             if (selectRef.current && !selectRef.current.contains(event.target)) {
                 setOpen(false);
-            };
+            }
         };
-    
+
         const handleWindowResize = () => {
             if (open && selectRef.current) {
                 positionOptionList(selectRef.current);
             }
         };
-    
+
         window.addEventListener('mouseup', handleWindowClick);
         window.addEventListener('resize', handleWindowResize);
-    
+
         return () => {
             window.removeEventListener('mouseup', handleWindowClick);
             window.removeEventListener('resize', handleWindowResize);
         };
     }, [selectRef]);
-  
+
     const positionOptionList = (root) => {
         const dimensions = root.getBoundingClientRect();
         setOptionListPositioning({ top: `${dimensions.bottom}px`, left: dimensions.left });
     };
-  
+
     const toggleSelect = (event) => {
         if (open) {
             setOpen(false);
-        } 
+        }
         else {
             const root = event.target.closest('[data-role="root"]');
             positionOptionList(root);
             setOpen(true);
         }
     };
-  
-    function Option({label, value, id}) {
+
+    function Option({ label, value, id }) {
         return (
-            <li 
-                data-role="option" 
+            <li
+                data-role="option"
                 onClick={(event) => {
-                    setRoot({label: label, value: value});
+                    setRoot({ label, value });
                 }}
                 key={id}
             >
                 {label}
-                <input type="radio" name={name} checked={value === root.value}  onChange={() => undefined}/>
+                <input type="radio" name={name} checked={value === root.value} onChange={() => undefined} />
             </li>
-        )
+        );
     }
 
     return (
@@ -82,8 +82,8 @@ export default function Select({name, options, initial, selectClassName}) {
             >
                 <div className="icon icon--small" data-role="marker">
                     <i className="material-icons">
-                    expand_more
-                </i>
+                        expand_more
+                    </i>
                 </div>
                 <div data-role="label">
                     {root.label}
@@ -96,5 +96,4 @@ export default function Select({name, options, initial, selectClassName}) {
             </ul>
         </ul>
     );
-};
-
+}

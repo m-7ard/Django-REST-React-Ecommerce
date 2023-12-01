@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import FormField from "../elements/FormField";
-import CharInput from "../widgets/CharInput";
-import { UserContext } from "../App";
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import FormField from '../elements/FormField';
+import CharInput from '../widgets/CharInput';
+import { UserContext } from '../Context';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function Login() {
         if (user.is_authenticated) {
             navigate('/');
         }
-    })
+    });
 
     const handleForm = async (event) => {
         event.preventDefault();
@@ -25,14 +25,14 @@ export default function Login() {
         });
         if (response.ok) {
             const requestUser = await response.json();
-            setUser({...requestUser, is_authenticated: true});
+            setUser({ ...requestUser, is_authenticated: true });
             navigate(next || '/');
         }
         else {
             const data = await response.json();
             setErrors(data);
         }
-    }
+    };
 
     const [errors, setErrors] = useState([]);
 
@@ -41,50 +41,48 @@ export default function Login() {
             <div className="form__header">
                 <div className="form__title">
                     Login Into Existing Account
-                </div> 
+                </div>
             </div>
             <hr className="app__divider" />
             <div className="form__body">
                 {errors.non_field_errors && (
                     <div className="form__field">
                         {
-                            errors.non_field_errors.map((message) => {
-                                return (
-                                    <div className="form__error">
-                                        {message}
-                                    </div>
-                                )
-                            })
+                            errors.non_field_errors.map((message) => (
+                                <div className="form__error">
+                                    {message}
+                                </div>
+                            ))
                         }
                     </div>
 
                 )}
-                <FormField 
-                    name={'email'} 
-                    label={'Email'} 
+                <FormField
+                    name="email"
+                    label="Email"
                     errors={errors}
                     widget={{
                         component: CharInput,
                         props: {
                             type: 'text',
-                        }
+                        },
                     }}
                 />
-                <FormField 
-                    name={'password'} 
-                    label={'Password'} 
+                <FormField
+                    name="password"
+                    label="Password"
                     errors={errors}
                     widget={{
                         component: CharInput,
                         props: {
                             type: 'password',
-                        }
+                        },
                     }}
                 />
             </div>
             <hr className="app__divider" />
             <div className="form__footer">
-                <Link to={'/register/'}>
+                <Link to="/register/">
                     <div className="app__link">
                         Don't have an account?
                     </div>
@@ -94,5 +92,5 @@ export default function Login() {
                 </button>
             </div>
         </form>
-    )
+    );
 }

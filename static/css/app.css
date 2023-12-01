@@ -845,13 +845,23 @@
   border-top: 1px solid #D6DDD9;
   border-right: 1px solid #D6DDD9;
 }
-.form__drawer [data-role=choices] [data-role=choices] {
+.form__drawer [data-role=choices] {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
+}
+.form__drawer [data-role=choices] {
   padding-left: 0.75rem;
 }
 .form__drawer [data-role=check] {
   visibility: hidden;
 }
 .form__drawer [data-role=branch] {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
   border-left: 1px solid #D6DDD9;
 }
 .form__drawer [data-role=branch][data-active=true] > [data-role=root] {

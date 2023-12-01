@@ -6,7 +6,7 @@ import { CSRFToken, getCookie } from '../Utils';
 function GenericForm({
     action, extraClass, method, title, button, resettable, fields, onSuccess, hasCSRF,
 }) {
-    const [errors, setErrors] = useState([]);
+    const [errors, setErrors] = useState({});
 
     async function handleForm(event) {
         event.preventDefault();

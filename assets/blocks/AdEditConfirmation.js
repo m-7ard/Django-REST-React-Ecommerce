@@ -1,19 +1,17 @@
-import React, { useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-
+import React, { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function AdEditConfirmation() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
-    useEffect(() => { 
+    useEffect(() => {
         if (!state) {
             navigate({
-                pathname: "/",
+                pathname: '/',
             });
-        };
+        }
     }, []);
-
 
     return (
         <div className="confirmation pamphlet">
@@ -31,7 +29,7 @@ export default function AdEditConfirmation() {
                         Go To Ad
                     </div>
                 </Link>
-                <Link to={`/post-ad/`}>
+                <Link to="/post-ad/">
                     <div className="confirmation__button confirmation__button--new">
                         Post Another Ad
                     </div>
@@ -39,4 +37,4 @@ export default function AdEditConfirmation() {
             </section>
         </div>
     );
-};
+}

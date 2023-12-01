@@ -1,8 +1,9 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import React, {
+    useContext,
+} from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import CategorySearchbar from '../element_groups/CategorySearchbar';
-import { UserContext, CategoryContext } from '../App';
-
+import { UserContext, CategoryContext } from '../Context';
 
 export default function AppHeader() {
     const navigate = useNavigate();
@@ -11,44 +12,44 @@ export default function AppHeader() {
 
     const categorySelectRoot = {
         value: baseCategory.pk,
-        label: baseCategory.name
+        label: baseCategory.name,
     };
-    const categorySelectOptions = allCategories.map((category) => {
-        return {
-            value: category.pk,
-            label: category.name
-        }
-    });
+    const categorySelectOptions = allCategories.map((category) => ({
+        value: category.pk,
+        label: category.name,
+    }));
 
     async function logout() {
         await fetch('/api/logout/', {
-            method: 'GET'
+            method: 'GET',
         });
 
-        setUser({is_authenticated: false});
+        setUser({ is_authenticated: false });
         navigate('/');
     }
 
     return (
         <div className="app__header">
             <div className="app__header-section app__header-section--top">
-                {user.is_authenticated && (
-                    <Link to={'account/'}>
-                        <div className='app__go-to'>
-                            <div className="icon icon--small icon--hoverable">
-                                <i className="material-icons">
-                                    person
-                                </i>
+                {(user.is_authenticated
+                    && (
+                        <Link to="account/">
+                            <div className="app__go-to">
+                                <div className="icon icon--small icon--hoverable">
+                                    <i className="material-icons">
+                                        person
+                                    </i>
+                                </div>
+                                <div>
+                                    User
+                                </div>
                             </div>
-                            <div>
-                                User
-                            </div>
-                        </div>
-                    </Link>
+                        </Link>
+                    )
                 ) || (
-                    <Fragment>
-                        <Link to={'login/'}>
-                            <div className='app__go-to'>
+                    <>
+                        <Link to="login/">
+                            <div className="app__go-to">
                                 <div className="icon icon--small icon--hoverable">
                                     <i className="material-icons">
                                         login
@@ -59,8 +60,8 @@ export default function AppHeader() {
                                 </div>
                             </div>
                         </Link>
-                        <Link to={'register/'}>
-                            <div className='app__go-to'>
+                        <Link to="register/">
+                            <div className="app__go-to">
                                 <div className="icon icon--small icon--hoverable">
                                     <i className="material-icons">
                                         person_add
@@ -71,9 +72,9 @@ export default function AppHeader() {
                                 </div>
                             </div>
                         </Link>
-                    </Fragment>
+                    </>
                 )}
-                <div className='app__go-to'>
+                <div className="app__go-to">
                     <div className="icon icon--small icon--hoverable">
                         <i className="material-icons">
                             shopping_cart
@@ -83,8 +84,8 @@ export default function AppHeader() {
                         Cart
                     </div>
                 </div>
-                <Link to={'/'}>
-                    <div className='app__go-to'>
+                <Link to="/">
+                    <div className="app__go-to">
                         <div className="icon icon--small icon--hoverable">
                             <i className="material-icons">
                                 home
@@ -97,7 +98,7 @@ export default function AppHeader() {
                 </Link>
 
                 {user.is_authenticated && (
-                    <div className='app__go-to' onClick={logout}>
+                    <button type="button" className="app__go-to" onClick={logout}>
                         <div className="icon icon--small icon--hoverable">
                             <i className="material-icons">
                                 logout
@@ -106,7 +107,7 @@ export default function AppHeader() {
                         <div>
                             Logout
                         </div>
-                    </div>
+                    </button>
                 )}
             </div>
             <div className="app__header-section app__header-section--main">
@@ -114,22 +115,20 @@ export default function AppHeader() {
                     baseCategory={categorySelectRoot}
                     categories={categorySelectOptions}
                 />
-                <Link to={'/post-ad/'}>
+                <Link to="/post-ad/">
                     <div className="app__post-ad">
                         <div className="icon icon--small">
                             <i className="material-icons">
                                 add_box
                             </i>
                         </div>
-                        <div data-role='text'>
+                        <div data-role="text">
                             Post Ad
                         </div>
                     </div>
                 </Link>
             </div>
-            <div className="app__header-section app__header-section--bottom">
-
-            </div>
+            <div className="app__header-section app__header-section--bottom" />
         </div>
     );
-};
+}

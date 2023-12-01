@@ -636,8 +636,12 @@
         border-top: 1px solid map-get($light, dark);
         border-right: 1px solid map-get($light, dark);
         
-        [data-role="choices"] [data-role="choices"] {
-            padding-left: $space-large;
+        [data-role="choices"] {
+            @include flex-column(0, 0);
+
+            & {
+                padding-left: $space-large;
+            }
         }
 
         [data-role="check"] {
@@ -645,15 +649,16 @@
         }
 
         [data-role="branch"] {
+            @include flex-column(0, 0);
             border-left: 1px solid map-get($light, dark);
-        }
 
-        [data-role="branch"][data-active="true"] {
-            > [data-role="root"] {
-                background-color: map-get($light, neutral);
-
-                [data-role="marker"] {
-                    transform: rotate(90deg);
+            &[data-active="true"] {
+                > [data-role="root"] {
+                    background-color: map-get($light, neutral);
+    
+                    [data-role="marker"] {
+                        transform: rotate(90deg);
+                    }
                 }
             }
         }

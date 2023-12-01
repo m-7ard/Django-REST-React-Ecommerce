@@ -1,19 +1,19 @@
 import React from 'react';
 import Select from '../elements/Select';
 
-export default function CategorySearchbar({baseCategory, categories}) {
+export default function CategorySearchbar({ baseCategory, categories }) {
     return (
-        <div className='app__header-search-bar'>
+        <div className="app__header-search-bar">
             <Select
-                name={'category'}
+                name="category"
                 initial={baseCategory}
                 options={categories}
-                selectClassName={'app__header-category-select'}
+                selectClassName="app__header-category-select"
             />
-            <div className='app__header-search-widget'>
+            <div className="app__header-search-widget">
                 <div className="app__header-search-field">
                     <div data-role="input">
-                        <input type="text"/>
+                        <input type="text" />
                     </div>
                 </div>
                 <div className="app__header-search-button">
@@ -26,4 +26,4 @@ export default function CategorySearchbar({baseCategory, categories}) {
             </div>
         </div>
     );
-};
+}

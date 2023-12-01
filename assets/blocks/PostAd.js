@@ -1,25 +1,26 @@
-import React from "react";
+import React from 'react';
 
-import { useLoginRequired } from "../Utils";
-import CharInput from "../widgets/CharInput";
-import CharTextArea from "../widgets/CharTextArea";
-import CategoryPicker from "../widgets/CategoryPicker";
-import AdImageInput from "../widgets/AdImageInput";
-import GenericForm from "../elements/GenericForm";
-
+import { useNavigate } from 'react-router-dom';
+import { useLoginRequired } from '../Utils';
+import CharInput from '../widgets/CharInput';
+import CharTextArea from '../widgets/CharTextArea';
+import CategoryPicker from '../widgets/CategoryPicker';
+import AdImageInput from '../widgets/AdImageInput';
+import GenericForm from '../elements/GenericForm';
 
 export default function PostAd() {
     useLoginRequired();
+    const navigate = useNavigate();
 
     return (
-        <GenericForm 
-            extraClass={"pamphlet"}
-            method={"POST"}
-            action={`/api/ads/`}
-            title={"Post Ad"}
-            button={{"label": "Post Ad"}}
-            hasCSRF={true}
-            resettable={true}
+        <GenericForm
+            extraClass="pamphlet"
+            method="POST"
+            action="/api/ads/"
+            title="Post Ad"
+            button={{ label: 'Post Ad' }}
+            hasCSRF
+            resettable
             fields={[
                 {
                     name: 'title',
@@ -29,8 +30,8 @@ export default function PostAd() {
                         props: {
                             type: 'text',
                             maxLength: 64,
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'price',
@@ -39,8 +40,8 @@ export default function PostAd() {
                         component: CharInput,
                         props: {
                             inputMode: 'numeric',
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'description',
@@ -49,8 +50,8 @@ export default function PostAd() {
                         component: CharTextArea,
                         props: {
                             maxLength: 4096,
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'category',
@@ -58,7 +59,7 @@ export default function PostAd() {
                     widget: {
                         component: CategoryPicker,
                         props: {},
-                    }
+                    },
                 },
                 {
                     name: 'images',
@@ -66,13 +67,13 @@ export default function PostAd() {
                     widget: {
                         component: AdImageInput,
                         props: {},
-                    }
+                    },
                 },
             ]}
             onSuccess={async (response) => {
                 const ad = await response.json();
-                navigate('success/', {state: ad});
+                navigate('success/', { state: ad });
             }}
         />
-    )
-};
+    );
+}

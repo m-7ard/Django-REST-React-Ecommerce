@@ -37,7 +37,7 @@ export default function AdEdit() {
                         props: {
                             type: 'text',
                             maxLength: 64,
-                            defaultValue: ad.title,
+                            initial: ad.title,
                         },
                     },
                 },
@@ -48,7 +48,7 @@ export default function AdEdit() {
                         component: CharInput,
                         props: {
                             inputMode: 'numeric',
-                            defaultValue: ad.price,
+                            initial: ad.price,
                         },
                     },
                 },

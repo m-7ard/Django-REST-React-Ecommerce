@@ -1,26 +1,28 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, {
+    Fragment, useContext, useEffect, useState
+} from 'react'
 
-import { CategoryContext } from "../App";
-import { NormalizedData } from "../Utils";
-import Drawer from "./Drawer";
+import { CategoryContext } from '../Context'
+import { NormalizedData } from '../Utils'
+import Drawer from './Drawer'
 
-export default function CategoryPicker({initial, name}) {
-    const { allCategories, baseCategory } = useContext(CategoryContext);
+export default function CategoryPicker ({ initial, name }) {
+    const { allCategories, baseCategory } = useContext(CategoryContext)
     const NormalizedCategories = new NormalizedData({
-        data: allCategories, 
-        valueKey: 'pk', 
-        labelKey: 'name', 
+        data: allCategories,
+        valueKey: 'pk',
+        labelKey: 'name',
         parentKey: 'parent'
-    });
-    const topLevelCategories = NormalizedCategories.getSubChoices(baseCategory.pk);
-    
-    const [unconfirmedValue, setUnconfirmedValue] = useState(null);
-    const [confirmedValue, setConfirmedValue] = useState(initial);
-    const [open, setOpen] = useState(false);
-    
+    })
+    const topLevelCategories = NormalizedCategories.getSubChoices(baseCategory.pk)
+
+    const [unconfirmedValue, setUnconfirmedValue] = useState(null)
+    const [confirmedValue, setConfirmedValue] = useState(initial)
+    const [open, setOpen] = useState(false)
+
     useEffect(() => {
         if (!open) {
-            setUnconfirmedValue(confirmedValue);
+            setUnconfirmedValue(confirmedValue)
         }
     }, [open])
 
@@ -32,44 +34,46 @@ export default function CategoryPicker({initial, name}) {
                         <div className="prop__title">
                             Choose Category
                         </div>
-                        <div className="prompt__close" onMouseUp={() => setOpen(false)}>
+                        <div className="prompt__close" onMouseUp={() => {
+                            setOpen(false)
+                        }}>
                             <div className="icon icon--small">
                                 <i className="material-icons">
-                                    'close'
+                                    close
                                 </i>
                             </div>
                         </div>
                     </div>
                     <hr className="app__divider" />
                     <div className="prompt__body grow">
-                        <Drawer 
-                            className={'form__drawer'} 
-                            name={name} 
+                        <Drawer
+                            className="form__drawer"
+                            name={name}
                             initialChoice={confirmedValue}
-                            normalizedData={NormalizedCategories} 
-                            topLevelChoices={topLevelCategories} 
+                            normalizedData={NormalizedCategories}
+                            topLevelChoices={topLevelCategories}
                             parentChoiceHandle={(value) => {
-                                const isLeaf = (NormalizedCategories.getSubChoices(value).length === 0);
+                                const isLeaf = (NormalizedCategories.getSubChoices(value).length === 0)
                                 if (!isLeaf) {
-                                    setUnconfirmedValue(null);
+                                    setUnconfirmedValue(null)
                                 }
                                 else {
-                                    setUnconfirmedValue(value);
-                                };
+                                    setUnconfirmedValue(value)
+                                }
                             }}
                         />
                     </div>
                     <hr className="app__divider" />
                     <div className="prop__footer">
-                        <div 
-                            className={unconfirmedValue ? "prompt__confirm" : "prompt__confirm prompt__confirm--disabled" }
+                        <div
+                            className={unconfirmedValue ? 'prompt__confirm' : 'prompt__confirm prompt__confirm--disabled'}
                             onClick={() => {
                                 if (!unconfirmedValue) {
                                     return
-                                };
+                                }
 
-                                setConfirmedValue(unconfirmedValue);
-                                setOpen(false);
+                                setConfirmedValue(unconfirmedValue)
+                                setOpen(false)
                             }}
                         >
                             Confirm
@@ -79,19 +83,22 @@ export default function CategoryPicker({initial, name}) {
             </div>
         )
     }
-    else {
-        return (
-            <Fragment>
-                {confirmedValue && (
-                    <div className="form__helper-text">
-                        Current Category: {NormalizedCategories.getRouteString(confirmedValue)}
-                    </div>
-                )}
-                <div className="form__action" onClick={() => setOpen(true)}>
-                    Pick Category
+
+    return (
+        <>
+            {confirmedValue && (
+                <div className="form__helper-text">
+                    Current Category:
+                    {' '}
+                    {NormalizedCategories.getRouteString(confirmedValue)}
                 </div>
-                <input type="hidden" value={confirmedValue} name={name}/>
-            </Fragment>
-        )
-    }
+            )}
+            <div className="form__action" onClick={() => {
+                setOpen(true)
+            }}>
+                Pick Category
+            </div>
+            <input type="hidden" value={confirmedValue} name={name} />
+        </>
+    )
 }

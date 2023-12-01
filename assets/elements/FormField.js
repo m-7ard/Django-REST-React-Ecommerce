@@ -11,7 +11,7 @@ export default function FormField({
             <div className="form__label">
                 {label}
             </div>
-            <widget.component props={props} />
+            <widget.component {...props} />
             {errors[name] && (
                 errors[name].map((message) => (
                     <div className="form__error">

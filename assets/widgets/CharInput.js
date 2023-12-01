@@ -1,8 +1,8 @@
-import React from "react";
+/* eslint-disable react/jsx-props-no-spreading */
+import React from 'react';
 
-
-export default function CharInput(props) {
+export default function CharInput({initial, ...props}) {
     return (
-        <input className="form__char-input" {...props}/>
-    )
+        <input defaultValue={initial} className="form__char-input" {...props} />
+    );
 }
