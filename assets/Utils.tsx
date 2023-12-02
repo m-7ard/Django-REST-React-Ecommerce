@@ -1,12 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { UserContext } from './Context'
-
-interface Choice {
-    value: number
-    label: string
-    parent: number
-}
+import { type NormalizedDataItem, type UnnormalizedData } from './Types'
 
 export function useLoginRequired () {
     const { user, setUser } = useContext(UserContext)
@@ -104,45 +99,16 @@ export async function fileListToBase64 (fileList) {
     return await Promise.all(promises)
 }
 
-interface DataItem {
-    value: number
-    label: string
-    parent: number
-}
+
 
 export class NormalizedData {
-    data: DataItem[]
+    data: NormalizedDataItem[]
 
-    constructor ({
-        data,
-        valueKey,
-        labelKey,
-        parentKey
-    }: {
-        data: Array<Record<string, any>>
-        valueKey: string
-        labelKey: string
-        parentKey: string
-    }) {
-        this.data = this.normalizeData({
-            data,
-            valueKey,
-            labelKey,
-            parentKey
-        })
+    constructor ({ data, valueKey, labelKey, parentKey }: UnnormalizedData) {
+        this.data = this.normalizeData({ data, valueKey, labelKey, parentKey })
     }
 
-    normalizeData ({
-        data,
-        valueKey,
-        labelKey,
-        parentKey
-    }: {
-        data: Array<Record<string, any>> // Adjust the type as needed based on your actual data structure
-        valueKey: string
-        labelKey: string
-        parentKey: string
-    }): DataItem[] {
+    normalizeData ({ data, valueKey, labelKey, parentKey }: UnnormalizedData): NormalizedDataItem[] {
         return data.map((item) => ({
             value: item[valueKey],
             label: item[labelKey],
@@ -153,6 +119,7 @@ export class NormalizedData {
     getRoute (value: number): number[] {
         const choice = this.getChoice(value)
         const parent = choice?.parent
+
         if (parent === undefined) {
             return [value]
         }
@@ -161,23 +128,23 @@ export class NormalizedData {
         }
     }
 
-    getSubChoices (value: number): DataItem[] {
+    getSubChoices (value: number): NormalizedDataItem[] {
         return this.data.filter((choice) => choice.parent === value)
     }
 
-    getChoice (value: number): DataItem | undefined {
+    getChoice (value: number): NormalizedDataItem | undefined {
         return this.data.find((choice) => choice.value === value)
     }
 
     getRouteString (value: number): string {
         const choice = this.getChoice(value)
 
-        if (choice === undefined) {
+        if (choice == null) {
             throw Error('Not a valid choice')
         }
 
         const parent = choice?.parent
-        if (parent === undefined) {
+        if (parent == null) {
             return choice.label
         }
         else {

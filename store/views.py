@@ -15,6 +15,7 @@ from .models import Category, Ad
 from .serializers import CategorySerializer, AdModelSerializer
 from users.models import CustomUser
 
+
 class IndexView(TemplateView):
     template_name = 'store/frontpage.html'
     

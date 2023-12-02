@@ -2,29 +2,24 @@ import React, {
     useState, createContext, useContext, useMemo
 } from 'react'
 import type { NormalizedData } from '../Utils'
+import { type NormalizedDataItem } from '../Types'
 
 const DrawerContext = createContext(null)
 
-export default function Drawer ({
-    name, className, normalizedData, topLevelChoices, initialChoice, parentChoiceHandle
-}: {
+interface DrawerInterface {
     name: string
     className: string
     normalizedData: NormalizedData
-    topLevelChoices: Array<{
-        value: number
-        label: string
-        parent: number
-    }>
-    initialChoice?: {
-        value: number
-        label: string
-        parent: number
-    }
+    topLevelChoices: NormalizedDataItem[]
+    initialChoice?: number
     parentChoiceHandle?: (value: number) => void
-}): React.ReactNode {
+}
+
+export default function Drawer ({
+    name, className, normalizedData, topLevelChoices, initialChoice, parentChoiceHandle
+}: DrawerInterface): React.ReactNode {
     const [route, setRoute] = useState(
-        (initialChoice === null) ? [] : normalizedData.getRoute(initialChoice)
+        (initialChoice == null) ? [] : normalizedData.getRoute(initialChoice)
     )
     const onChoiceSelect = (value: number): void => {
         setRoute(normalizedData.getRoute(value))
@@ -34,7 +29,7 @@ export default function Drawer ({
         }
     }
 
-    const generateChoices = (choices) => (
+    const generateChoices = (choices: NormalizedDataItem[]): React.ReactNode => (
         <div data-role="choices">
             {choices.map((choice) => {
                 const subchoices = normalizedData.getSubChoices(choice.value)

@@ -1,13 +1,26 @@
 import React, {
-    Fragment, useContext, useEffect, useState
+    useContext, useEffect, useState
 } from 'react'
 
 import { CategoryContext } from '../Context'
 import { NormalizedData } from '../Utils'
 import Drawer from './Drawer'
 
-export default function CategoryPicker ({ initial, name }) {
-    const { allCategories, baseCategory } = useContext(CategoryContext)
+interface CategoryPickerInterface {
+    initial: number
+    name: string
+}
+
+export default function CategoryPicker ({ initial, name }: CategoryPickerInterface): React.ReactNode {
+    const categoryData = useContext(CategoryContext)
+
+    if (categoryData == null) {
+        throw Error('categoryData is null or undefined. Provide at least one category.')
+    }
+
+    const allCategories = categoryData.allCategories
+    const baseCategory = categoryData.baseCategory
+
     const NormalizedCategories = new NormalizedData({
         data: allCategories,
         valueKey: 'pk',
@@ -16,7 +29,7 @@ export default function CategoryPicker ({ initial, name }) {
     })
     const topLevelCategories = NormalizedCategories.getSubChoices(baseCategory.pk)
 
-    const [unconfirmedValue, setUnconfirmedValue] = useState(null)
+    const [unconfirmedValue, setUnconfirmedValue] = useState<number | null>(null)
     const [confirmedValue, setConfirmedValue] = useState(initial)
     const [open, setOpen] = useState(false)
 
@@ -66,9 +79,11 @@ export default function CategoryPicker ({ initial, name }) {
                     <hr className="app__divider" />
                     <div className="prop__footer">
                         <div
-                            className={unconfirmedValue ? 'prompt__confirm' : 'prompt__confirm prompt__confirm--disabled'}
+                            className={
+                                (unconfirmedValue == null) ? 'prompt__confirm prompt__confirm--disabled' : 'prompt__confirm'
+                            }
                             onClick={() => {
-                                if (!unconfirmedValue) {
+                                if (unconfirmedValue == null) {
                                     return
                                 }
 
