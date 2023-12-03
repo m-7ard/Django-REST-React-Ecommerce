@@ -21,3 +21,8 @@ export interface UnnormalizedData {
     labelKey: string
     parentKey: string
 }
+
+export interface User {
+    is_authenticated: boolean
+    [key: string]: any
+}

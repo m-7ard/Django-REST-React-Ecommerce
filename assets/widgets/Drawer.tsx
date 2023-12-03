@@ -4,7 +4,32 @@ import React, {
 import type { NormalizedData } from '../Utils'
 import { type NormalizedDataItem } from '../Types'
 
-const DrawerContext = createContext(null)
+interface DrawerNode {
+    value: number
+    label: string
+}
+
+interface DrawerContextInterface {
+    onChoiceSelect: (value: number) => void
+    name: string
+    normalizedData: NormalizedData
+    route: number[]
+    generateChoices: (choices: NormalizedDataItem[]) => React.ReactNode
+}
+
+const DrawerContext = createContext<DrawerContextInterface | null>(null)
+
+const useDrawerContext = (): DrawerContextInterface => {
+    const drawerContextValue = useContext(DrawerContext)
+
+    if (drawerContextValue == null) {
+        throw new Error(
+            'useDrawerContext has to be used within <DrawerContext.Provider>'
+        )
+    }
+
+    return drawerContextValue
+}
 
 interface DrawerInterface {
     name: string
@@ -60,16 +85,17 @@ export default function Drawer ({
                 {generateChoices(topLevelChoices)}
             </div>
         </DrawerContext.Provider>
-
     )
 }
 
-function Leaf ({ value, label }) {
-    const { name, onChoiceSelect, route } = useContext(DrawerContext)
-    const checked = route.includes(value)
+function Leaf ({ value, label }: DrawerNode): React.ReactNode {
+    const { name, onChoiceSelect, route } = useDrawerContext()
+    const checked = (route == null) ? false : route.includes(value)
 
     return (
-        <button type="button" data-role="leaf" onClick={() => onChoiceSelect(value)}>
+        <button type="button" data-role="leaf" onClick={() => {
+            onChoiceSelect(value)
+        }}>
             {label}
             <div className="icon icon--small" data-role="check">
                 <i className="material-icons">
@@ -86,11 +112,14 @@ function Leaf ({ value, label }) {
     )
 }
 
-function Root ({ value, label }) {
-    const { onChoiceSelect } = useContext(DrawerContext)
+function Root ({ value, label }: DrawerNode): React.ReactNode {
+    const drawerContextValue = useDrawerContext()
+    const { onChoiceSelect } = drawerContextValue
 
     return (
-        <button type="button" data-role="root" onClick={() => onChoiceSelect(value)}>
+        <button type="button" data-role="root" onClick={() => {
+            onChoiceSelect(value)
+        }}>
             {label}
             <div className="icon icon--small" data-role="marker">
                 <i className="material-icons">
@@ -101,8 +130,9 @@ function Root ({ value, label }) {
     )
 }
 
-function Branch ({ root, choices }) {
-    const { generateChoices, route } = useContext(DrawerContext)
+function Branch ({ root, choices }: { root: DrawerNode, choices: NormalizedDataItem[] }): React.ReactNode {
+    const drawerContextValue = useDrawerContext()
+    const { generateChoices, route } = drawerContextValue
     const active = route.includes(root.value)
 
     return (

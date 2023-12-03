@@ -101,7 +101,7 @@ export default function CategoryPicker ({ initial, name }: CategoryPickerInterfa
 
     return (
         <>
-            {confirmedValue && (
+            {(confirmedValue != null) && (
                 <div className="form__helper-text">
                     Current Category:
                     {' '}

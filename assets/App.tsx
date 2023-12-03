@@ -11,11 +11,11 @@ export async function loader (): Promise<{ baseCategory: unknown, allCategories:
 
 export default function App (): React.ReactNode {
     const location = useLocation()
-    const [user, setUser] = useState(null)
+    const [user, setUser] = useState<Record<string, unknown> | null>(null)
     const categoryData = useLoaderData()
 
     useEffect(() => {
-        async function setRequestUser () {
+        async function setRequestUser (): Promise<void> {
             const response = await fetch('/api/user/')
             if (response.ok) {
                 const requestUser = await response.json()
@@ -26,10 +26,10 @@ export default function App (): React.ReactNode {
             }
         }
 
-        setRequestUser()
+        void setRequestUser()
     }, [location])
 
-    return (user && categoryData) && (
+    return (user != null && categoryData != null) && (
         <div className="app">
             <CategoryContext.Provider value={categoryData}>
                 <UserContext.Provider value={{ user, setUser }}>

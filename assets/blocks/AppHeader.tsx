@@ -1,52 +1,51 @@
 import React, {
-    useContext,
-} from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import CategorySearchbar from '../element_groups/CategorySearchbar';
-import { UserContext, CategoryContext } from '../Context';
+    useContext
+} from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import CategorySearchbar from '../element_groups/CategorySearchbar'
+import { useUserContext, useCategoryContext } from '../Context'
 
-export default function AppHeader() {
-    const navigate = useNavigate();
-    const { user, setUser } = useContext(UserContext);
-    const { baseCategory, allCategories } = useContext(CategoryContext);
+export default function AppHeader (): React.ReactNode {
+    const navigate = useNavigate()
+    const { user, setUser } = useUserContext()
+    const { baseCategory, allCategories } = useCategoryContext()
 
     const categorySelectRoot = {
         value: baseCategory.pk,
-        label: baseCategory.name,
-    };
+        label: baseCategory.name
+    }
     const categorySelectOptions = allCategories.map((category) => ({
         value: category.pk,
-        label: category.name,
-    }));
+        label: category.name
+    }))
 
-    async function logout() {
+    async function logout (): Promise<void> {
         await fetch('/api/logout/', {
-            method: 'GET',
-        });
+            method: 'GET'
+        })
 
-        setUser({ is_authenticated: false });
-        navigate('/');
+        setUser({ is_authenticated: false })
+        navigate('/')
     }
 
     return (
         <div className="app__header">
             <div className="app__header-section app__header-section--top">
-                {(user.is_authenticated
-                    && (
-                        <Link to="account/">
-                            <div className="app__go-to">
-                                <div className="icon icon--small icon--hoverable">
-                                    <i className="material-icons">
-                                        person
-                                    </i>
-                                </div>
-                                <div>
-                                    User
-                                </div>
+                {(user.is_authenticated) && (
+                    <Link to="account/">
+                        <div className="app__go-to">
+                            <div className="icon icon--small icon--hoverable">
+                                <i className="material-icons">
+                                    person
+                                </i>
                             </div>
-                        </Link>
-                    )
-                ) || (
+                            <div>
+                                User
+                            </div>
+                        </div>
+                    </Link>
+                )}
+                {(!user.is_authenticated) && (
                     <>
                         <Link to="login/">
                             <div className="app__go-to">
@@ -97,7 +96,7 @@ export default function AppHeader() {
                     </div>
                 </Link>
 
-                {user.is_authenticated && (
+                {(user.is_authenticated) && (
                     <button type="button" className="app__go-to" onClick={logout}>
                         <div className="icon icon--small icon--hoverable">
                             <i className="material-icons">
@@ -130,5 +129,5 @@ export default function AppHeader() {
             </div>
             <div className="app__header-section app__header-section--bottom" />
         </div>
-    );
+    )
 }
