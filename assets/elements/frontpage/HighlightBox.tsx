@@ -1,6 +1,6 @@
-import React from 'react';
+import React from 'react'
 
-export default function HighlightBox() {
+export default function HighlightBox (): React.ReactNode {
     return (
         <div className="frontpage__highlight-box">
             <div className="frontpage__highlight-header">
@@ -49,5 +49,5 @@ export default function HighlightBox() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

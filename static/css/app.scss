@@ -291,51 +291,28 @@
 
     &__gallery {
         @include has-shadow;
-        @include flex-column($space-large, $space-large);
         background-color: #ffffff;
         border: 1px solid map-get($light, dark);
-        width: 100%;
-        box-sizing: border-box;
 
-        &-title {
-            font-size: get-font-size(primary, medium);
-            font-weight: 700;
-            color: map-get($black, dark);
-        }
-
-        &-placeholder {
-            font-size: get-font-size(primary, medium);
-            font-weight: 400;
-            color: map-get($light, dark);
-        }
-
-        &-divider {
-            border-top: 1px solid map-get($light, dark);
-            height: 0px;
-        }
-
-        &-header {
-            display: grid;
-            grid-template: auto / 1fr auto auto;
-            gap: $space-medium;
-            align-items: center;
-        }
-
-        &-content {
-            @include flex-row($space-small, $space-large);
-            border-right: $space-small solid transparent;
-            overflow: auto;
+        [data-role="content"] {
+            scrollbar-gutter: stable;
+            overflow-x: auto;
 
             &::-webkit-scrollbar {
-                background-color: transparent;
-                height: 0px;
-            }    
-        }
+                height: $space-small;
+            }
 
-        &-control {
-            @include base-button;
-            border: 1px solid map-get($light, dark);
-            border-radius: $radius-medium;
+            &::-webkit-scrollbar-thumb {
+                border-radius: 10px;
+            }
+        
+            &::-webkit-scrollbar-corner {
+                background-color: transparent;
+            }
+            
+            &:hover::-webkit-scrollbar-thumb {
+                background-color: hsla(112, 6%, 25%, 0.516);
+            }
         }
     }
 
@@ -750,7 +727,6 @@
         }
     }
 }
-
 
 .overlay {
     position: fixed;

@@ -2,22 +2,12 @@ import React, {
     useContext
 } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import CategorySearchbar from '../element_groups/CategorySearchbar'
+import CategorySearchbar from '../elements/CategorySearchbar'
 import { useUserContext, useCategoryContext } from '../Context'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
     const { user, setUser } = useUserContext()
-    const { baseCategory, allCategories } = useCategoryContext()
-
-    const categorySelectRoot = {
-        value: baseCategory.pk,
-        label: baseCategory.name
-    }
-    const categorySelectOptions = allCategories.map((category) => ({
-        value: category.pk,
-        label: category.name
-    }))
 
     async function logout (): Promise<void> {
         await fetch('/api/logout/', {
@@ -110,10 +100,7 @@ export default function AppHeader (): React.ReactNode {
                 )}
             </div>
             <div className="app__header-section app__header-section--main">
-                <CategorySearchbar
-                    baseCategory={categorySelectRoot}
-                    categories={categorySelectOptions}
-                />
+                <CategorySearchbar />
                 <Link to="/post-ad/">
                     <div className="app__post-ad">
                         <div className="icon icon--small">

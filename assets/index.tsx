@@ -2,25 +2,29 @@ import {
     createRoutesFromElements,
     createBrowserRouter,
     Route,
-    RouterProvider,
-} from 'react-router-dom';
+    RouterProvider
+} from 'react-router-dom'
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 
-import App, { loader as appLoader } from './App';
-import Frontpage, { loader as frontpageLoader } from './blocks/Frontpage';
-import Register from './blocks/Register';
-import Account, { loader as accountLoader } from './blocks/Account';
-import Login from './blocks/Login';
-import PostAd from './blocks/PostAd';
-import AdPostConfirmation from './blocks/AdPostConfirmation';
-import AdDetails, { loader as adDetailLoader } from './blocks/AdDetails';
-import AdEdit from './blocks/AdEdit';
-import AdEditConfirmation from './blocks/AdEditConfirmation';
+import App, { loader as appLoader } from './App'
+import Frontpage, { loader as frontpageLoader } from './blocks/Frontpage'
+import Register from './blocks/Register'
+import Account, { loader as accountLoader } from './blocks/Account'
+import Login from './blocks/Login'
+import PostAd from './blocks/PostAd'
+import AdPostConfirmation from './blocks/AdPostConfirmation'
+import AdDetails, { loader as adDetailLoader } from './blocks/AdDetails'
+import AdEdit from './blocks/AdEdit'
+import AdEditConfirmation from './blocks/AdEditConfirmation'
 
 window.addEventListener('load', () => {
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const rootNode = document.getElementById('root')
+    if (rootNode == null) {
+        return
+    }
+    const root = ReactDOM.createRoot(rootNode)
     const router = createBrowserRouter(
         createRoutesFromElements(
             <Route
@@ -65,11 +69,11 @@ window.addEventListener('load', () => {
                         element={<AdEditConfirmation />}
                     />
                 </Route>
-            </Route>,
-        ),
-    );
+            </Route>
+        )
+    )
 
     root.render(
-        <RouterProvider router={router} />,
-    );
-});
+        <RouterProvider router={router} />
+    )
+})

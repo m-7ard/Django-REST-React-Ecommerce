@@ -94,6 +94,6 @@ class FrontpageApiView(APIView):
         recent_ads = valid_ads.order_by('-latest_push_date')[:10]
 
         return Response({
-            'hightlight_ads': AdModelSerializer(highlight_ads_objects, many=True).data,
-            'recent_ads': AdModelSerializer(recent_ads, many=True).data,
+            'HIGHLIGHT_ADS': AdModelSerializer(highlight_ads_objects, many=True).data,
+            'RECENT_ADS': AdModelSerializer(recent_ads, many=True).data,
         })

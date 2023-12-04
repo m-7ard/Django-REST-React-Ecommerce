@@ -1,3 +1,7 @@
+export interface HTMLEvent extends Event {
+    target: HTMLElement
+}
+
 export interface Category {
     pk: number
     name: string
@@ -25,4 +29,18 @@ export interface UnnormalizedData {
 export interface User {
     is_authenticated: boolean
     [key: string]: any
+}
+
+export interface BaseAd {
+    pk: number
+    [key: string]: unknown
+}
+
+export interface HighlightAd extends BaseAd {
+    highlight: true
+}
+
+export interface FrontPageData {
+    HIGHTLIGHT_ADS: HighlightAd[]
+    RECENT_ADS: BaseAd[]
 }

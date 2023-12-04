@@ -52,34 +52,6 @@ export function normalizeData ({
     }))
 }
 
-export function getNormalizedDataHelpers (data) {
-    function getRoute (value) {
-        const { parent } = getChoice(value)
-        return parent ? [...getRoute(parent), value] : [value]
-    }
-
-    function getSubChoices (value) {
-        return data.filter((choice) => choice.parent === value)
-    }
-
-    function getChoice (value) {
-        return data.find((choice) => choice.value === value)
-    }
-
-    function getRouteString (value) {
-        const choice = getChoice(value)
-        const { parent } = choice
-        return parent ? `${getRouteString(parent)} > ${choice.label}` : choice.label
-    }
-
-    return {
-        getRoute,
-        getSubChoices,
-        getChoice,
-        getRouteString
-    }
-}
-
 export async function fileListToBase64 (fileList) {
     async function getBase64 (file) {
         const reader = new FileReader()
@@ -98,8 +70,6 @@ export async function fileListToBase64 (fileList) {
 
     return await Promise.all(promises)
 }
-
-
 
 export class NormalizedData {
     data: NormalizedDataItem[]
@@ -162,8 +132,4 @@ export function addDotsToNumber (number) {
     }
 
     return groups.join('.')
-}
-
-function isNullOrUndefined (value: any): boolean {
-    return parent === undefined || parent === null
 }
