@@ -7,14 +7,13 @@ import { useUserContext, useCategoryContext } from '../Context'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
-    const { user, setUser } = useUserContext()
+    const { user } = useUserContext()
 
     async function logout (): Promise<void> {
         await fetch('/api/logout/', {
             method: 'GET'
         })
 
-        setUser({ is_authenticated: false })
         navigate('/')
     }
 
@@ -35,34 +34,36 @@ export default function AppHeader (): React.ReactNode {
                         </div>
                     </Link>
                 )}
-                {(!user.is_authenticated) && (
-                    <>
-                        <Link to="login/">
-                            <div className="app__go-to">
-                                <div className="icon icon--small icon--hoverable">
-                                    <i className="material-icons">
-                                        login
-                                    </i>
+                {
+                    (!user.is_authenticated) && (
+                        <>
+                            <Link to="login/">
+                                <div className="app__go-to">
+                                    <div className="icon icon--small icon--hoverable">
+                                        <i className="material-icons">
+                                            login
+                                        </i>
+                                    </div>
+                                    <div>
+                                        Login
+                                    </div>
                                 </div>
-                                <div>
-                                    Login
+                            </Link>
+                            <Link to="register/">
+                                <div className="app__go-to">
+                                    <div className="icon icon--small icon--hoverable">
+                                        <i className="material-icons">
+                                            person_add
+                                        </i>
+                                    </div>
+                                    <div>
+                                        Register
+                                    </div>
                                 </div>
-                            </div>
-                        </Link>
-                        <Link to="register/">
-                            <div className="app__go-to">
-                                <div className="icon icon--small icon--hoverable">
-                                    <i className="material-icons">
-                                        person_add
-                                    </i>
-                                </div>
-                                <div>
-                                    Register
-                                </div>
-                            </div>
-                        </Link>
-                    </>
-                )}
+                            </Link>
+                        </>
+                    )
+                }
                 <div className="app__go-to">
                     <div className="icon icon--small icon--hoverable">
                         <i className="material-icons">

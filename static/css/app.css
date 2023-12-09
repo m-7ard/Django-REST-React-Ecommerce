@@ -416,27 +416,6 @@
   padding: 0;
   gap: 0.75rem;
 }
-.frontpage__gallery {
-  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
-  background-color: #ffffff;
-  border: 1px solid #D6DDD9;
-}
-.frontpage__gallery [data-role=content] {
-  scrollbar-gutter: stable;
-  overflow-x: auto;
-}
-.frontpage__gallery [data-role=content]::-webkit-scrollbar {
-  height: 0.25rem;
-}
-.frontpage__gallery [data-role=content]::-webkit-scrollbar-thumb {
-  border-radius: 10px;
-}
-.frontpage__gallery [data-role=content]::-webkit-scrollbar-corner {
-  background-color: transparent;
-}
-.frontpage__gallery [data-role=content]:hover::-webkit-scrollbar-thumb {
-  background-color: hsla(112, 6%, 25%, 0.516);
-}
 .frontpage__highlight {
   box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
   display: flex;
@@ -444,69 +423,6 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
-}
-.frontpage__highlight-box {
-  display: flex;
-  flex-direction: column;
-  padding: 0.75rem;
-  gap: 0.75rem;
-  background-color: #ffffff;
-  border: 1px solid #D6DDD9;
-  flex: 1 0 0;
-  overflow: hidden;
-  min-width: 15rem;
-}
-.frontpage__highlight-header {
-  display: flex;
-  padding: 0;
-  gap: 0;
-  align-items: center;
-  justify-content: space-between;
-}
-.frontpage__highlight-item {
-  display: grid;
-  grid-template: repeat(4, auto)/4rem 1fr;
-  gap: 0 0.75rem;
-  overflow: hidden;
-}
-.frontpage__highlight-image {
-  background-color: #ffffff;
-  aspect-ratio: 1/1;
-  grid-row: 1/-1;
-  border: 1px solid #D6DDD9;
-}
-.frontpage__highlight-image img {
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  overflow: clip;
-}
-.frontpage__highlight-title {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: #0A0908;
-}
-.frontpage__highlight-label {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: clip;
-  overflow: hidden;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #0A0908;
-}
-.frontpage__highlight-label--main {
-  font-weight: 700;
-}
-.frontpage__highlight-price {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: #D8510E;
-}
-.frontpage__highlight-divider {
-  border-top: 1px solid #D6DDD9;
-  height: 0px;
 }
 .frontpage__ad {
   display: flex;
@@ -1270,6 +1186,9 @@
   font-weight: 700;
   color: #0A0908;
 }
+.prop__title--small {
+  font-size: 0.9375rem;
+}
 .prop__subtitle {
   font-size: 0.75rem;
   font-weight: 400;
@@ -1283,6 +1202,11 @@
 .prop__detail {
   font-size: 0.75rem;
   font-weight: 400;
+  color: #0A0908;
+}
+.prop__label {
+  font-size: 0.8125rem;
+  font-weight: 700;
   color: #0A0908;
 }
 .prop__pairing {
@@ -1369,4 +1293,53 @@
     padding: 0;
     gap: 0.75rem;
   }
+}
+
+.highlight\@frontpage {
+  background-color: #ffffff;
+  border: 1px solid #D6DDD9;
+  flex: 1 0 0;
+  overflow: hidden;
+  min-width: 15rem;
+}
+.highlight\@frontpage__image {
+  background-color: #ffffff;
+  width: 4rem;
+  height: 4rem;
+  border: 1px solid #D6DDD9;
+}
+.highlight\@frontpage__image img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  overflow: clip;
+}
+.highlight\@frontpage__price {
+  color: #D8510E;
+  font-weight: bold;
+}
+.highlight\@frontpage__item {
+  box-shadow: unset;
+}
+
+.gallery\@frontpage {
+  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
+  border: 1px solid #D6DDD9;
+}
+.gallery\@frontpage__ads {
+  scrollbar-gutter: stable;
+  overflow-x: auto;
+}
+.gallery\@frontpage__ads::-webkit-scrollbar {
+  height: 0.25rem;
+}
+.gallery\@frontpage__ads::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
+.gallery\@frontpage__ads::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+.gallery\@frontpage__ads:hover::-webkit-scrollbar-thumb {
+  background-color: hsla(112, 6%, 25%, 0.516);
 }/*# sourceMappingURL=app.css.map */

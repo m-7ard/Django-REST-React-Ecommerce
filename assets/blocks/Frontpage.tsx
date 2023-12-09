@@ -16,13 +16,12 @@ export default function Frontpage (): React.ReactNode {
 
     return (
         <div className='frontpage'>
-            <Gallery title={'Featured Ads'} initial={HIGHTLIGHT_ADS} isHighlight={true} />
+            <Gallery title={'Featured Ads'} ads={HIGHTLIGHT_ADS} isHighlight={true} />
             <div className='frontpage__highlight'>
                 <HighlightBox />
                 <HighlightBox />
             </div>
-            <Gallery title={'Recommended'} initial={RECENT_ADS} isHighlight={false} />
-
+            <Gallery title={'Recommended'} ads={RECENT_ADS} isHighlight={false} />
             <div className='frontpage__main'>
                 <div className='frontpage__header'>
                     <div className='frontpage__title'>
@@ -33,11 +32,13 @@ export default function Frontpage (): React.ReactNode {
                     </div>
                 </div>
                 <div className='frontpage__recent-ads'>
-                    {RECENT_ADS.map((data, i) => {
-                        return (
-                            <Ad isHighlight={false} data={data} key={i} />
-                        )
-                    })}
+                    {
+                        RECENT_ADS?.map((data, i) => {
+                            return (
+                                <Ad isHighlight={false} data={data} key={i} />
+                            )
+                        })
+                    }
                 </div>
             </div>
             <div className='frontpage__highlight'>

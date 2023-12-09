@@ -4,24 +4,24 @@ import Ad from './Ad'
 
 interface GalleryInterface {
     title: string
-    initial: BaseAd[]
+    ads: BaseAd[] | null
     isHighlight: boolean
 }
 
-export default function Gallery ({ title, initial, isHighlight }: GalleryInterface): React.ReactNode {
+export default function Gallery ({ title, ads, isHighlight }: GalleryInterface): React.ReactNode {
     return (
-        <div className="frontpage__gallery prop prop--vertical">
+        <div className="prop prop--vertical gallery@frontpage">
             <div className="prop__header">
-                <div className="prop__title">
+                <div className="prop__title prop__title--small">
                     {title}
                 </div>
             </div>
             <hr className="app__divider" />
-            <div className="prop__row" data-role='content'>
+            <div className="prop__row gallery@frontpage__ads">
                 {
-                    initial != null
+                    ads != null
                         ? (
-                            initial.map((data, i) => (
+                            ads.map((data, i) => (
                                 <Ad
                                     isHighlight={isHighlight}
                                     data={data}
@@ -30,15 +30,15 @@ export default function Gallery ({ title, initial, isHighlight }: GalleryInterfa
                             ))
                         )
                         : (
-                            <div className="prop__subtitle">
+                            <div className="prop__info">
                                 Nothing Here Yet
                             </div>
                         )
                 }
                 {
-                    initial != null
+                    ads != null
                         ? (
-                            initial.map((data, i) => (
+                            ads.map((data, i) => (
                                 <Ad
                                     isHighlight={isHighlight}
                                     data={data}
@@ -47,15 +47,15 @@ export default function Gallery ({ title, initial, isHighlight }: GalleryInterfa
                             ))
                         )
                         : (
-                            <div className="prop__subtitle">
+                            <div className="prop__info">
                                 Nothing Here Yet
                             </div>
                         )
                 }
                 {
-                    initial != null
+                    ads != null
                         ? (
-                            initial.map((data, i) => (
+                            ads.map((data, i) => (
                                 <Ad
                                     isHighlight={isHighlight}
                                     data={data}
@@ -64,7 +64,7 @@ export default function Gallery ({ title, initial, isHighlight }: GalleryInterfa
                             ))
                         )
                         : (
-                            <div className="prop__subtitle">
+                            <div className="prop__info">
                                 Nothing Here Yet
                             </div>
                         )

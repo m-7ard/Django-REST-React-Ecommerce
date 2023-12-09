@@ -2,50 +2,56 @@ import React from 'react'
 
 export default function HighlightBox (): React.ReactNode {
     return (
-        <div className="frontpage__highlight-box">
-            <div className="frontpage__highlight-header">
-                <div className="frontpage__highlight-title">
+        <div className="prop prop--vertical highlight@frontpage">
+            <div className="prop__header">
+                <div className="prop__title prop__title--small">
                     Popular
                 </div>
-                <div className="frontpage__highlight-link">
+                <div className="prop__detail">
                     See All
                 </div>
             </div>
-            <hr className="frontpage__highlight-divider" />
-            <div className="frontpage__highlight-item">
-                <div className="frontpage__highlight-image" />
-                <div className="frontpage__highlight-label frontpage__highlight-label--main">
-                    Label
-                </div>
-                <div className="frontpage__highlight-label">
-                    Some sort of info Some sort of info
-                </div>
-                <div className="frontpage__highlight-price">
-                    100$
-                </div>
-            </div>
-            <div className="frontpage__highlight-item">
-                <div className="frontpage__highlight-image" />
-                <div className="frontpage__highlight-label frontpage__highlight-label--main">
-                    Label
-                </div>
-                <div className="frontpage__highlight-label">
-                    Some sort of info Some sort of info
-                </div>
-                <div className="frontpage__highlight-price">
-                    100$
+            <hr className="app__divider" />
+            <div className="prop__row highlight@frontpage__item">
+                <div className="highlight@frontpage__image" />
+                <div>
+                    <div className="prop__label">
+                        Label
+                    </div>
+                    <div className="prop__detail">
+                        Some sort of info Some sort of info
+                    </div>
+                    <div className="prop__detail highlight@frontpage__price">
+                        100$
+                    </div>
                 </div>
             </div>
-            <div className="frontpage__highlight-item">
-                <div className="frontpage__highlight-image" />
-                <div className="frontpage__highlight-label frontpage__highlight-label--main">
-                    Label
+            <div className="prop__row highlight@frontpage__item">
+                <div className="highlight@frontpage__image" />
+                <div>
+                    <div className="prop__label">
+                        Label
+                    </div>
+                    <div className="prop__detail">
+                        Some sort of info Some sort of info
+                    </div>
+                    <div className="prop__detail highlight@frontpage__price">
+                        100$
+                    </div>
                 </div>
-                <div className="frontpage__highlight-label">
-                    Some sort of info Some sort of info
-                </div>
-                <div className="frontpage__highlight-price">
-                    100$
+            </div>
+            <div className="prop__row highlight@frontpage__item">
+                <div className="highlight@frontpage__image" />
+                <div>
+                    <div className="prop__label">
+                        Label
+                    </div>
+                    <div className="prop__detail">
+                        Some sort of info Some sort of info
+                    </div>
+                    <div className="prop__detail highlight@frontpage__price">
+                        100$
+                    </div>
                 </div>
             </div>
         </div>

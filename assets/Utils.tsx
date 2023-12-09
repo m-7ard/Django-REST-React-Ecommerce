@@ -20,9 +20,9 @@ export function useLoginRequired () {
     }, [])
 }
 
-export function getCookie (name) {
+export function getCookie (name: string): string | null | undefined {
     let cookieValue = null
-    if (document.cookie && document.cookie !== '') {
+    if ((document.cookie != null) && document.cookie !== '') {
         const cookies = document.cookie.split(';')
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim()

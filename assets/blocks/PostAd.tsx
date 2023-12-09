@@ -1,16 +1,16 @@
-import React from 'react';
+import React from 'react'
 
-import { useNavigate } from 'react-router-dom';
-import { useLoginRequired } from '../Utils';
-import CharInput from '../widgets/CharInput';
-import CharTextArea from '../widgets/CharTextArea';
-import CategoryPicker from '../widgets/CategoryPicker';
-import AdImageInput from '../widgets/AdImageInput';
-import GenericForm from '../elements/GenericForm';
+import { useNavigate } from 'react-router-dom'
+import { useLoginRequired } from '../Utils'
+import CharInput from '../widgets/CharInput'
+import CharTextArea from '../widgets/CharTextArea'
+import CategoryPicker from '../widgets/CategoryPicker'
+import AdImageInput from '../widgets/AdImageInput'
+import GenericForm from '../elements/GenericForm'
 
-export default function PostAd() {
-    useLoginRequired();
-    const navigate = useNavigate();
+export default function PostAd (): React.ReactNode {
+    useLoginRequired()
+    const navigate = useNavigate()
 
     return (
         <GenericForm
@@ -29,9 +29,9 @@ export default function PostAd() {
                         component: CharInput,
                         props: {
                             type: 'text',
-                            maxLength: 64,
-                        },
-                    },
+                            maxLength: 64
+                        }
+                    }
                 },
                 {
                     name: 'price',
@@ -39,9 +39,9 @@ export default function PostAd() {
                     widget: {
                         component: CharInput,
                         props: {
-                            inputMode: 'numeric',
-                        },
-                    },
+                            inputMode: 'numeric'
+                        }
+                    }
                 },
                 {
                     name: 'description',
@@ -49,31 +49,31 @@ export default function PostAd() {
                     widget: {
                         component: CharTextArea,
                         props: {
-                            maxLength: 4096,
-                        },
-                    },
+                            maxLength: 4096
+                        }
+                    }
                 },
                 {
                     name: 'category',
                     label: 'Category',
                     widget: {
                         component: CategoryPicker,
-                        props: {},
-                    },
+                        props: {}
+                    }
                 },
                 {
                     name: 'images',
                     label: 'Images',
                     widget: {
                         component: AdImageInput,
-                        props: {},
-                    },
-                },
+                        props: {}
+                    }
+                }
             ]}
-            onSuccess={async (response) => {
-                const ad = await response.json();
-                navigate('success/', { state: ad });
+            onSuccess={async (response: Response) => {
+                const ad = await response.json()
+                navigate('success/', { state: ad })
             }}
         />
-    );
+    )
 }

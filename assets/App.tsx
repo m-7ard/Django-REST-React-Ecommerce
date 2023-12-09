@@ -3,6 +3,7 @@ import { Outlet, useLoaderData, useLocation } from 'react-router-dom'
 import AppHeader from './blocks/AppHeader'
 import { getCategoryData } from './Fetchers'
 import { UserContext, CategoryContext } from './Context'
+import { type CategoryData, type User } from './Types'
 
 export async function loader (): Promise<{ baseCategory: unknown, allCategories: unknown }> {
     const categoryData = await getCategoryData()
@@ -11,8 +12,8 @@ export async function loader (): Promise<{ baseCategory: unknown, allCategories:
 
 export default function App (): React.ReactNode {
     const location = useLocation()
-    const [user, setUser] = useState<Record<string, unknown> | null>(null)
-    const categoryData = useLoaderData()
+    const [user, setUser] = useState<User | null>(null)
+    const categoryData = useLoaderData() as CategoryData
 
     useEffect(() => {
         async function setRequestUser (): Promise<void> {
