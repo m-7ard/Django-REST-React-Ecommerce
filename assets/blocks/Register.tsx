@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import PillSelect from '../widgets/PillSelect'
-import CharInput from '../widgets/CharInput'
+import PillSelect, { PillSelectWidget } from '../widgets/PillSelect'
+import CharInput, { CharInputWidget } from '../widgets/CharInput'
 import GenericForm from '../elements/GenericForm'
 
 export default function Register (): React.ReactNode {
@@ -18,8 +18,7 @@ export default function Register (): React.ReactNode {
                 {
                     name: 'account_type',
                     label: 'Account Type',
-                    widget: PillSelect({
-                        name: 'account_type',
+                    widget: PillSelectWidget({
                         choices: [
                             { label: 'Individual', value: 'individual' },
                             { label: 'Business', value: 'business' }
@@ -29,17 +28,23 @@ export default function Register (): React.ReactNode {
                 {
                     name: 'display_name',
                     label: 'Display Name',
-                    widget: CharInput({ name: 'display_name', type: 'text' })
+                    widget: CharInputWidget({
+                        type: 'text'
+                    })
                 },
                 {
                     name: 'email',
                     label: 'Email',
-                    widget: CharInput({ name: 'email', type: 'email' })
+                    widget: CharInputWidget({
+                        type: 'email'
+                    })
                 },
                 {
                     name: 'password',
                     label: 'Password',
-                    widget: CharInput({ name: 'password', type: 'password' })
+                    widget: CharInputWidget({
+                        type: 'password'
+                    })
                 }
             ]}
             onSuccess={async (response: Response) => {

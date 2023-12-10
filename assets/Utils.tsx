@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, memo } from 'react'
 import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { UserContext } from './Context'
 import { type NormalizedDataItem, type UnnormalizedData } from './Types'

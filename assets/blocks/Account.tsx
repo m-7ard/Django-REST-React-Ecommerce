@@ -1,22 +1,20 @@
-import React, { useContext } from 'react';
-import { Link, useLoaderData } from 'react-router-dom';
+import React from 'react'
+import { Link, useLoaderData } from 'react-router-dom'
 
-import { addDotsToNumber, useLoginRequired } from '../Utils';
-import { getRequestUserAds } from '../Fetchers';
-import { CategoryContext } from '../Context';
+import { addDotsToNumber, useLoginRequired } from '../Utils'
+import { getRequestUserAds } from '../Fetchers'
+import { useCategoryContext } from '../Context'
+import { type BaseAd } from '../Types'
 
-export async function loader({ params }) {
-    const ads = await getRequestUserAds(params.pk);
-    return { ads };
+export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd[]> {
+    const ads = await getRequestUserAds(params.pk)
+    return ads
 }
 
-export default function Account() {
-    useLoginRequired();
-    const { ads } = useLoaderData();
-    const { allCategories } = useContext(CategoryContext);
-    const getCategoryName = (pk) => {
-        const category = allCategories.find((category) => category.pk === pk);
-    };
+export default function Account (): React.ReactNode {
+    useLoginRequired()
+    const ads = useLoaderData() as BaseAd[]
+    const { allCategories } = useCategoryContext()
 
     return (
         <div className="account prop prop--vertical pamphlet">
@@ -27,8 +25,8 @@ export default function Account() {
             </form>
             <hr className="app__divider" />
             <div className="prop__body">
-                {ads.map((ad) => (
-                    <div className="account__ad prop prop--vertical">
+                {ads.map((ad, i) => (
+                    <div className="account__ad prop prop--vertical" key={i}>
                         <div className="account__ad-main">
                             <div className="account__ad-image">
                                 <img src="" />
@@ -36,7 +34,7 @@ export default function Account() {
                             <div className="prop__column grow">
                                 <div className="prop__pairing">
                                     <div className="prop__subtitle">
-                                        {getCategoryName(ad.category)}
+                                        {allCategories.find((category) => category.pk === ad.category)?.name}
                                     </div>
                                     <div className="prop__title">
                                         {ad.title}
@@ -59,7 +57,6 @@ export default function Account() {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
 
@@ -105,5 +102,5 @@ export default function Account() {
 
             </div>
         </div>
-    );
+    )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface FormFieldInterface {
-    widget: React.ReactNode
+    widget: ({ name }: { name: string }) => React.ReactNode
     name: string
     label?: string
     errors: Record<string, string[]> | null
@@ -15,7 +15,7 @@ export default function FormField ({
             <div className="form__label">
                 {label}
             </div>
-            {widget}
+            {widget({ name })}
             {
                 !(errors == null) && (
                     errors[name]?.map((message, i) => {
@@ -27,7 +27,6 @@ export default function FormField ({
                     })
                 )
             }
-
         </div>
     )
 }

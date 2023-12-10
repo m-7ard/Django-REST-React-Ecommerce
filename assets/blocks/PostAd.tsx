@@ -2,10 +2,10 @@ import React from 'react'
 
 import { useNavigate } from 'react-router-dom'
 import { useLoginRequired } from '../Utils'
-import CharInput from '../widgets/CharInput'
-import CharTextArea from '../widgets/CharTextArea'
-import CategoryPicker from '../widgets/CategoryPicker'
-import AdImageInput from '../widgets/AdImageInput'
+import { CharInputWidget } from '../widgets/CharInput'
+import { CharTextAreaWidget } from '../widgets/CharTextArea'
+import { CategoryPickerWidget } from '../widgets/CategoryPicker'
+import { AdImageInputWidget } from '../widgets/AdImageInput'
 import GenericForm from '../elements/GenericForm'
 
 export default function PostAd (): React.ReactNode {
@@ -25,49 +25,34 @@ export default function PostAd (): React.ReactNode {
                 {
                     name: 'title',
                     label: 'Title',
-                    widget: {
-                        component: CharInput,
-                        props: {
-                            type: 'text',
-                            maxLength: 64
-                        }
-                    }
+                    widget: CharInputWidget({
+                        type: 'text',
+                        maxLength: 64
+                    })
                 },
                 {
                     name: 'price',
                     label: 'Price',
-                    widget: {
-                        component: CharInput,
-                        props: {
-                            inputMode: 'numeric'
-                        }
-                    }
+                    widget: CharInputWidget({
+                        inputMode: 'numeric'
+                    })
                 },
                 {
                     name: 'description',
                     label: 'Description',
-                    widget: {
-                        component: CharTextArea,
-                        props: {
-                            maxLength: 4096
-                        }
-                    }
+                    widget: CharTextAreaWidget({
+                        maxLength: 4096
+                    })
                 },
                 {
                     name: 'category',
                     label: 'Category',
-                    widget: {
-                        component: CategoryPicker,
-                        props: {}
-                    }
+                    widget: CategoryPickerWidget({})
                 },
                 {
                     name: 'images',
                     label: 'Images',
-                    widget: {
-                        component: AdImageInput,
-                        props: {}
-                    }
+                    widget: AdImageInputWidget({})
                 }
             ]}
             onSuccess={async (response: Response) => {

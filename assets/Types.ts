@@ -33,6 +33,13 @@ export interface User {
 
 export interface BaseAd {
     pk: number
+    images: string[]
+    category: number
+    created_by: User
+    description: string
+    price: number
+    expiry_date: string
+    title: string
     [key: string]: unknown
 }
 
@@ -43,4 +50,9 @@ export interface HighlightAd extends BaseAd {
 export interface FrontPageData {
     HIGHTLIGHT_ADS: HighlightAd[] | null
     RECENT_ADS: BaseAd[] | null
+}
+
+export interface FormError {
+    name: string
+    msg: string
 }

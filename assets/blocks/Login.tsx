@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import FormField from '../elements/FormField'
-import CharInput from '../widgets/CharInput'
+import React, { useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { CharInputWidget } from '../widgets/CharInput'
 import { useUserContext } from '../Context'
 import GenericForm from '../elements/GenericForm'
 
@@ -29,16 +28,14 @@ export default function Login (): React.ReactNode {
                 {
                     name: 'email',
                     label: 'Email',
-                    widget: CharInput({
-                        name: 'email',
+                    widget: CharInputWidget({
                         type: 'email'
                     })
                 },
                 {
                     name: 'password',
                     label: 'Password',
-                    widget: CharInput({
-                        name: 'password',
+                    widget: CharInputWidget({
                         type: 'password'
                     })
                 }

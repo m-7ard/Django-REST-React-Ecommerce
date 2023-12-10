@@ -1,23 +1,24 @@
-import React, { useContext } from 'react';
-import { useLoaderData } from 'react-router-dom';
-import { getAdData } from '../Fetchers';
-import { CategoryContext } from '../Context';
-import { NormalizedData, addDotsToNumber } from '../Utils';
+import React from 'react'
+import { useLoaderData } from 'react-router-dom'
+import { getAdData } from '../Fetchers'
+import { useCategoryContext } from '../Context'
+import { NormalizedData, addDotsToNumber } from '../Utils'
+import { type BaseAd } from '../Types'
 
-export async function loader({ params }) {
-    const ad = await getAdData(params.pk);
-    return { ad };
+export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
+    const ad = await getAdData(params.pk)
+    return ad
 }
 
-export default function AdDetails() {
-    const { ad } = useLoaderData();
-    const { allCategories } = useContext(CategoryContext);
+export default function AdDetails (): React.ReactNode {
+    const ad = useLoaderData() as BaseAd
+    const { allCategories } = useCategoryContext()
     const NormalizedCategories = new NormalizedData({
         data: allCategories,
         valueKey: 'pk',
         labelKey: 'name',
-        parentKey: 'parent',
-    });
+        parentKey: 'parent'
+    })
 
     return (
         <div className="ad">
@@ -28,8 +29,8 @@ export default function AdDetails() {
             </div>
             <div className="ad__imagebox">
                 <div data-role="image-picker">
-                    {ad.images.map((filename) => (
-                        <div data-role="select-image">
+                    {ad.images.map((filename, i) => (
+                        <div data-role="select-image" key={i}>
                             <img src={`/media/${filename}`} alt="select" />
                         </div>
                     ))}
@@ -92,5 +93,5 @@ export default function AdDetails() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

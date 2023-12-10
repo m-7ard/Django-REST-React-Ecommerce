@@ -6,12 +6,12 @@ import { CategoryContext } from '../Context'
 import { NormalizedData } from '../Utils'
 import Drawer from './Drawer'
 
-interface CategoryPickerInterface {
-    initial: number
+interface CategoryPickerProps {
+    initial?: number
     name: string
 }
 
-export default function CategoryPicker ({ initial, name }: CategoryPickerInterface): React.ReactNode {
+export default function CategoryPicker ({ initial, name }: CategoryPickerProps): React.ReactNode {
     const categoryData = useContext(CategoryContext)
 
     if (categoryData == null) {
@@ -116,4 +116,8 @@ export default function CategoryPicker ({ initial, name }: CategoryPickerInterfa
             <input type="hidden" value={confirmedValue} name={name} />
         </>
     )
+}
+
+export function CategoryPickerWidget (props: Omit<CategoryPickerProps, 'name'>): ({ name }: { name: string }) => React.ReactNode {
+    return ({ name }: { name: string }) => CategoryPicker({ name, ...props })
 }

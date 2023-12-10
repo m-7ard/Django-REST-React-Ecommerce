@@ -1,15 +1,12 @@
 import React from 'react'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import GenericForm from '../elements/GenericForm'
-import { getAdData } from '../Fetchers'
-
-import {
-    CharInput,
-    CharTextArea,
-    CategoryPicker,
-    AdImageInput
-} from '../Widgets'
+import { CharInputWidget } from '../widgets/CharInput'
+import { CharTextAreaWidget } from '../widgets/CharTextArea'
+import { CategoryPickerWidget } from '../widgets/CategoryPicker'
+import { AdImageInputWidget } from '../widgets/AdImageInput'
 import { type BaseAd } from '../Types'
+import { getAdData } from '../Fetchers'
 
 export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
     const ad = await getAdData(params.pk)
@@ -33,56 +30,41 @@ export default function AdEdit (): React.ReactNode {
                 {
                     name: 'title',
                     label: 'Title',
-                    widget: {
-                        component: CharInput,
-                        props: {
-                            type: 'text',
-                            maxLength: 64,
-                            initial: ad.title
-                        }
-                    }
+                    widget: CharInputWidget({
+                        type: 'text',
+                        maxLength: 64,
+                        initial: ad.title
+                    })
                 },
                 {
                     name: 'price',
                     label: 'Price',
-                    widget: {
-                        component: CharInput,
-                        props: {
-                            inputMode: 'numeric',
-                            initial: ad.price
-                        }
-                    }
+                    widget: CharInputWidget({
+                        inputMode: 'numeric',
+                        initial: ad.price
+                    })
                 },
                 {
                     name: 'description',
                     label: 'Description',
-                    widget: {
-                        component: CharTextArea,
-                        props: {
-                            maxLength: 4096,
-                            initial: ad.description
-                        }
-                    }
+                    widget: CharTextAreaWidget({
+                        maxLength: 4096,
+                        initial: ad.description
+                    })
                 },
                 {
                     name: 'category',
                     label: 'Category',
-                    widget: {
-                        component: CategoryPicker,
-                        props: {
-                            initial: ad.category
-                        }
-                    }
+                    widget: CategoryPickerWidget({
+                        initial: ad.category
+                    })
                 },
                 {
                     name: 'images',
                     label: 'Images',
-                    widget: {
-                        component: AdImageInput,
-                        props: {
-                            initial: ad.images
-                        }
-                    }
+                    widget: AdImageInputWidget({
+                        initial: ad.images
+                    })
                 }
             ]}
             onSuccess={async () => {

@@ -8,7 +8,7 @@ interface GenericFormInteface {
     fields: Array<{
         name: string
         label: string
-        widget: React.ReactNode
+        widget: ({ name }: { name: string }) => React.ReactNode
     }>
     resettable?: boolean
     button: {
