@@ -1,15 +1,19 @@
+from datetime import datetime
+import random
+
 from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
 from django.http.response import JsonResponse
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework import status
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT, MEDIA_URL
 from .models import Category, Ad
 from .serializers import CategorySerializer, AdModelSerializer
+from users.models import CustomUser
 
 
 class IndexView(TemplateView):
@@ -29,6 +33,13 @@ class AdViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def list_user_ads(self, request, pk=None):
+        user = CustomUser.objects.get(pk=pk) if pk else request.user
+        user_ads = Ad.objects.filter(created_by=user)
+        serializer = AdModelSerializer(user_ads, many=True)
+        return Response(serializer.data)
 
 
 class AdImageFieldUploadView(View):
@@ -61,9 +72,28 @@ class AdImageFieldUploadView(View):
         stored_file_name = storage.save(file.name, file)
     
         return JsonResponse(
-                {
-                    'name': stored_file_name,
-                    'url': MEDIA_URL + stored_file_name,
-                },
-                status=200
-            )
+            {
+                'fileName': stored_file_name,
+            },
+            status=200
+        )
+    
+
+class FrontpageApiView(APIView):
+    def get(self, request, *args, **kwargs):
+        valid_ads = Ad.objects.filter(expiry_date__gt=datetime.now())
+        
+        highlight_ads_query = valid_ads.filter(highlight_expiry__gt=datetime.now())
+        highlight_ads_pks = list(highlight_ads_query.values_list('pk', flat=True))
+        random_highlight_ads_pks = random.sample(
+            highlight_ads_pks, 
+            min(len(highlight_ads_pks), 10)
+        )
+        
+        highlight_ads_objects = valid_ads.filter(pk__in=random_highlight_ads_pks)
+        recent_ads = valid_ads.order_by('-latest_push_date')[:10]
+
+        return Response({
+            'HIGHLIGHT_ADS': AdModelSerializer(highlight_ads_objects, many=True).data,
+            'RECENT_ADS': AdModelSerializer(recent_ads, many=True).data,
+        })

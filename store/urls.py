@@ -19,11 +19,13 @@ Use this to list all urls and resolvers
 """
 
 urlpatterns = [
-    path('validate_image/', views.AdImageFieldUploadView.as_view())
+    path('validate_image/', views.AdImageFieldUploadView.as_view()),
+    path('frontpage_data/', views.FrontpageApiView.as_view()),
+
 ]
 
 router = routers.DefaultRouter()
-router.register('api/categories', views.CategoryViewSet, basename='category')
 router.register('api/ads', views.AdViewSet, basename='ad')
+router.register('api/categories', views.CategoryViewSet, basename='category')
 
 urlpatterns += router.urls

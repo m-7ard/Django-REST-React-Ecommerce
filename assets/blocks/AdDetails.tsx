@@ -1,25 +1,24 @@
-import React, { useContext } from "react";
-import { getAdData } from "../Fetchers";
-import { useLoaderData } from "react-router-dom";
-import { CategoryContext } from "../App";
-import { NormalizedData, addDotsToNumber, getNormalizedDataHelpers, normalizeData } from "../Utils";
+import React from 'react'
+import { useLoaderData } from 'react-router-dom'
+import { getAdData } from '../Fetchers'
+import { useCategoryContext } from '../Context'
+import { NormalizedData, addDotsToNumber } from '../Utils'
+import { type BaseAd } from '../Types'
 
+export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
+    const ad = await getAdData(params.pk)
+    return ad
+}
 
-export async function loader({params}) {
-    const ad = await getAdData(params.pk);
-    return { ad };
-};
-
-
-export default function AdDetails() {
-    const { ad } = useLoaderData();
-    const { allCategories } = useContext(CategoryContext);
+export default function AdDetails (): React.ReactNode {
+    const ad = useLoaderData() as BaseAd
+    const { allCategories } = useCategoryContext()
     const NormalizedCategories = new NormalizedData({
-        data: allCategories, 
-        valueKey: 'pk', 
-        labelKey: 'name', 
+        data: allCategories,
+        valueKey: 'pk',
+        labelKey: 'name',
         parentKey: 'parent'
-    });
+    })
 
     return (
         <div className="ad">
@@ -30,16 +29,14 @@ export default function AdDetails() {
             </div>
             <div className="ad__imagebox">
                 <div data-role="image-picker">
-                    {ad.images.map((filename) => {
-                        return (
-                            <div data-role="select-image">
-                                <img src={`/media/${filename}`} />
-                            </div>
-                        )
-                    })}
+                    {ad.images.map((filename, i) => (
+                        <div data-role="select-image" key={i}>
+                            <img src={`/media/${filename}`} alt="select" />
+                        </div>
+                    ))}
                 </div>
                 <div data-role="active-image">
-                    <img src={`/media/${ad.images[0]}`} />
+                    <img src={`/media/${ad.images[0]}`} alt="active" />
                 </div>
             </div>
             <div className="ad__main">
@@ -48,14 +45,14 @@ export default function AdDetails() {
                         {ad.title}
                     </div>
                     <div className="ad__price">
-                        {addDotsToNumber(ad.price)}$
+                        {addDotsToNumber(ad.price)}
+                        $
                     </div>
                 </div>
-
                 <div className="ad__seller">
                     <div className="app__avatar">
                         <div className="avatar avatar--small">
-                            <img src={ad.created_by.avatar} />
+                            <img src={ad.created_by.avatar} alt="avatar" />
                         </div>
                     </div>
                     <div className="ad__seller-body">
@@ -70,7 +67,7 @@ export default function AdDetails() {
                                 No Ratings
                             </div>
                             <div className="ad__seller-link">
-                                Seller's Profile
+                                Seller&apos;s Profile
                             </div>
                         </div>
                     </div>
@@ -96,5 +93,5 @@ export default function AdDetails() {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}

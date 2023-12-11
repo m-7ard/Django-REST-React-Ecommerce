@@ -39,7 +39,6 @@ class LogoutView(APIView):
         return Response(status=status.HTTP_200_OK)
     
 
-
 class CurrentUser(APIView):
     permission_classes = [AllowAny]
 
