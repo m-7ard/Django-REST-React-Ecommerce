@@ -18,6 +18,7 @@ import AdPostConfirmation from './blocks/AdPostConfirmation'
 import AdDetails, { loader as adDetailLoader } from './blocks/AdDetails'
 import AdEdit from './blocks/AdEdit'
 import AdEditConfirmation from './blocks/AdEditConfirmation'
+import { LoginRequired } from './Utils'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -49,7 +50,11 @@ window.addEventListener('load', () => {
                 <Route
                     path="post-ad/"
                 >
-                    <Route index element={<PostAd />} />
+                    <Route index element={
+                        <LoginRequired>
+                            <PostAd />
+                        </LoginRequired>
+                    } />
                     <Route
                         path="success/"
                         element={<AdPostConfirmation />}
@@ -61,7 +66,11 @@ window.addEventListener('load', () => {
                     <Route index element={<AdDetails />} loader={adDetailLoader} />
                     <Route
                         path="edit/"
-                        element={<AdEdit />}
+                        element={
+                            <LoginRequired>
+                                <AdEdit />
+                            </LoginRequired>
+                        }
                         loader={adDetailLoader}
                     />
                     <Route

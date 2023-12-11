@@ -297,66 +297,6 @@
         flex-wrap: wrap;
         justify-content: center;
     }
-
-    &__ad {
-        @include flex-column($space-large $space-large $space-large $space-large, $space-large);
-        background-color: $orange;
-        position: relative;
-        flex-shrink: 0;
-        cursor: pointer;
-
-        &--featured {
-            width: 7rem;
-        }
-
-        &--normal {
-            width: 5rem;
-        }
-
-        &-image {
-            width: 100%;
-            border: 1px solid map-get($light, dark);
-            background-color: #ffffff;
-            aspect-ratio: 1 / 1;
-            overflow: clip;
-        
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-        }
-
-        &-title {
-            @include ellipsis;
-            font-size: get-font-size(secondary, large);
-            color: map-get($black, dark);
-            font-weight: 700;
-        }
-
-        &-price {
-            @include ellipsis;
-            font-size: get-font-size(secondary, medium);
-            color: map-get($black, dark);
-            font-weight: 500;
-        }
-
-        &-pricetag {
-            @include has-shadow;
-            @include base-button;
-            @include small-button;
-            background-color: $red;
-            color: #ffffff;
-            font-size: get-font-size(secondary, medium);
-            font-weight: 700;
-            position: absolute;
-            top: $space-small;
-            right: $space-small;
-            user-select: none;
-        }
-
-        
-    }
 }
 
  
@@ -938,52 +878,54 @@
 
 .account {
     border: 1px solid map-get($light, dark);
-    
-    &__ad {
+}
+
+.ad\@account {
+    @include has-shadow;
+    border: 1px solid map-get($light, dark);
+
+    &__main {
+        @include flex-row(0, $space-large);
+    }
+
+    &__image{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: map-get($light, light);
         border: 1px solid map-get($light, dark);
-
-        &-main {
-            @include flex-row(0, $space-large);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
         }
+    }
 
-        &-image{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: map-get($light, light);
-            border: 1px solid map-get($light, dark);
-            min-width: 6rem;
-            aspect-ratio: 1 / 1;
-            
-            img {
-                max-width: 100%;
-                max-height: 100%;
-            }
-        }
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);        
+        justify-content: center;
+        font-weight: 700;
+        color: get_theme_attr($gunmetal_theme, active, bg);
+    }
 
-        &-button {
-            @include base-button;
-            @include small-button;
-            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);        
-            justify-content: center;
-            font-weight: 700;
-            color: get_theme_attr($gunmetal_theme, active, bg);
-        }
+    &__actions {
+        @include flex-row(0, $space-small $space-large);
+        flex-wrap: wrap;
+    }
 
-        &-actions {
-            @include flex-row(0, $space-small $space-large);
-            flex-wrap: wrap;
-        }
+    @media only screen and (max-width: 400px) {
+       &__image {
+            width: 100%;
+       }
 
-        @media only screen and (max-width: 400px) {
-           &-image {
-                width: 100%;
-           }
-
-           &-main {
-                @include flex-column(0, $space-large);
-           }
-        }
+       &__main {
+            @include flex-column(0, $space-large);
+       }
     }
 }
 
@@ -1024,7 +966,6 @@
     border: 1px solid map-get($light, dark);
 
     &__ads {
-        scrollbar-gutter: stable;
         overflow-x: auto;
 
         &::-webkit-scrollbar {
@@ -1040,11 +981,73 @@
         }
         
         &:hover::-webkit-scrollbar-thumb {
-            background-color: hsla(112, 6%, 25%, 0.516);
+            background-color: hsla(112, 6%, 25%, 0.201);
         }
     }
 
     &__placeholder {
         
     }
+}
+
+.ad\@frontpage {
+    @include flex-column(0, $space-medium);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    &--featured {
+        width: 7rem;
+    }
+
+    &--normal {
+        width: 10rem;
+    }
+
+    &__image {
+        width: 100%;
+        background-color: #ffffff;
+        aspect-ratio: 1 / 1;
+        border-radius: $radius-medium;
+        border: 1px solid map-get($light, dark);
+        overflow: clip;
+    
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__title {
+        @include ellipsis;
+        font-size: get-font-size(secondary, large);
+        color: map-get($black, dark);
+        font-weight: 400;
+    }
+
+    &__price {
+        @include ellipsis;
+        font-size: get-font-size(primary, large);
+        color: map-get($black, dark);
+        font-weight: 700;
+        
+        [data-role="price-symbol"] {
+            font-size: get-font-size(secondary, small);
+        }
+    }
+
+    &__pricetag {
+        @include has-shadow;
+        @include base-button;
+        @include small-button;
+        background-color: $red;
+        color: #ffffff;
+        font-size: get-font-size(secondary, medium);
+        font-weight: 700;
+        position: absolute;
+        top: $space-small;
+        right: $space-small;
+        user-select: none;
+    }   
 }

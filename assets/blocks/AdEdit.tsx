@@ -1,5 +1,5 @@
 import React from 'react'
-import { useLoaderData, useNavigate } from 'react-router-dom'
+import { Navigate, useLoaderData, useNavigate } from 'react-router-dom'
 import GenericForm from '../elements/GenericForm'
 import { CharInputWidget } from '../widgets/CharInput'
 import { CharTextAreaWidget } from '../widgets/CharTextArea'
@@ -7,6 +7,7 @@ import { CategoryPickerWidget } from '../widgets/CategoryPicker'
 import { AdImageInputWidget } from '../widgets/AdImageInput'
 import { type BaseAd } from '../Types'
 import { getAdData } from '../Fetchers'
+import { useUserContext } from '../Context'
 
 export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
     const ad = await getAdData(params.pk)
@@ -16,6 +17,11 @@ export async function loader ({ params }: { params: { pk: number } }): Promise<B
 export default function AdEdit (): React.ReactNode {
     const navigate = useNavigate()
     const ad = useLoaderData() as BaseAd
+    const { user } = useUserContext()
+
+    if (ad.created_by.pk !== user.pk) {
+        return <Navigate to={'/'} />
+    }
 
     return (
         <GenericForm

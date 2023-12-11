@@ -1,47 +1,55 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { addDotsToNumber } from '../../Utils';
+import React, { type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import { addDotsToNumber } from '../../Utils'
+import { type BaseAd } from '../../Types'
 
-export default function Ad({ isHighlight, data }) {
+interface AdProps {
+    isHighlight: boolean
+    data: BaseAd
+}
+
+export default function Ad ({ isHighlight, data }: AdProps): ReactNode {
     const {
-        title, price, images, pk,
-    } = data;
+        title, price, images, pk
+    } = data
 
     if (isHighlight) {
         return (
             <Link to={`/ad/${pk}`}>
-                <div className="frontpage__ad frontpage__ad--featured">
-                    <div className="frontpage__ad-image">
+                <div className="ad@frontpage ad@frontpage--featured">
+                    <div className="ad@frontpage__image">
                         <img src={`/media/${images[0]}`} alt="display" />
                     </div>
-                    <div className="frontpage__ad-title">
+                    <div className="ad@frontpage__title">
                         {title}
                     </div>
-                    <div className="frontpage__ad-pricetag">
+                    <div className="ad@frontpage__pricetag">
                         {addDotsToNumber(price)}
-                        $
+                        €
                     </div>
                 </div>
             </Link>
-        );
+        )
     }
 
     return (
         <Link to={`/ad/${pk}`}>
-            <div className="frontpage__ad frontpage__ad--normal">
-                <div className="frontpage__ad-image">
+            <div className="ad@frontpage ad@frontpage--normal">
+                <div className="ad@frontpage__image">
                     <img src={`/media/${images[0]}`} alt="display" />
                 </div>
-                <div>
-                    <div className="frontpage__ad-title">
+                <div className='ad@frontpage__body'>
+                    <div className="ad@frontpage__title">
                         {title}
                     </div>
-                    <div className="frontpage__ad-price">
+                    <div className="ad@frontpage__price">
                         {addDotsToNumber(price)}
-                        $
+                        <span data-role='price-symbol'>
+                            €
+                        </span>
                     </div>
                 </div>
             </div>
         </Link>
-    );
+    )
 }

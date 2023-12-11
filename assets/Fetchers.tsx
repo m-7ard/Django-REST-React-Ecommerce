@@ -1,5 +1,4 @@
-import { type CategoryData, type Category } from './Types'
-import { type FrontPageData } from '../Types'
+import { type CategoryData, type Category, type FrontPageData } from './Types'
 
 export async function getCategoryData (): Promise<CategoryData> {
     const response = await fetch('/api/categories/')
@@ -23,7 +22,7 @@ export async function getAdData (pk) {
     return data
 }
 
-export async function getFrontpageData (): FrontPageData {
+export async function getFrontpageData (): Promise<FrontPageData> {
     const response = await fetch('/frontpage_data/')
     const data = await response.json()
     return data

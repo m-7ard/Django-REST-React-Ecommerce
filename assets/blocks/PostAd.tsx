@@ -9,7 +9,6 @@ import { AdImageInputWidget } from '../widgets/AdImageInput'
 import GenericForm from '../elements/GenericForm'
 
 export default function PostAd (): React.ReactNode {
-    useLoginRequired()
     const navigate = useNavigate()
 
     return (

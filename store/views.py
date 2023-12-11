@@ -80,6 +80,8 @@ class AdImageFieldUploadView(View):
     
 
 class FrontpageApiView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
         valid_ads = Ad.objects.filter(expiry_date__gt=datetime.now())
         
@@ -92,7 +94,6 @@ class FrontpageApiView(APIView):
         
         highlight_ads_objects = valid_ads.filter(pk__in=random_highlight_ads_pks)
         recent_ads = valid_ads.order_by('-latest_push_date')[:10]
-
         return Response({
             'HIGHLIGHT_ADS': AdModelSerializer(highlight_ads_objects, many=True).data,
             'RECENT_ADS': AdModelSerializer(recent_ads, many=True).data,
