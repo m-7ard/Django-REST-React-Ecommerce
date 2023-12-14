@@ -15,7 +15,16 @@ class Category(models.Model):
         null=True,
         blank=True,
     )
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        if creating and self.parent == None:
+            existing_base_category = Category.objects.filter(parent=None).first()
+            if existing_base_category:
+                raise ValidationError("There can exist only one base category.")
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         if self.parent:
@@ -49,7 +58,7 @@ class Ad(models.Model):
         return self.highlight_expiry > datetime.now()
 
     def save(self, *args, **kwargs):
-        if len(self.category.subcategories.all()):
+        if self.category.subcategories.all():
             raise ValidationError(
                 "Category must be leaf category. Leaf category has no subcategories."
             )
