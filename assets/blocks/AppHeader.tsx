@@ -1,9 +1,7 @@
-import React, {
-    useContext
-} from 'react'
+import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import CategorySearchbar from '../elements/CategorySearchbar'
-import { useUserContext, useCategoryContext } from '../Context'
+import { useUserContext } from '../Context'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
@@ -11,18 +9,28 @@ export default function AppHeader (): React.ReactNode {
 
     async function logout (): Promise<void> {
         await fetch('/api/logout/', {
-            method: 'GET'
+            method: 'POST'
         })
 
         navigate('/')
     }
 
     return (
-        <div className="app__header">
-            <div className="app__header-section app__header-section--top">
+        <>
+            <div className="app__header app__header--top">
+                <Link to="/" className='left'>
+                    <div className='app__logo'>
+                        <div>
+                            DRF React
+                        </div>
+                        <div>
+                            E-Commerce
+                        </div>
+                    </div>
+                </Link>
                 {(user.is_authenticated) && (
                     <Link to="account/">
-                        <div className="app__go-to">
+                        <div className="app__go-to right">
                             <div className="icon icon--small icon--hoverable">
                                 <i className="material-icons">
                                     person
@@ -74,21 +82,10 @@ export default function AppHeader (): React.ReactNode {
                         Cart
                     </div>
                 </div>
-                <Link to="/">
-                    <div className="app__go-to">
-                        <div className="icon icon--small icon--hoverable">
-                            <i className="material-icons">
-                                home
-                            </i>
-                        </div>
-                        <div>
-                            Home
-                        </div>
-                    </div>
-                </Link>
-
                 {(user.is_authenticated) && (
-                    <button type="button" className="app__go-to" onClick={logout}>
+                    <button type="button" className="app__go-to" onClick={() => {
+                        void logout()
+                    }}>
                         <div className="icon icon--small icon--hoverable">
                             <i className="material-icons">
                                 logout
@@ -100,7 +97,7 @@ export default function AppHeader (): React.ReactNode {
                     </button>
                 )}
             </div>
-            <div className="app__header-section app__header-section--main">
+            <div className="app__header app__header--main">
                 <CategorySearchbar />
                 <Link to="/post-ad/">
                     <div className="app__post-ad">
@@ -115,7 +112,6 @@ export default function AppHeader (): React.ReactNode {
                     </div>
                 </Link>
             </div>
-            <div className="app__header-section app__header-section--bottom" />
-        </div>
+        </>
     )
 }

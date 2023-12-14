@@ -134,4 +134,20 @@ hr {
 .avatar img {
   max-height: 100%;
   max-width: 100%;
+}
+
+.bottom {
+  margin-top: auto !important;
+}
+
+.top {
+  margin-bottom: auto !important;
+}
+
+.left {
+  margin-right: auto !important;
+}
+
+.right {
+  margin-left: auto !important;
 }/*# sourceMappingURL=header.css.map */

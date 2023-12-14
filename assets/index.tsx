@@ -44,7 +44,11 @@ window.addEventListener('load', () => {
                 />
                 <Route
                     path="account/"
-                    element={<Account />}
+                    element={
+                        <LoginRequired>
+                            <Account />
+                        </LoginRequired>
+                    }
                     loader={accountLoader}
                 />
                 <Route

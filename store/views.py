@@ -17,8 +17,8 @@ from users.models import CustomUser
 
 
 class IndexView(TemplateView):
-    template_name = 'store/frontpage.html'
-    
+    template_name = "store/frontpage.html"
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
@@ -34,7 +34,7 @@ class AdViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def list_user_ads(self, request, pk=None):
         user = CustomUser.objects.get(pk=pk) if pk else request.user
         user_ads = Ad.objects.filter(created_by=user)
@@ -44,57 +44,61 @@ class AdViewSet(viewsets.ModelViewSet):
 
 class AdImageFieldUploadView(View):
     def post(self, request, *args, **kwargs):
-        files = request.FILES.getlist('image')
+        files = request.FILES.getlist("image")
         if len(files) != 1:
             return JsonResponse(status=400)
-        
+
         file = files[0]
 
-        if not file.content_type in ['image/png', 'image/jpeg']:
+        if not file.content_type in ["image/png", "image/jpeg"]:
             return JsonResponse(
                 {
-                    'name': file.name,
-                    'msg': 'Wrong format file. Only PNG and JPG is allowed.',
-                }, 
-                status=415
+                    "name": file.name,
+                    "msg": "Wrong format file. Only PNG and JPG is allowed.",
+                },
+                status=415,
             )
         if file.size > 12582912:
             # 12582912 is 12 mb
             return JsonResponse(
                 {
-                    'name': file.name,
-                    'msg': 'Image too big. Only up to 12mb is allowed.',
-                }, 
-                status=413
+                    "name": file.name,
+                    "msg": "Image too big. Only up to 12mb is allowed.",
+                },
+                status=413,
             )
 
         storage = FileSystemStorage(MEDIA_ROOT)
         stored_file_name = storage.save(file.name, file)
-    
+
         return JsonResponse(
             {
-                'fileName': stored_file_name,
+                "fileName": stored_file_name,
             },
-            status=200
+            status=200,
         )
-    
+
 
 class FrontpageApiView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         valid_ads = Ad.objects.filter(expiry_date__gt=datetime.now())
-        
+
         highlight_ads_query = valid_ads.filter(highlight_expiry__gt=datetime.now())
-        highlight_ads_pks = list(highlight_ads_query.values_list('pk', flat=True))
+        highlight_ads_pks = list(highlight_ads_query.values_list("pk", flat=True))
         random_highlight_ads_pks = random.sample(
-            highlight_ads_pks, 
-            min(len(highlight_ads_pks), 10)
+            highlight_ads_pks, min(len(highlight_ads_pks), 10)
         )
-        
+
         highlight_ads_objects = valid_ads.filter(pk__in=random_highlight_ads_pks)
-        recent_ads = valid_ads.order_by('-latest_push_date')[:10]
-        return Response({
-            'HIGHLIGHT_ADS': AdModelSerializer(highlight_ads_objects, many=True).data,
-            'RECENT_ADS': AdModelSerializer(recent_ads, many=True).data,
-        })
+        recent_ads = valid_ads.order_by("-latest_push_date")[:10]
+
+        return Response(
+            {
+                "HIGHLIGHT_ADS": AdModelSerializer(
+                    highlight_ads_objects, many=True
+                ).data,
+                "RECENT_ADS": AdModelSerializer(recent_ads, many=True).data,
+            }
+        )

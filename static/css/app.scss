@@ -29,10 +29,6 @@
         height: 0px;
     }
 
-    &__header {
-        @include flex-column(0, 0);
-    }
-
     &__go-to {
         @include base-button;
         @include flex-column(0, 0);
@@ -40,6 +36,10 @@
         font-size: get-font-size(secondary, small);
         color: map-get($black, dark);
         font-weight: 500;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 
     &__post-ad {
@@ -56,13 +56,13 @@
         }
     }
 
-    &__header-section {
-        @include flex-row($space-medium $space-large, $space-large);
+    &__header {
+        @include flex-row($space-medium $space-large, $space-medium $space-large);
         align-items: center;
 
         &--top {
             background-color: #ffffff;
-            justify-content: flex-end;;
+            flex-wrap: wrap;
         }
 
         &--bottom {
@@ -73,6 +73,19 @@
         &--main {
             background-color: $orange;
             justify-content: center;
+        }
+    }
+
+    &__logo {
+        @include base-button;
+        @include flex-column(0, 0);
+        font-size: get-font-size(secondary, small);
+        font-weight: 700;
+        color: map-get($black, dark);
+
+        div {
+            @include ellipsis;
+            width: fit-content;
         }
     }
 
@@ -173,11 +186,6 @@
                 border: 1px solid get_theme_attr($theme, inactive, bg);
             }
         }
-    }
-
-    &__logo {
-        @include base-button;
-        color: map-get($light, light);
     }
 
     &__icon {
@@ -997,11 +1005,11 @@
     cursor: pointer;
 
     &--featured {
-        width: 7rem;
+        width: 10rem;
     }
 
     &--normal {
-        width: 10rem;
+        width: 7rem;
     }
 
     &__image {

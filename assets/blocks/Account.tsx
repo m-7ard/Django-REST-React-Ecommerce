@@ -6,8 +6,8 @@ import { getRequestUserAds } from '../Fetchers'
 import { useCategoryContext } from '../Context'
 import { type BaseAd } from '../Types'
 
-export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd[]> {
-    const ads = await getRequestUserAds(params.pk)
+export async function loader (): Promise<BaseAd[]> {
+    const ads = await getRequestUserAds()
     return ads
 }
 

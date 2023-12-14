@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import FormField from './FormField'
-import { CSRFToken, getCookie } from '../Utils'
+import { getCookie } from '../Utils'
 
 interface GenericFormInteface {
     action: string
@@ -33,11 +33,24 @@ export default function GenericForm ({
             return
         }
 
-        const csrfToken = getCookie('csrftoken')
+        const requestHeaders: {
+            'X-CSRFToken'?: string
+        } = {}
+
+        if (hasCSRF) {
+            const csrfToken = getCookie('csrftoken')
+
+            if (csrfToken == null) {
+                throw Error('Failed to get csrftoken')
+            }
+
+            requestHeaders['X-CSRFToken'] = csrfToken
+        }
+
         const response = await fetch(form.action, {
             method,
             body: new FormData(form),
-            headers: (csrfToken == null) ? undefined : { 'X-CSRFToken': csrfToken }
+            headers: requestHeaders
         })
 
         if (response.ok) {
@@ -58,7 +71,6 @@ export default function GenericForm ({
             </div>
             <hr className="app__divider" />
             <div className="prop__body grow">
-                {hasCSRF && <CSRFToken />}
                 {
                     (errors != null) && (
                         <div className="form__field">
