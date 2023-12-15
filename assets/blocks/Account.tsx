@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 
-import { addDotsToNumber, useLoginRequired } from '../Utils'
+import { addDotsToNumber } from '../Utils'
 import { getRequestUserAds } from '../Fetchers'
 import { useCategoryContext } from '../Context'
 import { type BaseAd } from '../Types'
@@ -12,7 +12,6 @@ export async function loader (): Promise<BaseAd[]> {
 }
 
 export default function Account (): React.ReactNode {
-    useLoginRequired()
     const ads = useLoaderData() as BaseAd[]
     const { allCategories } = useCategoryContext()
 

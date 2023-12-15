@@ -29,13 +29,13 @@ export async function getFrontpageData (): Promise<FrontPageData> {
 }
 
 export async function getUserAds (pk) {
-    const response = await fetch(`/api/ads/list_user_ads/${pk}`)
+    const response = await fetch(`/api/list_user_ads/${pk}/`)
     const data = await response.json()
     return data
 }
 
 export async function getRequestUserAds (): Promise<BaseAd[]> {
-    const response = await fetch('/api/ads/list_user_ads/')
+    const response = await fetch('/api/list_user_ads/')
     const data = await response.json()
     return data
 }

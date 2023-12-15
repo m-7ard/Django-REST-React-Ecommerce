@@ -27,15 +27,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class AdViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
     queryset = Ad.objects.all()
     serializer_class = AdModelSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
 
-    @action(detail=False, methods=["get"])
-    def list_user_ads(self, request, pk=None):
+class ListUserAds(APIView):
+    def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk) if pk else request.user
         user_ads = Ad.objects.filter(created_by=user)
         serializer = AdModelSerializer(user_ads, many=True)

@@ -1,9 +1,11 @@
 from rest_framework.test import APITestCase
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from users.models import CustomUser
 from .models import Ad, Category
+from .serializers import AdModelSerializer
 
 
 class AdModelTest(APITestCase):
@@ -99,4 +101,102 @@ class CategoryModelTest(APITestCase):
 
 
 class AdViewSetTest(APITestCase):
-    pass
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="test_user@mail.com",
+            password="userword",
+            display_name="test_user",
+            account_type="individual",
+        )
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.base_category = Category.objects.create(name="All Categories", parent=None)
+        self.leaf_category = Category.objects.create(
+            name="Category 1", parent=self.base_category
+        )
+        self.ad_data = {
+            "title": "Test Ad",
+            "description": "This is a test ad.",
+            "price": 100,
+            "images": ["image1.jpg", "image2.jpg"],
+        }
+
+    def test_api_valid_category_ad_create(self):
+        response = self.client.post(
+            "/api/ads/", data={**self.ad_data, "category": self.leaf_category.pk}
+        )
+        self.assertEqual(response.status_code, 201, "Failed to create ad.")
+
+    def test_api_invalid_category_ad_create(self):
+        response = self.client.post(
+            "/api/ads/", data={**self.ad_data, "category": self.base_category.pk}
+        )
+        self.assertEqual(
+            response.status_code, 400, "Only leaf categories must be allowed."
+        )
+
+
+class ListUserAdsTest(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="test_user@mail.com",
+            password="userword",
+            display_name="test_user",
+            account_type="individual",
+        )
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.base_category = Category.objects.create(name="All Categories", parent=None)
+        self.leaf_category = Category.objects.create(
+            name="Category 1", parent=self.base_category
+        )
+        self.ad_data = {
+            "title": "Test Ad",
+            "description": "This is a test ad.",
+            "price": 100,
+            "images": ["image1.jpg", "image2.jpg"],
+        }
+
+    def test_api_list_request_user_ads(self):
+        ad1 = Ad.objects.create(
+            title="Ad 1",
+            description="Description 1",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+        )
+        ad2 = Ad.objects.create(
+            title="Ad 2",
+            description="Description 2",
+            price=75,
+            created_by=self.user,
+            category=self.leaf_category,
+        )
+        response = self.client.get("/api/list_user_ads/")
+        self.assertEqual(response.status_code, 200, "Failed to retrieve user ads.")
+        serialized_ads = AdModelSerializer([ad1, ad2], many=True).data
+        self.assertEqual(response.data, serialized_ads, "Incorrect user ads data.")
+
+    def test_api_list_user_ads_through_pk(self):
+        ad1 = Ad.objects.create(
+            title="Ad 1",
+            description="Description 1",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+        )
+        ad2 = Ad.objects.create(
+            title="Ad 2",
+            description="Description 2",
+            price=75,
+            created_by=self.user,
+            category=self.leaf_category,
+        )
+        response = self.client.get(f"/api/list_user_ads/{self.user.pk}/")
+        self.assertEqual(response.status_code, 200, "Failed to retrieve user ads.")
+        serialized_ads = AdModelSerializer([ad1, ad2], many=True).data
+        self.assertEqual(response.data, serialized_ads, "Incorrect user ads data.")
