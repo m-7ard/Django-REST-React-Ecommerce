@@ -4,13 +4,12 @@ import random
 from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
 from django.http.response import JsonResponse
+from django.conf import settings
 from rest_framework import viewsets
-from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 
-from Django_REST_ecommerce.settings import MEDIA_ROOT, MEDIA_URL
 from .models import Category, Ad
 from .serializers import CategorySerializer, AdModelSerializer
 from users.models import CustomUser
@@ -43,7 +42,9 @@ class ListUserAds(APIView):
         return Response(serializer.data)
 
 
-class AdImageFieldUploadView(View):
+class AdImageFieldUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         files = request.FILES.getlist("image")
         if len(files) != 1:
@@ -52,7 +53,7 @@ class AdImageFieldUploadView(View):
         file = files[0]
 
         if not file.content_type in ["image/png", "image/jpeg"]:
-            return JsonResponse(
+            return Response(
                 {
                     "name": file.name,
                     "msg": "Wrong format file. Only PNG and JPG is allowed.",
@@ -61,7 +62,7 @@ class AdImageFieldUploadView(View):
             )
         if file.size > 12582912:
             # 12582912 is 12 mb
-            return JsonResponse(
+            return Response(
                 {
                     "name": file.name,
                     "msg": "Image too big. Only up to 12mb is allowed.",
@@ -69,10 +70,10 @@ class AdImageFieldUploadView(View):
                 status=413,
             )
 
-        storage = FileSystemStorage(MEDIA_ROOT)
+        storage = FileSystemStorage(settings.MEDIA_ROOT)
         stored_file_name = storage.save(file.name, file)
 
-        return JsonResponse(
+        return Response(
             {
                 "fileName": stored_file_name,
             },

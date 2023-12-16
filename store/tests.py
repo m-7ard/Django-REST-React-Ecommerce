@@ -1,11 +1,19 @@
+from datetime import timedelta, datetime
+import shutil
+
 from rest_framework.test import APITestCase
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
-from django.urls import reverse
+from django.core.files.storage import FileSystemStorage
+from django.test import override_settings
+from django.conf import settings
 
 from users.models import CustomUser
 from .models import Ad, Category
 from .serializers import AdModelSerializer
+
+
+MEDIA_ROOT = settings.MEDIA_ROOT
 
 
 class AdModelTest(APITestCase):
@@ -200,3 +208,102 @@ class ListUserAdsTest(APITestCase):
         self.assertEqual(response.status_code, 200, "Failed to retrieve user ads.")
         serialized_ads = AdModelSerializer([ad1, ad2], many=True).data
         self.assertEqual(response.data, serialized_ads, "Incorrect user ads data.")
+
+
+class FrontpageApiViewTest(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="test_user@mail.com",
+            password="userword",
+            display_name="test_user",
+            account_type="individual",
+        )
+        self.base_category = Category.objects.create(name="All Categories", parent=None)
+        self.leaf_category = Category.objects.create(
+            name="Category 1", parent=self.base_category
+        )
+        self.highlight_ad_1 = Ad.objects.create(
+            title="Highlight Ad 1",
+            description="Description 1",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+            highlight_expiry=datetime.now() + timedelta(days=30),
+        )
+        self.highlight_ad_2 = Ad.objects.create(
+            title="Highlight Ad 2",
+            description="Description 2",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+            highlight_expiry=datetime.now() + timedelta(days=30),
+        )
+
+        self.normal_ad_1 = Ad.objects.create(
+            title=f"Normal Ad 1",
+            description=f"Description 1",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+        )
+        self.normal_ad_2 = Ad.objects.create(
+            title=f"Normal Ad 2",
+            description=f"Description 2",
+            price=50,
+            created_by=self.user,
+            category=self.leaf_category,
+        )        
+
+    def test_frontpage_api_view(self):
+        response = self.client.get('/api/frontpage_data/')
+        self.assertEqual(response.status_code, 200, "Failed to retrieve frontpage data.")
+
+        self.assertIn("HIGHLIGHT_ADS", response.data, "Missing 'HIGHLIGHT_ADS' key in response.")
+        self.assertIn("RECENT_ADS", response.data, "Missing 'RECENT_ADS' key in response.")
+
+        highlight_ads_data = response.data["HIGHLIGHT_ADS"]
+        self.assertEqual(len(highlight_ads_data), 2, "Unexpected number of highlight ads.")
+
+        recent_ads_data = response.data["RECENT_ADS"]
+        self.assertEqual(len(recent_ads_data), 4, "Unexpected number of recent ads.")
+
+    
+class AdImageFieldUploadViewTest(APITestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="test_user@mail.com",
+            password="userword",
+            display_name="test_user",
+            account_type="individual",
+        )
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.storage = FileSystemStorage(MEDIA_ROOT)
+        self.small_image = self.storage.open('tests/small_image.png')
+        self.large_image = self.storage.open('tests/large_image.png')
+        self.inavlid_file = self.storage.open('tests/invalid_file.txt')
+
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+    def test_valid_upload(self):
+        response = self.client.post('/api/validate_image/', {"image": [self.small_image]})
+        self.assertEqual(response.status_code, 200, "Failed to upload image.")
+        self.assertIn('fileName', response.data, "AdImageFieldUploadView did not return filename.")
+        self.assertTrue(self.storage.exists(response.data['fileName']), "Valid files must be stored.")
+
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+    def test_too_large_image(self):
+        response = self.client.post('/api/validate_image/', {"image": [self.large_image]})
+        self.assertEqual(response.status_code, 413, "Images over 12mb must not be allowed to be uploaded.")
+    
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+    def test_invalid_format_file(self):
+        response = self.client.post('/api/validate_image/', {"image": [self.inavlid_file]})
+        self.assertEqual(response.status_code, 415, "Invalid file formats must not be allowed to be uploaded.")
+
+    def tearDown(self):
+        try:
+            shutil.rmtree(MEDIA_ROOT + '\\tests\\temp_files')
+        except OSError:
+            pass

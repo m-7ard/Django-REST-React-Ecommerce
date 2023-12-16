@@ -19,8 +19,8 @@ Use this to list all urls and resolvers
 """
 
 urlpatterns = [
-    path("validate_image/", views.AdImageFieldUploadView.as_view()),
-    path("frontpage_data/", views.FrontpageApiView.as_view()),
+    path("api/validate_image/", views.AdImageFieldUploadView.as_view()),
+    path("api/frontpage_data/", views.FrontpageApiView.as_view()),
     path("api/list_user_ads/<int:pk>/", views.ListUserAds.as_view()),
     path("api/list_user_ads/", views.ListUserAds.as_view(), kwargs={'pk': None}),
 ]
