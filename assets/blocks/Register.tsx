@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import PillSelect, { PillSelectWidget } from '../widgets/PillSelect'
-import CharInput, { CharInputWidget } from '../widgets/CharInput'
+import { PillSelectWidget } from '../widgets/PillSelect'
+import { CharInputWidget } from '../widgets/CharInput'
 import GenericForm from '../elements/GenericForm'
 
 export default function Register (): React.ReactNode {

@@ -1,11 +1,11 @@
 import React from 'react'
-import { useLoaderData } from 'react-router-dom'
+import { type LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
 import { getAdData } from '../Fetchers'
 import { useCategoryContext } from '../Context'
 import { NormalizedData, addDotsToNumber } from '../Utils'
 import { type BaseAd } from '../Types'
 
-export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
+export async function loader ({ params }: LoaderFunctionArgs<{ pk: number }>): Promise<BaseAd> {
     const ad = await getAdData(params.pk)
     return ad
 }

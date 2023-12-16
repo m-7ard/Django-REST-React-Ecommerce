@@ -1,18 +1,17 @@
 import React from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 
-import { addDotsToNumber, useLoginRequired } from '../Utils'
+import { addDotsToNumber } from '../Utils'
 import { getRequestUserAds } from '../Fetchers'
 import { useCategoryContext } from '../Context'
 import { type BaseAd } from '../Types'
 
-export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd[]> {
-    const ads = await getRequestUserAds(params.pk)
+export async function loader (): Promise<BaseAd[]> {
+    const ads = await getRequestUserAds()
     return ads
 }
 
 export default function Account (): React.ReactNode {
-    useLoginRequired()
     const ads = useLoaderData() as BaseAd[]
     const { allCategories } = useCategoryContext()
 
@@ -26,10 +25,10 @@ export default function Account (): React.ReactNode {
             <hr className="app__divider" />
             <div className="prop__body">
                 {ads.map((ad, i) => (
-                    <div className="account__ad prop prop--vertical" key={i}>
-                        <div className="account__ad-main">
-                            <div className="account__ad-image">
-                                <img src="" />
+                    <div className="ad@account prop prop--vertical" key={i}>
+                        <div className="ad@account__main">
+                            <div className="ad@account__image">
+                                <img src={`/media/${ad.images?.[0]}`} />
                             </div>
                             <div className="prop__column grow">
                                 <div className="prop__pairing">
@@ -59,10 +58,9 @@ export default function Account (): React.ReactNode {
                                 </div>
                             </div>
                         </div>
-
-                        <div className="account__ad-actions">
+                        <div className="ad@account__actions">
                             <Link to={`/ad/${ad.pk}/edit`}>
-                                <div className="account__ad-button">
+                                <div className="ad@account__button">
                                     Edit
                                     <div className="icon icon--small">
                                         <i className="material-icons">
@@ -71,7 +69,7 @@ export default function Account (): React.ReactNode {
                                     </div>
                                 </div>
                             </Link>
-                            <div className="account__ad-button">
+                            <div className="ad@account__button">
                                 Unlist
                                 <div className="icon icon--small">
                                     <i className="material-icons">
@@ -79,7 +77,7 @@ export default function Account (): React.ReactNode {
                                     </i>
                                 </div>
                             </div>
-                            <div className="account__ad-button">
+                            <div className="ad@account__button">
                                 Delete
                                 <div className="icon icon--small">
                                     <i className="material-icons">
@@ -87,7 +85,7 @@ export default function Account (): React.ReactNode {
                                     </i>
                                 </div>
                             </div>
-                            <div className="account__ad-button">
+                            <div className="ad@account__button">
                                 Boost
                                 <div className="icon icon--small">
                                     <i className="material-icons">
@@ -96,10 +94,8 @@ export default function Account (): React.ReactNode {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 ))}
-
             </div>
         </div>
     )

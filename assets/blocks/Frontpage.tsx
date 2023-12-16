@@ -12,11 +12,11 @@ export async function loader (): Promise<FrontPageData> {
 }
 
 export default function Frontpage (): React.ReactNode {
-    const { HIGHTLIGHT_ADS, RECENT_ADS } = useLoaderData() as FrontPageData
+    const { HIGHLIGHT_ADS, RECENT_ADS } = useLoaderData() as FrontPageData
 
     return (
         <div className='frontpage'>
-            <Gallery title={'Featured Ads'} ads={HIGHTLIGHT_ADS} isHighlight={true} />
+            <Gallery title={'Featured Ads'} ads={HIGHLIGHT_ADS} isHighlight={true} />
             <div className='frontpage__highlight'>
                 <HighlightBox />
                 <HighlightBox />

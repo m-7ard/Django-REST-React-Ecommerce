@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, memo } from 'react'
-import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
-import { UserContext } from './Context'
+import React, { useContext, useLayoutEffect } from 'react'
+import { Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
+import { UserContext, useUserContext } from './Context'
 import { type NormalizedDataItem, type UnnormalizedData } from './Types'
 
 export function useLoginRequired () {
@@ -8,7 +8,7 @@ export function useLoginRequired () {
     const location = useLocation()
     const navigate = useNavigate()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!user.is_authenticated) {
             navigate({
                 pathname: '/login/',
@@ -132,4 +132,18 @@ export function addDotsToNumber (number) {
     }
 
     return groups.join('.')
+}
+
+export function LoginRequired ({ children }: React.PropsWithChildren): null | React.ReactNode {
+    const { user } = useUserContext()
+    const location = useLocation()
+
+    if (!user.is_authenticated) {
+        const next = createSearchParams({
+            next: location.pathname
+        }).toString()
+        return <Navigate to={`/login?${next}`} />
+    }
+
+    return children
 }

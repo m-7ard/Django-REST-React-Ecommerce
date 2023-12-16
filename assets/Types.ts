@@ -48,7 +48,7 @@ export interface HighlightAd extends BaseAd {
 }
 
 export interface FrontPageData {
-    HIGHTLIGHT_ADS: HighlightAd[] | null
+    HIGHLIGHT_ADS: HighlightAd[] | null
     RECENT_ADS: BaseAd[] | null
 }
 
