@@ -1,117 +1,118 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import CategorySearchbar from '../elements/CategorySearchbar'
 import { useUserContext } from '../Context'
+import Dropdown from '../elements/Dropdown'
+import Directory from '../elements/app_header/Directory'
+import { getCookie } from '../Utils'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
     const { user } = useUserContext()
 
     async function logout (): Promise<void> {
+        const csrfToken = getCookie('csrftoken')
+
         await fetch('/api/logout/', {
-            method: 'POST'
+            method: 'POST',
+            headers: {
+                ...(csrfToken != null && { 'X-CSRFToken': csrfToken })
+            }
         })
 
         navigate('/')
     }
 
     return (
-        <>
-            <div className="app__header app__header--top">
-                <Link to="/" className='left'>
-                    <div className='app__logo'>
-                        <div>
-                            DRF React
-                        </div>
-                        <div>
-                            E-Commerce
-                        </div>
+        <div className='header@app'>
+            <div className="header@app__section header@app__section--top">
+                <Link to="/">
+                    <div className='header@app__logo'>
+                        DRF React E-Commerce
                     </div>
                 </Link>
-                {(user.is_authenticated) && (
-                    <Link to="account/">
-                        <div className="app__go-to right">
-                            <div className="icon icon--small icon--hoverable">
+                <div className='header@app__group'>
+                    {
+                        (user.is_authenticated) && (
+                            <Directory iconName='notifications' to='account/'/>
+                        )
+                    }
+                    {
+                        (!user.is_authenticated) && (
+                            <>
+
+                            </>
+                        )
+                    }
+                    <Directory iconName='shopping_cart' to='/' text='(0)' />
+                    <Dropdown
+                        extraClass={'header@app__account'}
+                        trigger={
+                            <Directory iconName='menu' text='Account' />
+                        }
+                        content={
+                            <div className='header@app__menu'>
+                                {
+                                    user.is_authenticated
+                                        ? (
+                                            <>
+                                                <Link to={'/account/'} data-role="close"> Profile </Link>
+                                                <div data-role="close"> Orders </div>
+                                                <div data-role="close"> Bookmarks </div>
+                                                <div data-role="close"> Settings </div>
+                                                <div data-role="close"> Bids </div>
+                                                <div data-role="close"
+                                                    onClick={() => {
+                                                        void logout()
+                                                    }}> Logout </div>
+                                            </>
+                                        )
+                                        : (
+                                            <>
+                                                <Link to={'/register/'} data-role="close"> Register </Link>
+                                                <Link to={'/login/'} data-role="close"> Login </Link>
+                                            </>
+                                        )
+                                }
+
+                            </div>
+                        }
+                        positioning={{
+                            top: '100%',
+                            right: '0'
+                        }}
+                    />
+                </div>
+            </div>
+            <div className="header@app__section header@app__section--main">
+                <div className="header@app__centered">
+                    <div className="header@app__search-widget">
+                        <div className="header@app__search-field">
+                            <div data-role="input">
+                                <input type="text" />
+                            </div>
+                        </div>
+                        <div className="header@app__search-button">
+                            <div className="icon icon--small">
                                 <i className="material-icons">
-                                    person
+                                    search
                                 </i>
                             </div>
-                            <div>
-                                User
+                        </div>
+                    </div>
+                    <Link to="/post-ad/">
+                        <div className="header@app__post-ad">
+                            <div className="icon icon--small">
+                                <i className="material-icons">
+                                    new_label
+                                </i>
+                            </div>
+                            <div data-role="text">
+                                Post Ad
                             </div>
                         </div>
                     </Link>
-                )}
-                {
-                    (!user.is_authenticated) && (
-                        <>
-                            <Link to="login/">
-                                <div className="app__go-to">
-                                    <div className="icon icon--small icon--hoverable">
-                                        <i className="material-icons">
-                                            login
-                                        </i>
-                                    </div>
-                                    <div>
-                                        Login
-                                    </div>
-                                </div>
-                            </Link>
-                            <Link to="register/">
-                                <div className="app__go-to">
-                                    <div className="icon icon--small icon--hoverable">
-                                        <i className="material-icons">
-                                            person_add
-                                        </i>
-                                    </div>
-                                    <div>
-                                        Register
-                                    </div>
-                                </div>
-                            </Link>
-                        </>
-                    )
-                }
-                <div className="app__go-to">
-                    <div className="icon icon--small icon--hoverable">
-                        <i className="material-icons">
-                            shopping_cart
-                        </i>
-                    </div>
-                    <div>
-                        Cart
-                    </div>
                 </div>
-                {(user.is_authenticated) && (
-                    <button type="button" className="app__go-to" onClick={() => {
-                        void logout()
-                    }}>
-                        <div className="icon icon--small icon--hoverable">
-                            <i className="material-icons">
-                                logout
-                            </i>
-                        </div>
-                        <div>
-                            Logout
-                        </div>
-                    </button>
-                )}
             </div>
-            <div className="app__header app__header--main">
-                <CategorySearchbar />
-                <Link to="/post-ad/">
-                    <div className="app__post-ad">
-                        <div className="icon icon--small">
-                            <i className="material-icons">
-                                add_box
-                            </i>
-                        </div>
-                        <div data-role="text">
-                            Post Ad
-                        </div>
-                    </div>
-                </Link>
-            </div>
-        </>
+        </div>
     )
 }

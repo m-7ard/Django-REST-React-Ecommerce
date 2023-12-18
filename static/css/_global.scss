@@ -136,14 +136,14 @@
     @include default-color-transition;
     @include flex-row($space-small $space-large, $space-medium);
     font-size: get-font-size(secondary, small); 
-    border-radius: $space-small;
+    border-radius: $radius-small;
 }
 
 @mixin medium-button {
     @include default-color-transition;
     @include flex-row($space-medium $space-large, $space-medium);
     font-size: get-font-size(secondary, medium);
-    border-radius: $radius-medium;
+    border-radius: $radius-small;
 }
 
 @mixin large-button {
