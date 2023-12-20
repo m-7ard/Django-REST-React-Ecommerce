@@ -25,66 +25,71 @@ export default function AppHeader (): React.ReactNode {
     return (
         <div className='header@app'>
             <div className="header@app__section header@app__section--top">
-                <Link to="/">
-                    <div className='header@app__logo'>
-                        DRF React E-Commerce
+                <div className='header@app__content'>
+                    <Link to="/">
+                        <div className='header@app__logo'>
+                            DRF React E-Commerce
+                        </div>
+                    </Link>
+                    <div className='header@app__group'>
+                        {
+                            (user.is_authenticated) && (
+                                <Directory iconName='notifications' to='account/'/>
+                            )
+                        }
+                        {
+                            (!user.is_authenticated) && (
+                                <>
+
+                                </>
+                            )
+                        }
+                        <Directory iconName='shopping_cart' to='/' text='(0)' />
+                        <Dropdown
+                            extraClass={'header@app__account'}
+                            trigger={
+                                <Directory iconName='menu' text='Account' />
+                            }
+                            content={
+                                <div className='header@app__menu'>
+                                    {
+                                        user.is_authenticated
+                                            ? (
+                                                <>
+                                                    <Link to={'/account/'} data-role="close"> Profile </Link>
+                                                    <div data-role="close"> Orders </div>
+                                                    <div data-role="close"> Bookmarks </div>
+                                                    <Link to={'/settings/'} data-role="close"> Settings </Link>
+                                                    <Link data-role="close" to={'/funds/'}> Funds <span data-role='funds'>{`(${user.funds}€)`}</span> </Link>
+                                                    <div data-role="close"> Bids </div>
+                                                    <div data-role="close"
+                                                        onClick={() => {
+                                                            void logout()
+                                                        }}> Logout </div>
+                                                </>
+                                            )
+                                            : (
+                                                <>
+                                                    <Link to={'/register/'} data-role="close"> Register </Link>
+                                                    <Link to={'/login/'} data-role="close"> Login </Link>
+                                                </>
+                                            )
+                                    }
+
+                                </div>
+                            }
+                            positioning={{
+                                top: '100%',
+                                right: '0'
+                            }}
+                        />
                     </div>
-                </Link>
-                <div className='header@app__group'>
-                    {
-                        (user.is_authenticated) && (
-                            <Directory iconName='notifications' to='account/'/>
-                        )
-                    }
-                    {
-                        (!user.is_authenticated) && (
-                            <>
 
-                            </>
-                        )
-                    }
-                    <Directory iconName='shopping_cart' to='/' text='(0)' />
-                    <Dropdown
-                        extraClass={'header@app__account'}
-                        trigger={
-                            <Directory iconName='menu' text='Account' />
-                        }
-                        content={
-                            <div className='header@app__menu'>
-                                {
-                                    user.is_authenticated
-                                        ? (
-                                            <>
-                                                <Link to={'/account/'} data-role="close"> Profile </Link>
-                                                <div data-role="close"> Orders </div>
-                                                <div data-role="close"> Bookmarks </div>
-                                                <div data-role="close"> Settings </div>
-                                                <div data-role="close"> Bids </div>
-                                                <div data-role="close"
-                                                    onClick={() => {
-                                                        void logout()
-                                                    }}> Logout </div>
-                                            </>
-                                        )
-                                        : (
-                                            <>
-                                                <Link to={'/register/'} data-role="close"> Register </Link>
-                                                <Link to={'/login/'} data-role="close"> Login </Link>
-                                            </>
-                                        )
-                                }
-
-                            </div>
-                        }
-                        positioning={{
-                            top: '100%',
-                            right: '0'
-                        }}
-                    />
                 </div>
+
             </div>
             <div className="header@app__section header@app__section--main">
-                <div className="header@app__centered">
+                <div className="header@app__content">
                     <div className="header@app__search-widget">
                         <div className="header@app__search-field">
                             <div data-role="input">

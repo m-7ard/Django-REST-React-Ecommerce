@@ -47,10 +47,13 @@ export default function CategoryPicker ({ initial, name }: CategoryPickerProps):
                         <div className="prop__title">
                             Choose Category
                         </div>
-                        <div className="prompt__close" onMouseUp={() => {
+                        <div className="prompt__close" onMouseUp={(event) => {
+                            if (!(event.button === 0)) {
+                                return
+                            }
                             setOpen(false)
                         }}>
-                            <div className="icon icon--small">
+                            <div className="icon icon--small icon--hoverable">
                                 <i className="material-icons">
                                     close
                                 </i>
@@ -58,7 +61,7 @@ export default function CategoryPicker ({ initial, name }: CategoryPickerProps):
                         </div>
                     </div>
                     <hr className="app__divider" />
-                    <div className="prompt__body grow">
+                    <div className="prompt__body">
                         <Drawer
                             className="form__drawer"
                             name={name}

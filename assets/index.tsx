@@ -19,6 +19,8 @@ import AdDetails, { loader as adDetailLoader } from './blocks/AdDetails'
 import AdEdit from './blocks/AdEdit'
 import AdEditConfirmation from './blocks/AdEditConfirmation'
 import { LoginRequired } from './Utils'
+import ManageFunds from './blocks/ManageFunds'
+import Settings from './blocks/Settings'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -50,6 +52,22 @@ window.addEventListener('load', () => {
                         </LoginRequired>
                     }
                     loader={accountLoader}
+                />
+                <Route 
+                    path='settings/'
+                    element={
+                        <LoginRequired>
+                            <Settings />
+                        </LoginRequired>
+                    }
+                />
+                <Route
+                    path="funds/"
+                    element={
+                        <LoginRequired>
+                            <ManageFunds />
+                        </LoginRequired>
+                    }
                 />
                 <Route
                     path="post-ad/"

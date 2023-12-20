@@ -16,18 +16,19 @@ interface DropdownProps {
 export default function Dropdown ({ trigger, content, positioning, extraClass }: DropdownProps): React.ReactNode {
     const [open, setOpen] = useState(false)
     const toCloseRef = useRef<HTMLDivElement | null>(null)
-    const location = useLocation()
-
-    useEffect(() => {
-        setOpen(false)
-    }, [location])
 
     function closeOnWindowClick (event: MouseEvent): void {
         if (!(event.button === 0) || toCloseRef.current == null) {
             return
         }
 
-        if (!toCloseRef.current.contains(event.target as Node)) {
+        const target = event.target as HTMLElement
+        if (toCloseRef.current.contains(target as Node) && target.closest('[data-role="close"]') != null) {
+            window.removeEventListener('mouseup', closeOnWindowClick)
+            setOpen(false)
+        }
+
+        if (!toCloseRef.current.contains(target as Node)) {
             window.removeEventListener('mouseup', closeOnWindowClick)
             setOpen(false)
         }

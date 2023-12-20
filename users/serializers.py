@@ -57,6 +57,8 @@ class LoginSerializer(serializers.Serializer):
     
 
 class UserSerializer(serializers.ModelSerializer):
+    date_joined = serializers.DateTimeField(format="%Y.%m.%d", required=False, read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ['pk', 'display_name', 'email', 'account_type', 'avatar']
+        fields = ['pk', 'display_name', 'email', 'account_type', 'avatar', 'date_joined', 'funds']

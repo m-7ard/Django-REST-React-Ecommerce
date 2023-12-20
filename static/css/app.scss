@@ -185,31 +185,6 @@
 }
 
 .form {
-    &__body {
-        @include flex-column(0, $space-large);
-        flex: 1;
-    }
-
-    &__header {
-        @include flex-row(0, $space-large);
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
-    &__footer {
-        @include flex-row(0, $space-large);
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
-    &__title {
-        font-size: get-font-size(special, small);
-        font-weight: 700;
-        color: map-get($black, dark);
-    }
-
     &__field {
         @include flex-column(0, $space-small);
     }
@@ -444,6 +419,7 @@
     height: 100%;
     overflow: auto;
     border: 1px solid map-get($light, dark);
+    border-radius: $radius-medium;
 
     &__body {
         @include flex-column(0, $space-large);
@@ -471,6 +447,10 @@
             cursor: not-allowed;
             filter: grayscale(100%);
         }
+    }
+
+    &__close {
+        color: map-get($black, light);
     }
 }
 
@@ -660,8 +640,8 @@
         flex: 1;
     }
 
-    &__body {
-        @include flex-column(0, $space-large);
+    &__bold-1 {
+    
     }
 
     &__header {
@@ -693,7 +673,7 @@
     }
 
     &__info {
-        font-size: get-font-size(primary, medium);
+        font-size: get-font-size(primary, small);
         font-weight: 500;
         color: map-get($black, dark);
     }
@@ -833,10 +813,6 @@
             background-color: hsla(112, 6%, 25%, 0.201);
         }
     }
-
-    &__placeholder {
-        
-    }
 }
 
 .ad\@frontpage {
@@ -923,12 +899,23 @@
     z-index: 1;
 
     &__section {
-        @include flex-row($space-medium $space-large, $space-medium $space-large);
-        align-items: center;
+        display: grid;
+        grid-template-columns: [full-width-start] minmax(0, 2.5rem) [padded-start] minmax(auto, 1fr) [padded-end] minmax(0, 2.5rem) [full-width-end];
+        padding: $space-medium $space-large; 
+
+        > #{$self}__content {
+            @include flex-row(0, $space-large);
+            align-items: center;
+        }
 
         &--top {
-            justify-content: space-between;
             background-color: #ffffff;
+
+            > #{$self}__content {
+                grid-column: full-width;
+                justify-content: space-between;
+                gap: $space-large;
+            }
         }
     
         &--bottom {
@@ -937,10 +924,17 @@
         }
     
         &--main {
-            justify-content: center;
             border-bottom: 1px solid map-get($light, dark);
             border-top: 1px solid map-get($light, dark);
             background-color: $orange;
+
+            
+            > #{$self}__content {
+                justify-self: center;
+                grid-column: full-width;
+                max-width: 49rem;
+                width: 100%
+            }
         }
     }
 
@@ -992,13 +986,6 @@
             @include ellipsis;
             width: fit-content;
         }
-    }
-
-    &__centered {
-        display: flex;
-        max-width: 49rem;
-        gap: inherit;
-        flex: 1;
     }
 
     &__search-widget {
@@ -1080,13 +1067,100 @@
         
         > * {
             @include base-button;
-            @include flex-row($space-medium $space-large, 0);
+            @include flex-row($space-medium $space-large, $space-medium);
+            color: map-get($black, dark);
             font-size: get-font-size(secondary, medium);
             font-weight: 400;
+
+            [data-role="funds"] {
+                font-size: get-font-size(secondary, small);
+            }
 
             &:hover {
                 text-decoration: underline;
             }
         }
+    }
+}
+
+.profile\@account {
+    &__image{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    }
+
+    &__main {
+        @include flex-row(0, $space-large);
+    }
+
+    @media only screen and (max-width: 400px) {
+        &__image {
+            width: 100%;
+       }
+
+       &__main {
+            @include flex-column(0, $space-large);
+       }
+    }
+}
+
+.funds {
+    &__balance {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+        background-color: #ffffff;
+    }
+
+    &__transactions {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+        
+        > * {
+            @include flex-row($space-small $space-large, $space-large);
+            justify-content: space-between;
+            color: map-get($black, dark);
+            font-size: get-font-size(secondary, medium);
+            font-weight: 500;
+        }
+
+        > :nth-child(2n) {
+            background-color: map-get($light, neutral);
+        }
+
+        > :nth-child(2n + 1) {
+            background-color: map-get($light, light);
+        }
+    }
+}
+
+.is-link {
+    @include base-button;
+    color: #0E30D8 !important;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.settings {
+    &__display {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+    }
+
+    &__edit {
+        @include base-button;
+        font-weight: 500;
     }
 }
