@@ -21,6 +21,7 @@ import AdEditConfirmation from './blocks/AdEditConfirmation'
 import { LoginRequired } from './Utils'
 import ManageFunds from './blocks/ManageFunds'
 import Settings from './blocks/Settings'
+import ManageBankAccounts from './blocks/ManageBankAccounts'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -53,7 +54,15 @@ window.addEventListener('load', () => {
                     }
                     loader={accountLoader}
                 />
-                <Route 
+                <Route
+                    path='bank-accounts/'
+                    element={
+                        <LoginRequired>
+                            <ManageBankAccounts />
+                        </LoginRequired>
+                    }
+                />
+                <Route
                     path='settings/'
                     element={
                         <LoginRequired>

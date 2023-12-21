@@ -83,6 +83,7 @@ class PaymentTransaction(models.Model):
 
 class Address(models.Model):
     user = models.ForeignKey(CustomUser, related_name='addresses', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
     street = models.CharField(max_length=500)
     locality = models.CharField(max_length=500)
     zip_code = models.CharField(

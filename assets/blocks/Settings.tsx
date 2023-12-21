@@ -6,7 +6,7 @@ export default function Settings (): React.ReactNode {
     const { user } = useUserContext()
 
     return (
-        <div className="settings prop prop--vertical full-width">
+        <div className="settings prop prop--vertical pamphlet">
             <div className="prop__header">
                 <div className="prop__title">
                     Settings
@@ -34,7 +34,7 @@ export default function Settings (): React.ReactNode {
                     </div>
                 </>
             )} />
-            <Display title='Bank Accounts' link='/' current={(
+            <Display title='Bank Accounts' link='/bank-accounts/' current={(
                 <>
                     <div>
                         <div className='prop__label'>

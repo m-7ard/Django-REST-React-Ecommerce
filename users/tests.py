@@ -2,7 +2,8 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 
 
-from .models import CustomUser
+from .models import CustomUser, Address, BankAccount
+from .serializers import BankAccountSerializer
 
 
 class UserTest(APITestCase):
@@ -69,3 +70,132 @@ class UserLogoutTest(UserTest):
     def test_logout_user_success(self):
         response = self.client.post("/api/logout/")
         self.assertEqual(response.status_code, 200, "Failed to logout user.")
+
+
+class BankAccountViewSet(APITestCase):
+    def create_bank_accounts(self):
+        self.test_user_bank = BankAccount.objects.create(
+            user=self.test_user,
+            owner="John Doe",
+            address=self.address,
+            iban="DE99123412341234120000",
+        )
+        self.other_user_bank = BankAccount.objects.create(
+            user=self.other_user,
+            owner="John Doe II",
+            address=self.address,
+            iban="DE99123412341234120001",
+        )
+
+    def setUp(self):
+        self.test_user = CustomUser.objects.create_user(
+            email="test_user@mail.com",
+            password="userword",
+            display_name="test_user",
+            account_type="individual",
+        )
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.address = Address.objects.create(
+            user=self.test_user,
+            name="John Doe",
+            street="Main Street 123abc",
+            zip_code="12345",
+            country="Country",
+        )
+        self.other_user = CustomUser.objects.create_user(
+            email="other_user@mail.com",
+            password="userword",
+            display_name="other_user",
+            account_type="individual",
+        )
+
+    def test_bank_account_creation(self):
+        response = self.client.post(
+            "/api/bank-accounts/",
+            {
+                "owner": "John Doe",
+                "address": self.address.pk,
+                "iban": "DE99123412341234123412",
+            },
+        )
+        self.assertEqual(response.status_code, 201, response.data)
+
+    def test_list_bank_accounts(self):
+        self.create_bank_accounts()
+        response = self.client.get("/api/bank-accounts/")
+        self.assertEqual(response.status_code, 200, "Failed to list bank accounts.")
+        self.assertEqual(
+            BankAccountSerializer([self.test_user_bank], many=True).data,
+            response.data,
+            "Data does not match. BankAccountViewset list must only return the request user BankAccounts.",
+        )
+
+    def test_retrieve_bank_account(self):
+        self.create_bank_accounts()
+        response_1 = self.client.get(f"/api/bank-accounts/{self.test_user_bank.pk}/")
+        response_2 = self.client.get(f"/api/bank-accounts/{self.other_user_bank.pk}/")
+        self.assertEqual(
+            response_1.status_code, 200, "Failed to retrieve test user bank account."
+        )
+        self.assertEqual(
+            response_2.status_code,
+            404,
+            "Users must only be allowed to retrieve their own bank accounts.",
+        )
+
+    def test_update_bank_account(self):
+        self.create_bank_accounts()
+        response_1 = self.client.patch(
+            f"/api/bank-accounts/{self.test_user_bank.pk}/", {"owner": "Jane Doe"}
+        )
+        response_2 = self.client.patch(
+            f"/api/bank-accounts/{self.other_user_bank.pk}/", {"owner": "Jane Doe"}
+        )
+        self.test_user_bank.refresh_from_db()
+        self.other_user_bank.refresh_from_db()
+        self.assertEqual(
+            response_1.status_code, 200, "Failed to update test user bank account."
+        )
+        self.assertEqual(
+            self.test_user_bank.owner,
+            "Jane Doe",
+            "Failed to update owner field of test user bank account.",
+        )
+        self.assertEqual(
+            response_2.status_code,
+            404,
+            "Users must only be allowed to update their own bank accounts.",
+        )
+        self.assertEqual(
+            self.other_user_bank.owner,
+            "John Doe II",
+            "Users must not be able to edit other user's bank accounts",
+        )
+
+    def test_delete_bank_account(self):
+        self.create_bank_accounts()
+        response_1 = self.client.delete(
+            f"/api/bank-accounts/{self.test_user_bank.pk}/"
+        )
+        response_2 = self.client.delete(
+            f"/api/bank-accounts/{self.other_user_bank.pk}/"
+        )
+        self.assertEqual(
+            response_1.status_code, 204, "Failed to delete test user bank account."
+        )
+        self.assertFalse(
+            BankAccount.objects.filter(pk=self.test_user_bank.pk).exists(),
+            "Failed to delete test user bank account.",
+        )
+        self.assertEqual(
+            response_2.status_code,
+            404,
+            "Users must only be allowed to delete their own bank accounts.",
+        )
+        self.assertTrue(
+            BankAccount.objects.filter(pk=self.other_user_bank.pk).exists(),
+            "Users must not be able to edit other user's bank accounts",
+        )

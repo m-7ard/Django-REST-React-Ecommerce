@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { useNavigate } from 'react-router-dom'
-import { useLoginRequired } from '../Utils'
 import { CharInputWidget } from '../widgets/CharInput'
 import { CharTextAreaWidget } from '../widgets/CharTextArea'
 import { CategoryPickerWidget } from '../widgets/CategoryPicker'

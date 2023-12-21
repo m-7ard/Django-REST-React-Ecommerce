@@ -2,7 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
 
-from .models import CustomUser
+from .models import CustomUser, Address, BankAccount
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -62,3 +62,19 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['pk', 'display_name', 'email', 'account_type', 'avatar', 'date_joined', 'funds']
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), required=False, allow_null=True)
+
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+class BankAccountSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(required=False, allow_null=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), required=False, allow_null=True)
+    
+    class Meta:
+        model = BankAccount
+        fields = '__all__'

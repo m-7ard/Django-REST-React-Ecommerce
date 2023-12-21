@@ -159,6 +159,8 @@
     } 
 }
 
+$font-weights: (400, 500, 700);
+
 $font-sizes: (
     secondary: (
         small: 0.75rem,
@@ -232,3 +234,17 @@ $radius-medium: 4px;
 $radius-large: 9999px;
 
 
+@mixin font-class($weight, $size) {
+    font-weight: $weight;
+    font-size: $size;
+}
+
+@each $weight in $font-weights {
+    @each $category, $sizes in $font-sizes {
+        @each $size, $value in $sizes {
+            .#{$category}-#{$size}-#{$weight} {
+                @include font-class($weight, $value);
+            }
+        }
+    }
+}

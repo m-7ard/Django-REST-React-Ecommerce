@@ -35,7 +35,7 @@
 
     &__body {
         padding: $space-large;
-        gap: $space-large;
+        gap: $space-large 0;
         flex-grow: 1;
         background-color: #FAFCFC;
     }
@@ -636,12 +636,13 @@
         @include flex-column($space-large, $space-large);
     }
 
-    .grow {
-        flex: 1;
+    &--highlighted {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
     }
 
-    &__bold-1 {
-    
+    .grow {
+        flex: 1;
     }
 
     &__header {

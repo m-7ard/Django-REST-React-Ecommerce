@@ -4,6 +4,141 @@
     transform: rotate(360deg);
   }
 }
+.secondary-small-400 {
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.secondary-medium-400 {
+  font-weight: 400;
+  font-size: 0.8125rem;
+}
+
+.secondary-large-400 {
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.primary-small-400 {
+  font-weight: 400;
+  font-size: 0.9375rem;
+}
+
+.primary-medium-400 {
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+.primary-large-400 {
+  font-weight: 400;
+  font-size: 1.125rem;
+}
+
+.special-small-400 {
+  font-weight: 400;
+  font-size: 1.25rem;
+}
+
+.special-medium-400 {
+  font-weight: 400;
+  font-size: 1.75rem;
+}
+
+.special-large-400 {
+  font-weight: 400;
+  font-size: 2rem;
+}
+
+.secondary-small-500 {
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.secondary-medium-500 {
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+.secondary-large-500 {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.primary-small-500 {
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.primary-medium-500 {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.primary-large-500 {
+  font-weight: 500;
+  font-size: 1.125rem;
+}
+
+.special-small-500 {
+  font-weight: 500;
+  font-size: 1.25rem;
+}
+
+.special-medium-500 {
+  font-weight: 500;
+  font-size: 1.75rem;
+}
+
+.special-large-500 {
+  font-weight: 500;
+  font-size: 2rem;
+}
+
+.secondary-small-700 {
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.secondary-medium-700 {
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.secondary-large-700 {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.primary-small-700 {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.primary-medium-700 {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.primary-large-700 {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.special-small-700 {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.special-medium-700 {
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.special-large-700 {
+  font-weight: 700;
+  font-size: 2rem;
+}
+
 #root {
   overflow: hidden;
 }
@@ -41,7 +176,7 @@
 }
 .app__body {
   padding: 0.75rem;
-  gap: 0.75rem;
+  gap: 0.75rem 0;
   flex-grow: 1;
   background-color: #FAFCFC;
 }
@@ -808,6 +943,10 @@
   flex-direction: column;
   padding: 0.75rem;
   gap: 0.75rem;
+}
+.prop--highlighted {
+  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
+  border: 1px solid #D6DDD9;
 }
 .prop .grow {
   flex: 1;
