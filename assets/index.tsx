@@ -22,6 +22,7 @@ import { LoginRequired } from './Utils'
 import ManageFunds from './blocks/ManageFunds'
 import Settings from './blocks/Settings'
 import ManageBankAccounts from './blocks/ManageBankAccounts'
+import CreateBankAccount from './blocks/CreateBankAccount'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -59,6 +60,14 @@ window.addEventListener('load', () => {
                     element={
                         <LoginRequired>
                             <ManageBankAccounts />
+                        </LoginRequired>
+                    }
+                />
+                <Route
+                    path='bank-accounts/add/'
+                    element={
+                        <LoginRequired>
+                            <CreateBankAccount />
                         </LoginRequired>
                     }
                 />

@@ -12,5 +12,6 @@ urlpatterns = [
 router = routers.DefaultRouter()
 router.register('api/register', views.UserRegisterAPIView, basename='register')
 router.register('api/bank-accounts', views.BankAccountViewset, basename='bank-account')
+router.register('api/addresses', views.AddressViewset, basename='address')
 
 urlpatterns += router.urls

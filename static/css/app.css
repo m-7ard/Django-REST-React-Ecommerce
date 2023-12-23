@@ -1,9 +1,4 @@
 @charset "UTF-8";
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
 .secondary-small-400 {
   font-weight: 400;
   font-size: 0.75rem;
@@ -381,7 +376,7 @@
 .form__char-input {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -397,7 +392,7 @@
 .form__char-textarea {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -425,7 +420,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -469,7 +464,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -548,7 +543,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -716,7 +711,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -957,6 +952,13 @@
   gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
+}
+.prop__body {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0.75rem;
+  flex: 1;
 }
 .prop__footer {
   display: flex;
@@ -1300,7 +1302,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -1312,9 +1314,6 @@
   background-color: #1C2B31;
 }
 @media only screen and (max-width: 500px) {
-  .header\@app__post-ad {
-    padding: 0.35rem;
-  }
   .header\@app__post-ad [data-role=text] {
     display: none;
   }
@@ -1363,7 +1362,7 @@
 .header\@app__search-field [data-role=input] {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -1398,7 +1397,7 @@
   flex-shrink: 0;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   gap: 0.35rem;
   font-size: 0.8125rem;
   border-radius: 2px;
@@ -1556,4 +1555,99 @@
           user-select: none;
   flex-shrink: 0;
   font-weight: 500;
+}
+
+.select[data-state=open] .select__option-list {
+  visibility: visible;
+}
+.select[data-state=closed] .select__option-list {
+  visibility: hidden;
+}
+.select[data-state=open] [data-role=marker] {
+  transform: rotate(90deg);
+}
+.select [data-role=marker] {
+  height: 0px;
+  align-items: center;
+  display: inline-flex;
+}
+.select__root {
+  justify-content: space-between;
+}
+.select__option-list {
+  display: fixed;
+}
+.select__option {
+  position: relative;
+  cursor: pointer;
+}
+.select__option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.select__option input::-webkit-file-upload-button {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.select\@form[data-state=open] .select\@form__root {
+  border-radius: 2px 2px 0 0;
+}
+.select\@form__root {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  padding: 0.5rem 0.75rem;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  border-radius: 2px;
+  background-color: #F2F4F3;
+  border: 1px solid #D6DDD9;
+  font-weight: 500;
+}
+.select\@form__root:has(:checked), .select\@form__root:hover {
+  background-color: #E4E9E6;
+}
+.select\@form__option-list {
+  background-color: #F2F4F3;
+  border-left: 1px solid #D6DDD9;
+  border-right: 1px solid #D6DDD9;
+  border-bottom: 1px solid #D6DDD9;
+  box-sizing: border-box;
+  border-radius: 0 0 2px 2px;
+  overflow: auto;
+}
+.select\@form__option {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  padding: 0.5rem 0.75rem;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  border-radius: 2px;
+  background-color: #F2F4F3;
+  font-weight: 500;
+  border-radius: 0;
+}
+.select\@form__option:has(:checked), .select\@form__option:hover {
+  background-color: #E4E9E6;
 }/*# sourceMappingURL=app.css.map */

@@ -11,7 +11,7 @@ export default function ManageBankAccounts (): React.ReactNode {
                 </div>
             </div>
             <hr className="app__divider" />
-            <Link className='prop prop--vertical prop--highlighted'>
+            <Link className='prop prop--vertical prop--highlighted' to={'add/'}>
                 <div className='prop prop__header'>
                     <div className='prop__label'>
                         Add New Bank Account

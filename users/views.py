@@ -64,3 +64,16 @@ class BankAccountViewset(ModelViewSet):
             user=self.request.user,
             address=Address.objects.get(pk=self.request.POST.get("address")),
         )
+
+
+class AddressViewset(ModelViewSet):
+    permissions_classes = [IsAuthenticated]
+    serializer_class = serializers.AddressSerializer
+
+    def get_queryset(self):
+        return Address.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(
+            user=self.request.user,
+        )

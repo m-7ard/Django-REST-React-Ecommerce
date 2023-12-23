@@ -141,7 +141,7 @@
 
 @mixin medium-button {
     @include default-color-transition;
-    @include flex-row($space-medium $space-large, $space-medium);
+    @include flex-row($space-medium-large $space-large, $space-medium);
     font-size: get-font-size(secondary, medium);
     border-radius: $radius-small;
 }
@@ -153,10 +153,10 @@
     border-radius: $radius-medium;
 }
 
-@keyframes spin { 
-    100% { 
-        transform: rotate(360deg); 
-    } 
+@mixin ignore-height {
+    height: 0px;
+    align-items: center;
+    display: inline-flex;
 }
 
 $font-weights: (400, 500, 700);

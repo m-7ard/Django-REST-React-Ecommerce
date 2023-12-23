@@ -70,7 +70,7 @@ export default function GenericForm ({
                 </div>
             </div>
             <hr className="app__divider" />
-            <div className="prop__body grow">
+            <div className="prop__body">
                 {
                     (errors != null) && (
                         <div className="form__field">

@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect } from 'react'
+import React, { useContext, useEffect, useLayoutEffect } from 'react'
 import { Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { UserContext, useUserContext } from './Context'
 import { type NormalizedDataItem, type UnnormalizedData } from './Types'
@@ -82,7 +82,7 @@ export class NormalizedData {
         return data.map((item) => ({
             value: item[valueKey],
             label: item[labelKey],
-            parent: item[parentKey]
+            parent: parentKey == null ? null : item[parentKey]
         }))
     }
 

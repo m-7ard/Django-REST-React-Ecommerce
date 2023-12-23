@@ -1,4 +1,4 @@
-import { type CategoryData, type Category, type FrontPageData, type BaseAd } from './Types'
+import { type CategoryData, type Category, type FrontPageData, type BaseAd, type Address } from './Types'
 
 export async function getCategoryData (): Promise<CategoryData> {
     const response = await fetch('/api/categories/')
@@ -36,6 +36,12 @@ export async function getUserAds (pk: number): Promise<BaseAd[]> {
 
 export async function getRequestUserAds (): Promise<BaseAd[]> {
     const response = await fetch('/api/list_user_ads/')
+    const data = await response.json()
+    return data
+}
+
+export async function getRequestUserAddresses (): Promise<Address[]> {
+    const response = await fetch('/api/addresses/')
     const data = await response.json()
     return data
 }

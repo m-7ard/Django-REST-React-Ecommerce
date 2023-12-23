@@ -651,6 +651,11 @@
         justify-content: space-between;
     }
 
+    &__body {
+        @include flex-column(0, $space-large);
+        flex: 1;
+    }
+
     &__footer {
         @include flex-row(0, $space-large);
         align-items: center;
@@ -968,8 +973,6 @@
         @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
 
         @media only screen and (max-width: 500px) {
-            padding: $space-medium;
-
             [data-role="text"] {
                 display: none;
             }
@@ -1163,5 +1166,79 @@
     &__edit {
         @include base-button;
         font-weight: 500;
+    }
+}
+
+.select {
+    &[data-state="open"] &__option-list {
+        visibility: visible;
+    }
+
+    &[data-state="closed"] &__option-list {
+        visibility: hidden;
+    }
+
+    &[data-state="open"] [data-role="marker"] {
+        transform: rotate(90deg);
+    }
+
+    [data-role="marker"] {
+        @include ignore-height;
+    }
+
+    &__root {
+        justify-content: space-between;
+    }
+
+    &__option-list {
+        display: fixed;
+    }
+
+    &__option {
+        @include input-replacement;
+    }
+}
+
+.select\@form {
+    $self: &;
+
+    &[data-state="open"] {
+        #{$self}__root {
+            border-radius: $radius-small $radius-small 0 0;
+        }
+    }
+
+    &__root { 
+        @include base-button;
+        @include medium-button;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        font-weight: 500;
+        
+        &:has(:checked), &:hover {
+            background-color: map-get($light, neutral);
+        }
+    }
+
+    &__option-list {
+        background-color: map-get($light, light);
+        border-left: 1px solid map-get($light, dark);
+        border-right: 1px solid map-get($light, dark);
+        border-bottom: 1px solid map-get($light, dark);
+        box-sizing: border-box;
+        border-radius: 0 0 $radius-small $radius-small;
+        overflow: auto;
+    }
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        background-color: map-get($light, light);
+        font-weight: 500;
+        border-radius: 0;
+
+        &:has(:checked), &:hover {
+            background-color: map-get($light, neutral);
+        }
     }
 }

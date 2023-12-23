@@ -5,7 +5,7 @@ export interface HTMLEvent extends Event {
 export interface Category {
     pk: number
     name: string
-    parent: number | null
+    parent?: string
 }
 
 export interface CategoryData {
@@ -16,14 +16,14 @@ export interface CategoryData {
 export interface NormalizedDataItem {
     value: number
     label: string
-    parent: number
+    parent?: number
 }
 
 export interface UnnormalizedData {
     data: Array<Record<string, any>>
     valueKey: string
     labelKey: string
-    parentKey: string
+    parentKey?: string
 }
 
 export interface User {
@@ -55,4 +55,13 @@ export interface FrontPageData {
 export interface FormError {
     name: string
     msg: string
+}
+
+export interface Address {
+    pk: number
+    name: string
+    street: string
+    locality: string
+    zip_code: number
+    country: string
 }
