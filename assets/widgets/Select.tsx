@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import { type NormalizedData } from '../Utils'
 import { type NormalizedDataItem } from '../Types'
 import Icon from '../elements/Icon'
@@ -12,32 +12,43 @@ interface SelectProps {
     rootClass?: string
     optionListClass?: string
     optionClass?: string
+    rows?: number
 }
 
-export default function Select ({ name, normalizedData, initial, placeholder, selectClass, rootClass, optionListClass, optionClass }: SelectProps): React.ReactNode {
+export default function Select ({ name, normalizedData, initial, placeholder, selectClass, rootClass, optionListClass, optionClass, rows }: SelectProps): React.ReactNode {
     const [open, setOpen] = useState(false)
     const [choice, setChoice] = useState(initial == null ? null : normalizedData.getChoice(initial))
     const [optionListPositioning, setOptionListPositioning] = useState<{
         top?: string | 0
         left?: string | 0
         width: string
+        height: string
     }>({
         top: 0,
         left: 0,
-        width: 'auto'
+        width: 'auto',
+        height: 'auto'
     })
     const selectRef = useRef<HTMLDivElement | null>(null)
+    const rootRef = useRef<HTMLDivElement | null>(null)
+
+    useLayoutEffect(() => {
+        if (open) {
+            positionOptionList()
+        }
+    }, [open])
 
     const positionOptionList = (): void => {
-        if (selectRef.current == null) {
+        if (rootRef.current == null) {
             return
         }
 
-        const dimensions = selectRef.current.getBoundingClientRect()
+        const dimensions = rootRef.current.getBoundingClientRect()
         setOptionListPositioning({
             top: `${dimensions.bottom}px`,
             left: `${dimensions.left}px`,
-            width: `${selectRef.current.offsetWidth}px`
+            width: `${rootRef.current.offsetWidth}px`,
+            height: `${rootRef.current.offsetHeight * (rows ?? 1)}px`
         })
     }
 
@@ -85,14 +96,20 @@ export default function Select ({ name, normalizedData, initial, placeholder, se
                 setChoice({ value, label })
             }}>
                 {label}
-                <input type='radio' name={name} defaultValue={value} checked={choice?.value === value}/>
+                <input type='radio' name={name} defaultValue={value} defaultChecked={choice?.value === value}/>
             </div>
         )
     }
 
     return (
-        <div className={`select ${selectClass}`} data-state={open ? 'open' : 'closed'} {...(open && { ref: selectRef })}>
-            <div className={`select__root ${rootClass}`}
+        <div
+            className={`select ${selectClass}`}
+            data-state={open ? 'open' : 'closed'}
+            {...(open && { ref: selectRef })}
+        >
+            <div
+                className={`select__root ${rootClass}`}
+                {...(open && { ref: rootRef })}
                 onClick={() => {
                     setOpen(!open)
                 }}

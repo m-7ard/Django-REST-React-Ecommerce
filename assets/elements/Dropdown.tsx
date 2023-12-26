@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 interface DropdownProps {
     trigger: React.ReactNode
@@ -15,6 +16,13 @@ interface DropdownProps {
 export default function Dropdown ({ trigger, content, positioning, extraClass }: DropdownProps): React.ReactNode {
     const [open, setOpen] = useState(false)
     const toCloseRef = useRef<HTMLDivElement | null>(null)
+    const location = useLocation()
+
+    useEffect(() => {
+        if (open) {
+            setOpen(false)
+        }
+    }, [location])
 
     useEffect(() => {
         const closeOnWindowClick = (event: MouseEvent): void => {
@@ -59,4 +67,3 @@ export default function Dropdown ({ trigger, content, positioning, extraClass }:
         </div>
     )
 }
-

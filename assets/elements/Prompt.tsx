@@ -1,4 +1,5 @@
 import React from 'react'
+import Icon from './Icon'
 
 interface PromptProps {
     title: string
@@ -16,16 +17,12 @@ export default function Prompt ({ title, onClose, body, footer }: PromptProps): 
                         {title}
                     </div>
                     <div className="prompt__close" onMouseUp={onClose}>
-                        <div className="icon icon--small icon--hoverable">
-                            <i className="material-icons">
-                                close
-                            </i>
-                        </div>
+                        <Icon name='close' size='small' hoverable={true} />
                     </div>
                 </div>
                 <hr className="app__divider" />
                 {body != null && (
-                    <div className="prompt__body">
+                    <div className="prop__body">
                         {body}
                     </div>
                 )}

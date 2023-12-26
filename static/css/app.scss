@@ -214,6 +214,10 @@
         padding: $space-medium-large;
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
     }
     
     &__char-textarea {
@@ -223,6 +227,10 @@
         padding: $space-medium-large;
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
+        
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
     }
 
     &__pill-select-widget {
@@ -257,14 +265,8 @@
         @include medium-button;
         @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
         font-weight: 500;
-        padding: $space-medium-large;
-        width: 33%;
         justify-content: center;
         margin-left: auto;
-
-        @media only screen and (max-width: 500px) {
-            width: 100%;
-        }
     }
 
     &__reset {
@@ -352,52 +354,6 @@
         font-weight: 400;
         color: map-get($black, dark);
     }
-
-    &__multi-image-input {
-        [data-role="widget"] {
-            @include flex-row($space-medium-large, $space-large);
-            border: 1px solid map-get($light, dark);
-            background-color: map-get($light, light);
-            border-radius: $space-medium;
-            flex-wrap: wrap;
-        }
-        
-        [data-role="image-button"] {
-            @include input-replacement;
-            display: flex;
-            justify-content: center;
-            padding: $space-large;
-            border: 1px solid map-get($light, dark);
-            color: get_theme_attr($gunmetal_theme, neutral, bg);
-            border-radius: $space-medium;
-            background-color: white;
-            width: 3rem;
-            height: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        [data-role="image-preview"] {
-            position: absolute;
-            inset: 0;
-
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                overflow: clip;
-            }
-        }
-
-        [data-role="uploading"] {
-            @include flex-row(0, $space-large);
-            align-items: center;
-
-            .icon {
-                animation: spin 4s linear infinite;
-            }
-        }
-    }
 }
 
 .overlay {
@@ -408,6 +364,7 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: $space-large;
 }
 
 
@@ -421,31 +378,21 @@
     border: 1px solid map-get($light, dark);
     border-radius: $radius-medium;
 
-    &__body {
-        @include flex-column(0, $space-large);
-        overflow: auto;
-        flex: 1;
-    }
-
-    &__footer {
-        @include flex-row($space-large, $space-large);
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
     &__confirm {
         @include base-button;
         @include medium-button;
+        @include has-shadow;
         @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
         font-weight: 500;
-        padding: $space-medium-large;
         width: fit-content;
         margin-left: auto;
+        border: 1px solid map-get($light, dark);
+        margin-left: auto;
+        transition: filter 0.2s;
 
         &--disabled {
             cursor: not-allowed;
-            filter: grayscale(100%);
+            filter: saturate(0);
         }
     }
 
@@ -474,6 +421,7 @@
     &__imagebox {
         grid-column: 1 / 9;
         @include flex-row(0, inherit);
+        user-select: none;
 
         [data-role="image-picker"] {
             @include flex-column(0, inherit);
@@ -654,6 +602,7 @@
     &__body {
         @include flex-column(0, $space-large);
         flex: 1;
+        overflow: auto;
     }
 
     &__footer {
@@ -706,6 +655,13 @@
 
     &__column {
         @include flex-column(0, $space-large);
+    }
+
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
     }
 }
 
@@ -973,8 +929,11 @@
         @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
 
         @media only screen and (max-width: 500px) {
+            gap: 0px;
+
             [data-role="text"] {
-                display: none;
+                width: 0px;
+                overflow: hidden;
             }
         }
     }
@@ -1199,6 +1158,29 @@
     }
 }
 
+.select\@prompt {
+    border: 1px solid map-get($light, dark);
+    overflow-y: auto;
+    border-radius: $radius-small;
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        font-weight: 500;
+        border-bottom: 1px solid map-get($light, dark);
+        border-radius: 0;
+        justify-content: space-between;
+
+        .icon {
+            color: map-get($black, light);
+        }
+
+        &--selected, &:hover {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
 .select\@form {
     $self: &;
 
@@ -1214,6 +1196,11 @@
         background-color: map-get($light, light);
         border: 1px solid map-get($light, dark);
         font-weight: 500;
+        justify-content: space-between;
+
+        [data-role="label"] {
+            @include ellipsis;
+        }
         
         &:has(:checked), &:hover {
             background-color: map-get($light, neutral);
@@ -1221,6 +1208,7 @@
     }
 
     &__option-list {
+        position: fixed;
         background-color: map-get($light, light);
         border-left: 1px solid map-get($light, dark);
         border-right: 1px solid map-get($light, dark);
@@ -1239,6 +1227,154 @@
 
         &:has(:checked), &:hover {
             background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: $space-large;
+}
+
+.address, .bank-account {
+    .prop__detail {
+        @include ellipsis;
+    }
+}
+
+.address\@prompt {
+    @include base-button;
+    @extend .address;
+    align-items: unset;
+
+    &:hover, &--selected {
+        background-color: map-get($light, light);
+    }
+}
+
+.drawer {
+    $self: &;
+    background-color: map-get($light, neutral);
+    border-bottom: 1px solid map-get($light, dark);
+
+    &__branch {
+        border-left: 1px solid map-get($light, dark);
+        border-right: 1px solid map-get($light, dark);
+        border-top: 1px solid map-get($light, dark);
+    
+        & & {
+            margin-left: $space-large;
+        }
+    }
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        justify-content: space-between;
+        font-weight: 500;
+        border-radius: 0;
+        background-color: white;
+        outline: 1px solid map-get($light, dark);
+
+        .icon {
+            color: map-get($black, light);
+        }
+
+        &.is-selected, &:hover {
+            @include has-shadow;
+            z-index: 1;
+            position: relative;
+            background-color: map-get($light, light);
+        }
+
+        &.is-selected {
+            #{$self}__chevron {
+                transform: rotate(90deg);
+            }
+        }
+    }
+}
+
+.multi-image-input\@form {
+    $self: &;
+    @include flex-column(0, $space-large);
+
+    &__body {
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+        border-radius: $space-small;
+        flex-wrap: wrap;
+    }
+
+    &__element {
+        width: 7rem;
+        height: 5.25rem;
+        position: relative;
+        cursor: pointer;
+
+        &:hover #{$self}__remove {
+            visibility: visible;
+        }
+
+        &:hover #{$self}__nav {
+            visibility: visible;
+        }
+
+        &.is-input {
+            @include input-replacement;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid map-get($light, dark);
+            border-radius: $space-small;
+            box-sizing: border-box;
+            background-color: white;
+        }
+    }
+
+    &__uploading {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        font-size: get-font-size(secondary, small);
+        color: map-get($black, dark);
+
+        .icon {
+            @keyframes spin {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            animation: spin 4s linear infinite;
+        }
+    }
+
+    &__remove {
+        @include has-shadow;
+        position: absolute;
+        top: - $space-small;
+        right: - $space-small;
+        color: get_theme_attr($gunmetal_theme, neutral, bg);
+        visibility: hidden;
+        border-radius: 9999px;
+        z-index: 100;
+        background-color: white;
+    }
+
+    &__preview {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border: 1px solid map-get($light, dark);
+        border-radius: $space-small;
+        background-color: map-get($light, dark);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            overflow: clip;
         }
     }
 }

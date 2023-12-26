@@ -1,9 +1,26 @@
 import React from 'react'
 import { useUserContext } from '../Context'
 import Display from '../elements/Settings/Display'
+import { useLoaderData } from 'react-router-dom'
+import { getRequestUserAddresses, getRequestUserBankAccounts } from '../Fetchers'
+import { type Address, type BankAccount } from '../Types'
+
+interface loaderReturn {
+    bankAccounts: BankAccount[]
+    addresses: Address[]
+}
+
+export async function loader (): Promise<loaderReturn> {
+    const bankAccounts = await getRequestUserBankAccounts()
+    const addresses = await getRequestUserAddresses()
+    return { bankAccounts, addresses }
+}
 
 export default function Settings (): React.ReactNode {
     const { user } = useUserContext()
+    const { bankAccounts, addresses } = useLoaderData() as loaderReturn
+    const defaultBankAccount = bankAccounts.find((bankAccount) => bankAccount.pk === user.default_bank)
+    const defaultAddress = addresses.find((address) => address.pk === user.default_address)
 
     return (
         <div className="settings prop prop--vertical pamphlet">
@@ -34,39 +51,87 @@ export default function Settings (): React.ReactNode {
                     </div>
                 </>
             )} />
-            <Display title='Bank Accounts' link='/bank-accounts/' current={(
-                <>
-                    <div>
-                        <div className='prop__label'>
-                            Default
-                        </div>
-                        <div className='prop__detail'>
-                            XX-0000-0000-0000-0000-00
-                        </div>
-                    </div>
-                    <div className='prop__detail'>
-                        10 Linked Accounts
-                    </div>
-                </>
-            )} />
-            <Display title='Delivery Addresses' link='/' current={(
-                <>
-                    <div>
-                        <div className='prop__label'>
-                            Default
-                        </div>
-                        <div className='prop__detail'>
-                            <div>John Doe</div>
-                            <div>Main Street 123abc</div>
-                            <div>12345</div>
-                            <div>Country</div>
-                        </div>
-                    </div>
-                    <div className='prop__detail'>
-                        5 Linked Addresses
-                    </div>
-                </>
-            )} />
+            <Display title='Bank Accounts' link='/bank-accounts/' current={
+                defaultBankAccount == null
+                    ? (
+                        <>
+                            <div className='prop prop--vertical'>
+                                <div className="prop__header">
+                                    <div className="prop__label">
+                                        No Default Bank Account
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="prop__label">
+                                {bankAccounts.length} Linked Bank Accounts
+                            </div>
+                        </>
+                    )
+                    : (
+                        <>
+                            <div className='prop prop--vertical prop--highlighted'>
+                                <div className="prop__header">
+                                    <div>
+                                        <div className="prop__label">
+                                            {defaultBankAccount.owner}
+                                        </div>
+                                        <div className='prop__detail'>
+                                            {defaultBankAccount.iban}
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr className="app__divider" />
+                                <div>
+                                    <div className='prop__detail'> {defaultBankAccount.address.name} </div>
+                                    <div className='prop__detail'> {defaultBankAccount.address.street} </div>
+                                    <div className='prop__detail'> {defaultBankAccount.address.locality} </div>
+                                    <div className='prop__detail'> {defaultBankAccount.address.zip_code} </div>
+                                    <div className='prop__detail'> {defaultBankAccount.address.country_display} </div>
+                                </div>
+                            </div>
+                            <div className="prop__label">
+                                {bankAccounts.length} Linked Bank Accounts
+                            </div>
+                        </>
+                    )
+            } />
+            <Display title='Addresses' link='/addresses/' current={
+                defaultAddress == null
+                    ? (
+                        <>
+                            <div className='prop prop--vertical prop--highlighted'>
+                                <div className="prop__header">
+                                    <div className="prop__label">
+                                        No Default Address
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="prop__label">
+                                {addresses.length} Linked Addrersses
+                            </div>
+                        </>
+                    )
+                    : (
+                        <>
+                            <div className='prop prop--vertical prop--highlighted'>
+                                <div className='prop__header'>
+                                    <div className='prop__label'>
+                                        {defaultAddress.name}
+                                    </div>
+                                </div>
+                                <hr className="app__divider" />
+                                <div>
+                                    <div className='prop__detail'> {defaultAddress.street} </div>
+                                    <div className='prop__detail'> {defaultAddress.locality} </div>
+                                    <div className='prop__detail'> {defaultAddress.zip_code} </div>
+                                    <div className='prop__detail'> {defaultAddress.country_display} </div>
+                                </div>
+                            </div>
+                            <div className='prop__label'>
+                                {addresses.length} Linked Addresses
+                            </div>
+                        </>
+                    )} />
         </div>
     )
 }

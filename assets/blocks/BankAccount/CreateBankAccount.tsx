@@ -1,12 +1,10 @@
 import React from 'react'
-import GenericForm from '../elements/GenericForm'
+import GenericForm from '../../elements/GenericForm'
 import { useLoaderData, useNavigate } from 'react-router-dom'
-import { CharInputWidget } from '../widgets/CharInput'
-import { SelectWidget } from '../widgets/Select'
-import { NormalizedData } from '../Utils'
-import { type Address } from '../Types'
-import { getRequestUserAddresses } from '../Fetchers'
-import AddressPicker, { AddressPickerWidget } from '../widgets/AddressPicker'
+import { CharInputWidget } from '../../widgets/CharInput'
+import { type Address } from '../../Types'
+import { getRequestUserAddresses } from '../../Fetchers'
+import { AddressModalSelectWidget } from '../../widgets/ModalSelects/AddressModalSelect'
 
 export async function loader (): Promise<Address[]> {
     const addresses = await getRequestUserAddresses()
@@ -35,13 +33,25 @@ export default function CreateBankAccount (): React.ReactNode {
                 })
             },
             {
+                name: 'iban',
+                label: 'IBAN',
+                widget: CharInputWidget({
+                    type: 'text',
+                    maxLength: 32
+                })
+            },
+            {
                 name: 'address',
                 label: 'Address',
-                widget: AddressPickerWidget({
-                    data: addresses
+                widget: AddressModalSelectWidget({
+                    addressList: addresses,
+                    title: 'Select an Address',
+                    placeholder: 'Select an Address'
                 })
             }
         ]}
-
+        onSuccess={async () => {
+            navigate('/bank-accounts/')
+        }}
     />
 }

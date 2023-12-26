@@ -23,9 +23,15 @@ export default function AddressPicker ({ name, data, initial }: AddressPickerPro
                 body={
                     <>
                         <div className='prop prop--vertical prop--highlighted'>
-                            <div className='prop prop__header'>
-                                <div className='prop__title'>
-                                    {}
+                            <div className='prop__pairing'>
+                                <div className='prop__label'>
+                                    Mark Hey
+                                </div>
+                                <div className='prop__detail'>
+                                    Main Street 100
+                                </div>
+                                <div className='prop__detail'>
+                                    New York City
                                 </div>
                             </div>
                         </div>

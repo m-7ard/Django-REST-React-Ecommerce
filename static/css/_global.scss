@@ -154,9 +154,10 @@
 }
 
 @mixin ignore-height {
-    height: 0px;
-    align-items: center;
-    display: inline-flex;
+    height: 0px !important;
+    align-items: center !important;
+    display: inline-flex !important;
+    overflow: visible !important;
 }
 
 $font-weights: (400, 500, 700);

@@ -13,8 +13,10 @@ export interface CategoryData {
     allCategories: Category[]
 }
 
+export type NormalizedDataValue = number | string
+
 export interface NormalizedDataItem {
-    value: number
+    value: NormalizedDataValue
     label: string
     parent?: number
 }
@@ -64,4 +66,14 @@ export interface Address {
     locality: string
     zip_code: number
     country: string
+    country_display: string
+}
+
+export interface BankAccount {
+    pk: number
+    user: number
+    owner: string
+    address: Address
+    iban: string
+    is_default: boolean
 }

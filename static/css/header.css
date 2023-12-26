@@ -218,6 +218,12 @@ hr {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   cursor: pointer;
 }
+.icon--ignore-height {
+  height: 0px !important;
+  align-items: center !important;
+  display: inline-flex !important;
+  overflow: visible !important;
+}
 .icon--tiny {
   width: 1rem;
   height: 1rem;

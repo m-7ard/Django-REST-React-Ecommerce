@@ -17,9 +17,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class AdModelSerializer(serializers.ModelSerializer):
-    images = serializers.ListField(
-        child=serializers.CharField()
-    )
+    images = serializers.JSONField()
     created_by = UserSerializer(required=False, allow_null=True)
     date_created = serializers.DateTimeField(format="%Y.%m.%d", required=False, read_only=True)
     latest_push_date = serializers.DateTimeField(format="%Y.%m.%d %H:%M:%S", required=False, read_only=True)

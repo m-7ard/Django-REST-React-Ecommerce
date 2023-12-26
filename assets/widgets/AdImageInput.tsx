@@ -1,6 +1,7 @@
-import React, { type ChangeEvent, useState, type ReactNode } from 'react'
+import React, { useState, type ReactNode } from 'react'
 import { getCookie } from '../Utils'
 import { type FormError } from '../Types'
+import Icon from '../elements/Icon'
 
 interface AdImageInputProps {
     initial?: string[]
@@ -20,7 +21,7 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
         formData.append('image', file)
 
         const csrfToken = getCookie('csrftoken')
-        const response = await fetch('/validate_image/', {
+        const response = await fetch('/api/validate_image/', {
             method: 'POST',
             headers: (csrfToken == null) ? undefined : { 'X-CSRFToken': csrfToken },
             body: formData
@@ -36,7 +37,7 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
         setStagedImages((previous) => previous.filter((image) => image !== file))
     }
 
-    async function addImagesToUpload (event: ChangeEvent<HTMLInputElement>): Promise<void> {
+    async function addImagesToUpload (event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
         setErrors([])
 
         const { files } = event.target
@@ -53,34 +54,30 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
     }
 
     return (
-        <div className="form__multi-image-input">
-            <div data-role="widget">
-                <div data-role="image-button" onChange={addImagesToUpload}>
-                    <div className="icon icon--large">
-                        <i className="material-icons">
-                            add_photo_alternate
-                        </i>
-                    </div>
+        <div className="multi-image-input@form">
+            <input name={name} value={JSON.stringify(uploadedImages)} type="hidden" />
+            <div className='multi-image-input@form__body prop prop--horizontal'>
+                <div className='multi-image-input@form__element is-input' onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    void addImagesToUpload(event)
+                }}>
+                    <Icon name='add_photo_alternate' size='large' />
                     <input type="file" multiple />
                 </div>
                 {uploadedImages.map((fileName, i) => (
-                    <div data-role="image-button" key={i}>
-                        <div data-role="image-preview">
+                    <div className="multi-image-input@form__element" key={i}>
+                        <div className="multi-image-input@form__remove">
+                            <Icon name='cancel' size='small' />
+                        </div>
+                        <div className='multi-image-input@form__preview'>
                             <img src={`/media/${fileName}`} alt="preview" />
                         </div>
-                        <input name={name} value={fileName} type="hidden" />
                     </div>
                 ))}
-
             </div>
-            <div data-role="messages">
+            <div>
                 {stagedImages.map(({ name }, i) => (
-                    <div data-role="uploading" key={i}>
-                        <div className="icon icon--small">
-                            <i className="material-icons">
-                                refresh
-                            </i>
-                        </div>
+                    <div className="multi-image-input@form__uploading" key={i}>
+                        <Icon name='refresh' size='small' />
                         <div className="form__helper-text">
                             Uploading:
                             {' '}

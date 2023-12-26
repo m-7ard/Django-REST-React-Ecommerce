@@ -1,13 +1,13 @@
 import React from 'react'
 import { Navigate, useLoaderData, useNavigate } from 'react-router-dom'
-import GenericForm from '../elements/GenericForm'
-import { CharInputWidget } from '../widgets/CharInput'
-import { CharTextAreaWidget } from '../widgets/CharTextArea'
-import { CategoryPickerWidget } from '../widgets/CategoryPicker'
-import { AdImageInputWidget } from '../widgets/AdImageInput'
-import { type BaseAd } from '../Types'
-import { getAdData } from '../Fetchers'
-import { useUserContext } from '../Context'
+import GenericForm from '../../elements/GenericForm'
+import { CharInputWidget } from '../../widgets/CharInput'
+import { CharTextAreaWidget } from '../../widgets/CharTextArea'
+import { AdImageInputWidget } from '../../widgets/AdImageInput'
+import { type BaseAd } from '../../Types'
+import { getAdData } from '../../Fetchers'
+import { useUserContext } from '../../Context'
+import { CategoryModalSelectWidget } from '../../widgets/ModalSelects/CategoryModalSelect'
 
 export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
     const ad = await getAdData(params.pk)
@@ -61,7 +61,7 @@ export default function AdEdit (): React.ReactNode {
                 {
                     name: 'category',
                     label: 'Category',
-                    widget: CategoryPickerWidget({
+                    widget: CategoryModalSelectWidget({
                         initial: ad.category
                     })
                 },

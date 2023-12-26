@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
-
+from rest_framework.reverse import reverse
 
 from .models import CustomUser, Address, BankAccount
 from .serializers import BankAccountSerializer, AddressSerializer
@@ -328,9 +328,20 @@ class BankAccountViewSet(APITestCase):
             BankAccount.objects.filter(pk=self.other_user_bank.pk).exists(),
             "Users must not be able to edit other user's bank accounts",
         )
+    
+    def test_valid_set_default(self):
+        self.create_bank_accounts()
+        response = self.client.patch(f'/api/bank-accounts/{self.test_user_bank.pk}/set-as-default/')
+        self.assertEqual(response.status_code, 200, "Failed to set default bank account.")
+
+    def test_invalid_set_default(self):
+        self.create_bank_accounts()
+        response = self.client.patch(f'/api/bank-accounts/{self.other_user_bank.pk}/set-as-default/')
+        self.assertEqual(response.status_code, 404, "Users must not be able to set other user's bank accounts as default.")
 
 
-class AddressViewSet(APITestCase):
+
+class AddressViewSetTest(APITestCase):
     def create_addresses(self):
         self.test_user_address = Address.objects.create(
             user=self.test_user,

@@ -46,7 +46,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     avatar = models.ImageField(default="default.png")
     funds = models.IntegerField(default=0)
     default_bank = models.OneToOneField('BankAccount', on_delete=models.RESTRICT, null=True)
-    default_deliver_address = models.OneToOneField('Address', on_delete=models.RESTRICT, null=True)
+    default_address = models.OneToOneField('Address', on_delete=models.RESTRICT, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]

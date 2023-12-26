@@ -13,16 +13,19 @@ import Frontpage, { loader as frontpageLoader } from './blocks/Frontpage'
 import Register from './blocks/Register'
 import Account, { loader as accountLoader } from './blocks/Account'
 import Login from './blocks/Login'
-import PostAd from './blocks/PostAd'
+import PostAd from './blocks/Ad/PostAd'
 import AdPostConfirmation from './blocks/AdPostConfirmation'
 import AdDetails, { loader as adDetailLoader } from './blocks/AdDetails'
-import AdEdit from './blocks/AdEdit'
+import AdEdit from './blocks/Ad/AdEdit'
 import AdEditConfirmation from './blocks/AdEditConfirmation'
 import { LoginRequired } from './Utils'
 import ManageFunds from './blocks/ManageFunds'
-import Settings from './blocks/Settings'
-import ManageBankAccounts from './blocks/ManageBankAccounts'
-import CreateBankAccount from './blocks/CreateBankAccount'
+import Settings, { loader as settingsLoader } from './blocks/Settings'
+import ManageBankAccounts from './blocks/BankAccount/ManageBankAccounts'
+import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/BankAccount/CreateBankAccount'
+import ManageAddresses from './blocks/Address/ManageAddresses'
+import { getRequestUserAddresses, getRequestUserBankAccounts } from './Fetchers'
+import CreateAddress from './blocks/Address/CreateAddress'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -62,6 +65,10 @@ window.addEventListener('load', () => {
                             <ManageBankAccounts />
                         </LoginRequired>
                     }
+                    loader={async () => {
+                        const data = await getRequestUserBankAccounts()
+                        return data
+                    }}
                 />
                 <Route
                     path='bank-accounts/add/'
@@ -70,7 +77,33 @@ window.addEventListener('load', () => {
                             <CreateBankAccount />
                         </LoginRequired>
                     }
+                    loader={createBankAccountLoader}
                 />
+                <Route
+                    path='addresses/'
+                    element={
+                        <LoginRequired>
+                            <ManageAddresses />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const data = await getRequestUserAddresses()
+                        return data
+                    }}
+                />
+                <Route
+                    path='addresses/add/'
+                    element={
+                        <LoginRequired>
+                            <CreateAddress />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const data = await getRequestUserAddresses()
+                        return data
+                    }}
+                />
+
                 <Route
                     path='settings/'
                     element={
@@ -78,6 +111,7 @@ window.addEventListener('load', () => {
                             <Settings />
                         </LoginRequired>
                     }
+                    loader={settingsLoader}
                 />
                 <Route
                     path="funds/"

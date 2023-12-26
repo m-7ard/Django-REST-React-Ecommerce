@@ -4,6 +4,7 @@ import { useUserContext } from '../Context'
 import Dropdown from '../elements/Dropdown'
 import Directory from '../elements/app_header/Directory'
 import { getCookie } from '../Utils'
+import Icon from '../elements/Icon'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
@@ -97,20 +98,12 @@ export default function AppHeader (): React.ReactNode {
                             </div>
                         </div>
                         <div className="header@app__search-button">
-                            <div className="icon icon--small">
-                                <i className="material-icons">
-                                    search
-                                </i>
-                            </div>
+                            <Icon name='search' size='small' ignoreHeight />
                         </div>
                     </div>
                     <Link to="/post-ad/">
                         <div className="header@app__post-ad">
-                            <div className="icon icon--small">
-                                <i className="material-icons">
-                                    new_label
-                                </i>
-                            </div>
+                            <Icon name='new_label' size='small' ignoreHeight />
                             <div data-role="text">
                                 Post Ad
                             </div>

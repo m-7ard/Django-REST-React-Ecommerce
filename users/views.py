@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from . import serializers
 from .models import BankAccount, Address
@@ -65,6 +66,15 @@ class BankAccountViewset(ModelViewSet):
             address=Address.objects.get(pk=self.request.POST.get("address")),
         )
 
+    @action(detail=True, methods=['PATCH'], url_path='set-as-default')
+    def set_as_default(self, request, pk):
+        user = request.user
+        bank_account = self.get_object()
+        user.default_bank = bank_account
+        user.save()
+        return Response(status=200)
+
+
 
 class AddressViewset(ModelViewSet):
     permissions_classes = [IsAuthenticated]
@@ -77,3 +87,11 @@ class AddressViewset(ModelViewSet):
         serializer.save(
             user=self.request.user,
         )
+
+    @action(detail=True, methods=['PATCH'], url_path='set-as-default')
+    def set_as_default(self, request, pk):
+        user = request.user
+        address = self.get_object()
+        user.default_address = address
+        user.save()
+        return Response(status=200)
