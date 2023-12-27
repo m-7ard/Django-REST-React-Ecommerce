@@ -1331,6 +1331,28 @@
             box-sizing: border-box;
             background-color: white;
         }
+
+        &:not(.is-input).highlighted #{$self}__preview {
+            box-shadow: 0 2px 6px 0px rgba(black, 1);
+            z-index: 1;
+        }
+    }
+
+    &__preview {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border: 1px solid map-get($light, dark);
+        border-radius: $space-small;
+        background-color: map-get($light, dark);
+        transition: box-shadow 0.2s;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
     }
 
     &__uploading {
@@ -1360,21 +1382,5 @@
         border-radius: 9999px;
         z-index: 100;
         background-color: white;
-    }
-
-    &__preview {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        border: 1px solid map-get($light, dark);
-        border-radius: $space-small;
-        background-color: map-get($light, dark);
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            overflow: clip;
-        }
     }
 }

@@ -2,10 +2,24 @@ import React, { useState, type ReactNode } from 'react'
 import { getCookie } from '../Utils'
 import { type FormError } from '../Types'
 import Icon from '../elements/Icon'
+import { useDrag, useDrop } from 'react-dnd'
 
 interface AdImageInputProps {
     initial?: string[]
     name: string
+}
+
+function swapElements (arr: any[], str1: any, str2: any): any[] {
+    const index1 = arr.indexOf(str1)
+    const index2 = arr.indexOf(str2)
+
+    if (index1 === -1 || index2 === -1) {
+        throw Error('One or both elements not found in the array.')
+    }
+
+    [arr[index1], arr[index2]] = [arr[index2], arr[index1]]
+
+    return arr
 }
 
 export default function AdImageInput ({ initial, name }: AdImageInputProps): ReactNode {
@@ -53,6 +67,39 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
         await Promise.all(promises)
     }
 
+    function UploadedImage ({ fileName }: { fileName: string }): React.ReactNode {
+        const [{ isDragging }, drag] = useDrag(() => ({
+            type: 'BOX',
+            collect: (monitor) => ({
+                isDragging: monitor.isDragging()
+            }),
+            item: { fileName }
+        }))
+        const [{ canDrop }, drop] = useDrop(() => ({
+            accept: 'BOX',
+            canDrop: (item: Record<string, unknown>, monitor) => {
+                return !(item.fileName === fileName)
+            },
+            drop: (item, monitor) => {
+                setUploadedImages((previous) => [...swapElements(previous, item.fileName, fileName)])
+            },
+            collect: (monitor) => ({
+                canDrop: monitor.isOver() && monitor.canDrop()
+            })
+        }))
+
+        return (
+            <div className={`multi-image-input@form__element ${canDrop ? 'highlighted' : ''}`} ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
+                <div className="multi-image-input@form__remove">
+                    <Icon name='cancel' size='small' />
+                </div>
+                <div className='multi-image-input@form__preview'>
+                    <img src={`/media/${fileName}`} alt="preview" />
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="multi-image-input@form">
             <input name={name} value={JSON.stringify(uploadedImages)} type="hidden" />
@@ -64,14 +111,7 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
                     <input type="file" multiple />
                 </div>
                 {uploadedImages.map((fileName, i) => (
-                    <div className="multi-image-input@form__element" key={i}>
-                        <div className="multi-image-input@form__remove">
-                            <Icon name='cancel' size='small' />
-                        </div>
-                        <div className='multi-image-input@form__preview'>
-                            <img src={`/media/${fileName}`} alt="preview" />
-                        </div>
-                    </div>
+                    <UploadedImage fileName={fileName} key={i} />
                 ))}
             </div>
             <div>
