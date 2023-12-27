@@ -1380,6 +1380,7 @@
         color: get_theme_attr($gunmetal_theme, neutral, bg);
         visibility: hidden;
         border-radius: 9999px;
+        overflow: hidden;
         z-index: 100;
         background-color: white;
     }

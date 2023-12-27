@@ -75,6 +75,7 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
             }),
             item: { fileName }
         }))
+
         const [{ canDrop }, drop] = useDrop(() => ({
             accept: 'BOX',
             canDrop: (item: Record<string, unknown>, monitor) => {
@@ -90,7 +91,9 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
 
         return (
             <div className={`multi-image-input@form__element ${canDrop ? 'highlighted' : ''}`} ref={(node) => drag(drop(node))} style={{ opacity: isDragging ? 0.5 : 1 }}>
-                <div className="multi-image-input@form__remove">
+                <div className="multi-image-input@form__remove" onClick={() => {
+                    setUploadedImages((previous) => previous.filter((otherFileName) => otherFileName !== fileName))
+                }}>
                     <Icon name='cancel' size='small' />
                 </div>
                 <div className='multi-image-input@form__preview'>
@@ -110,21 +113,25 @@ export default function AdImageInput ({ initial, name }: AdImageInputProps): Rea
                     <Icon name='add_photo_alternate' size='large' />
                     <input type="file" multiple />
                 </div>
-                {uploadedImages.map((fileName, i) => (
-                    <UploadedImage fileName={fileName} key={i} />
-                ))}
+                {
+                    uploadedImages.map((fileName, i) => (
+                        <UploadedImage fileName={fileName} key={i} />
+                    ))
+                }
             </div>
             <div>
-                {stagedImages.map(({ name }, i) => (
-                    <div className="multi-image-input@form__uploading" key={i}>
-                        <Icon name='refresh' size='small' />
-                        <div className="form__helper-text">
-                            Uploading:
-                            {' '}
-                            {name}
+                {
+                    stagedImages.map(({ name }, i) => (
+                        <div className="multi-image-input@form__uploading" key={i}>
+                            <Icon name='refresh' size='small' />
+                            <div className="form__helper-text">
+                                Uploading:
+                                {' '}
+                                {name}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                }
                 {errors.map((error, i) => (
                     <div className="form__error" key={i}>
                         {error.name}

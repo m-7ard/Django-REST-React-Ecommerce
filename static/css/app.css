@@ -1817,6 +1817,7 @@
   color: #22333B;
   visibility: hidden;
   border-radius: 9999px;
+  overflow: hidden;
   z-index: 100;
   background-color: white;
 }/*# sourceMappingURL=app.css.map */
