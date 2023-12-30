@@ -72,23 +72,28 @@ class Transaction(models.Model):
     
     kind = models.CharField(max_length=20, choices=KINDS)
     visible_to = models.ManyToManyField(CustomUser, related_name='transactions', editable=False)
+    date = models.DateTimeField(auto_now_add=True)
 
     @property
     def transaction_object(self):
         return getattr(self, self.kind)
     
     @property
-    def name(self):
-        return self.transaction_object.name
+    def label(self):
+        return self.transaction_object.label
     
     @property
-    def type_of(self):
-        return self.transaction_object.type_of
+    def subkind(self):
+        return self.transaction_object.subkind
+    
+    @property
+    def signed_amount(self):
+        return self.transaction_object.signed_amount
+
     
 
 class TransactionType(models.Model):
     amount = models.FloatField()
-    date = models.DateTimeField(auto_now_add=True)
     action_bank_account = models.ForeignKey('BankAccount', related_name='+', on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -125,6 +130,24 @@ class BankTransaction(TransactionType):
             if user.funds < self.amount:
                 raise IntegrityError("Withdrawal amount cannot be larger than user funds.")
             perform_transfer(self.amount, sender=user)
+    
+    @property
+    def label(self):
+        if self.action_bank_account:
+            return self.action_bank_account.iban
+        
+        return ''
+    
+    @property
+    def signed_amount(self):
+        if self.kind == 'withdrawal':
+            return self.amount * -1
+        
+        return self.amount
+
+    @property
+    def subkind(self):
+        return self.get_kind_display()
 
 
 class PaymentTransaction(TransactionType):

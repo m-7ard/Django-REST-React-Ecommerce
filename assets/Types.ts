@@ -77,3 +77,10 @@ export interface BankAccount {
     iban: string
     is_default: boolean
 }
+
+export interface Transaction {
+    label: string
+    signed_amount: number
+    subkind: string
+    date: string
+}

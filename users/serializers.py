@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
 
-from .models import CustomUser, Address, BankAccount, BankTransaction
+from .models import CustomUser, Address, BankAccount, BankTransaction, Transaction
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -118,12 +118,33 @@ class BankAccountSerializer(serializers.ModelSerializer):
 
     def get_is_default(self, obj):
         return obj.pk == obj.user.default_bank
+    
+
+class TransactionModelSerializer(serializers.ModelSerializer):
+    label = serializers.CharField(read_only=True)
+    signed_amount = serializers.ReadOnlyField()
+    subkind = serializers.CharField(read_only=True)
+    date = serializers.DateTimeField(
+        format="%d %b", read_only=True
+    )
+    
+    class Meta:
+        model = Transaction
+        fields = [
+            "label",
+            "signed_amount",
+            "subkind",
+            "date",
+        ]
 
 
 class TransactionTypeSerializer(serializers.ModelSerializer):
     amount = serializers.FloatField(min_value=0.01)
 
     def validate_action_bank_account(self, value):
+        if not value:
+            raise serializers.ValidationError("Bank Account is required.")
+
         if not self.context['request'].user.bank_accounts.filter(pk=value.pk).exists():
             raise PermissionDenied("Request user is not bank account owner.", 403)
 

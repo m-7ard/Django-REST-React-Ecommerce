@@ -14,7 +14,7 @@ export default function AddFunds (): React.ReactNode {
         <GenericForm
             extraClass="pamphlet"
             method="POST"
-            action="/api/ads/"
+            action="/api/deposit/"
             title="Add Funds"
             button={{ label: 'Add Funds' }}
             hasCSRF
@@ -28,7 +28,7 @@ export default function AddFunds (): React.ReactNode {
                     })
                 },
                 {
-                    name: 'bank_account',
+                    name: 'action_bank_account',
                     label: 'Bank Account to Withdraw From',
                     widget: BankAccountModalSelectWidget({
                         bankAccountList: bankAccounts,
@@ -38,9 +38,8 @@ export default function AddFunds (): React.ReactNode {
                     })
                 }
             ]}
-            onSuccess={async (response: Response) => {
-                const ad = await response.json()
-                navigate('success/', { state: ad })
+            onSuccess={async (response) => {
+                navigate('/funds/')
             }}
         />
     )

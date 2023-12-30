@@ -25,6 +25,6 @@ router = routers.DefaultRouter()
 router.register('api/register', views.UserRegisterAPIView, basename='register')
 router.register('api/bank-accounts', views.BankAccountViewset, basename='bank-account')
 router.register('api/addresses', views.AddressViewset, basename='address'),
-router.register('api/transactions', views.TransactionViewSet, basename='transaction'),
+router.register('api/transactions', views.TransactionGenericViewSet, basename='transaction'),
 
 urlpatterns += router.urls

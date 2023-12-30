@@ -615,10 +615,6 @@
         font-size: get-font-size(primary, large);
         font-weight: 700;
         color: map-get($black, dark);
-
-        &--small {
-            font-size: get-font-size(primary, small);
-        }
     }
 
     &__subtitle {
@@ -1378,5 +1374,15 @@
         overflow: hidden;
         z-index: 100;
         background-color: white;
+    }
+}
+
+.transaction {
+    justify-content: space-between;
+    align-items: center;
+    border-radius: $space-small;
+
+    &__title, &__info {
+        @include ellipsis;
     }
 }

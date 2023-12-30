@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -97,7 +97,14 @@ class AddressViewset(ModelViewSet):
         user.default_address = address
         user.save()
         return Response(status=200)
-    
+
+
+class TransactionGenericViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    serializer_class = serializers.TransactionModelSerializer
+
+    def get_queryset(self):
+        return self.request.user.transactions.all()
+
 
 class BankTransactionCreateAPIView(CreateAPIView):
     permissions_classes = [IsAuthenticated]
@@ -112,16 +119,3 @@ class BankTransactionCreateAPIView(CreateAPIView):
     def perform_create(self, serializer):
         return serializer.save(kind=self.kwargs.get('kind'))
     
-
-
-class TransactionViewSet(viewsets.ViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    def get_queryset(self):
-        return self.request.user.transactions.all()
-
-    @action(methods=['POST'], detail=False)
-    def create_bank_transaction(self, request):
-        serializer = serializer.BankTransactionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

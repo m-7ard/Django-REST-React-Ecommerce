@@ -1,9 +1,11 @@
 import React from 'react'
 import { useUserContext } from '../../Context'
-import { Link } from 'react-router-dom'
+import { Link, useLoaderData } from 'react-router-dom'
+import { Transaction } from '../../Types'
 
 export default function ManageFunds (): React.ReactNode {
     const { user } = useUserContext()
+    const { transactions } = useLoaderData() as { transactions: Transaction[] }
 
     return (
         <div className="funds prop prop--vertical pamphlet">
@@ -41,32 +43,29 @@ export default function ManageFunds (): React.ReactNode {
                 </div>
             </div>
             <hr className="app__divider" />
-            <div className='funds__transactions'>
-                <div>
-                    <div>
-                        Test
-                    </div>
-                    <div>
-                        100€
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        Test
-                    </div>
-                    <div>
-                        100€
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        Test
-                    </div>
-                    <div>
-                        100€
-                    </div>
-                </div>
-            </div>
+            {
+                transactions.map((transaction, i) => {
+                    console.log(transaction)
+                    return (
+                        <div className='transaction prop prop--horizontal prop--highlighted' key={i}>
+                            <div className='prop__pairing transaction__info'>
+                                <div className='prop__info transaction__title'>
+                                    {transaction.label}
+                                </div>
+                                <div className='prop__label'>
+                                    {transaction.subkind}
+                                </div>
+                                <div className='prop__detail'>
+                                    {transaction.date}
+                                </div>
+                            </div>
+                            <div className='prop__label'>
+                                -{transaction.signed_amount}€
+                            </div>
+                        </div>
+                    )
+                })
+            }
         </div>
     )
 }

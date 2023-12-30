@@ -24,7 +24,7 @@ import Settings, { loader as settingsLoader } from './blocks/User/Settings'
 import ManageBankAccounts from './blocks/BankAccount/ManageBankAccounts'
 import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/BankAccount/CreateBankAccount'
 import ManageAddresses from './blocks/Address/ManageAddresses'
-import { getRequestUserAddresses, getRequestUserBankAccounts } from './Fetchers'
+import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
 import AddFunds from './blocks/User/AddFunds'
 
@@ -121,6 +121,10 @@ window.addEventListener('load', () => {
                             <ManageFunds />
                         </LoginRequired>
                     }
+                    loader={async () => {
+                        const transactions = await getRequestUserTransactions()
+                        return { transactions }
+                    }}
                 />
                 <Route
                     path="funds/add/"

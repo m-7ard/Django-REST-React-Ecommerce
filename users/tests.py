@@ -575,7 +575,6 @@ class BaseTransactionTest(TestBankAccountsMixin):
             self.assertEqual(self.test_user.funds, 100, f"Zero amount transactions must not change funds. [{url}]")
 
 
-
 class DepositTransactionTest(TestBankAccountsMixin):
     def setUp(self):
         super().setUp()
@@ -627,3 +626,6 @@ class WithdrawalTransactionTest(TestBankAccountsMixin):
 
         self.assertEqual(response.status_code, 400, "User must not be allowed to withdraw more than their funds.")
         self.assertEqual(self.test_user.funds, 100, "Larger than user funds amounts must not go through.")
+
+
+    

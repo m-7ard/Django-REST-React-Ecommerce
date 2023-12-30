@@ -908,9 +908,6 @@
   font-weight: 700;
   color: #0A0908;
 }
-.prop__title--small {
-  font-size: 0.9375rem;
-}
 .prop__subtitle {
   font-size: 0.75rem;
   font-weight: 400;
@@ -1816,4 +1813,15 @@
   overflow: hidden;
   z-index: 100;
   background-color: white;
+}
+
+.transaction {
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0.25rem;
+}
+.transaction__title, .transaction__info {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
 }/*# sourceMappingURL=app.css.map */
