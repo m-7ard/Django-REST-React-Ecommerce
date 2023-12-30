@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 
-import { addDotsToNumber } from '../Utils'
-import { getRequestUserAds } from '../Fetchers'
-import { useCategoryContext, useUserContext } from '../Context'
-import { type BaseAd } from '../Types'
+import { addDotsToNumber } from '../../Utils'
+import { getRequestUserAds } from '../../Fetchers'
+import { useCategoryContext, useUserContext } from '../../Context'
+import { type BaseAd } from '../../Types'
 
 export async function loader (): Promise<BaseAd[]> {
     const ads = await getRequestUserAds()

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { CharInputWidget } from '../widgets/CharInput'
-import { useUserContext } from '../Context'
-import GenericForm from '../elements/GenericForm'
+import { CharInputWidget } from '../../widgets/CharInput'
+import { useUserContext } from '../../Context'
+import GenericForm from '../../elements/GenericForm'
 
 export default function Login (): React.ReactNode {
     const navigate = useNavigate()

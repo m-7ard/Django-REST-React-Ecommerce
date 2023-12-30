@@ -1,5 +1,6 @@
 import React from 'react'
-import { useUserContext } from '../Context'
+import { useUserContext } from '../../Context'
+import { Link } from 'react-router-dom'
 
 export default function ManageFunds (): React.ReactNode {
     const { user } = useUserContext()
@@ -12,7 +13,7 @@ export default function ManageFunds (): React.ReactNode {
                 </div>
             </div>
             <hr className="app__divider" />
-            <div className="funds__balance prop prop--vertical">
+            <div className="prop prop--vertical prop--highlighted">
                 <div className="prop__header">
                     <div className="prop__title">
                         {user.funds}€
@@ -26,12 +27,12 @@ export default function ManageFunds (): React.ReactNode {
                     </div>
                 </div>
                 <div className='prop__row'>
-                    <div className="prop__label is-link">
+                    <Link className="prop__label is-link" to={'add/'}>
                         Add Funds
-                    </div>
-                    <div className="prop__label is-link">
+                    </Link>
+                    <Link className="prop__label is-link">
                         Withdraw Funds
-                    </div>
+                    </Link>
                 </div>
             </div>
             <div className="prop__header">

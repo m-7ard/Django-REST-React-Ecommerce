@@ -1,10 +1,10 @@
 import React from 'react'
-import HighlightBox from '../elements/frontpage/HighlightBox'
-import Gallery from '../elements/frontpage/Gallery'
-import Ad from '../elements/frontpage/Ad'
-import { getFrontpageData } from '../Fetchers'
+import HighlightBox from '../../elements/frontpage/HighlightBox'
+import Gallery from '../../elements/frontpage/Gallery'
+import Ad from '../../elements/frontpage/Ad'
+import { getFrontpageData } from '../../Fetchers'
 import { useLoaderData } from 'react-router-dom'
-import { type FrontPageData } from '../Types'
+import { type FrontPageData } from '../../Types'
 
 export async function loader (): Promise<FrontPageData> {
     const data = await getFrontpageData()

@@ -1,23 +1,23 @@
 import React, { useState } from 'react'
-import { type Address } from '../../Types'
+import { BankAccount, type Address } from '../../Types'
 import { usePicker } from '../../Utils'
 import Prompt from '../../elements/Prompt'
 import Icon from '../../elements/Icon'
 
-interface AddressModalSelectProps {
+interface BankAccountModalSelectProps {
     name: string
     title: string
-    addressList: Address[]
+    bankAccountList: BankAccount[]
     placeholder?: string
     initial?: number
 }
 
-export default function AddressModalSelect ({ name, title, addressList, placeholder, initial }: AddressModalSelectProps): React.ReactNode {
+export default function BankAccountModalSelect ({ name, title, bankAccountList, placeholder, initial }: BankAccountModalSelectProps): React.ReactNode {
     const [open, setOpen] = useState(false)
-    const { stagedValue, confirmedValue, setStagedValue, setConfirmedValue } = usePicker<Address>(
+    const { stagedValue, confirmedValue, setStagedValue, setConfirmedValue } = usePicker<BankAccount>(
         initial == null
             ? undefined
-            : addressList.find((address) => address.pk === initial)
+            : bankAccountList.find((bankAccount) => bankAccount.pk === initial)
     )
     const currentlySelected = stagedValue ?? confirmedValue
     const closeModal = (): void => {
@@ -33,7 +33,7 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
             }}>
                 <div className="select@form__root">
                     <div data-role="label">
-                        {confirmedValue == null ? placeholder : `${confirmedValue.name}, ${confirmedValue.street}, ${confirmedValue.locality}, ${confirmedValue.zip_code}, ${confirmedValue.country}`}
+                        {confirmedValue == null ? placeholder : `${confirmedValue.iban}, ${confirmedValue.owner}`}
                     </div>
                     <Icon name='web_asset' size='small' ignoreHeight />
                 </div>
@@ -47,15 +47,21 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
                         }}
                         body={
                             <div className='card-grid'>
-                                {addressList.map((address, i) => {
-                                    const isSelected = currentlySelected?.pk === address.pk
+                                {bankAccountList.map((bankAccount, i) => {
+                                    const address = bankAccount.address
+                                    const isSelected = currentlySelected?.pk === bankAccount.pk
                                     return (
                                         <div className={`prop prop--vertical prop--highlighted card-grid__item ${isSelected ? 'card-grid__item--selected' : ''}`} key={i} onClick={() => {
-                                            setStagedValue(address)
+                                            setStagedValue(bankAccount)
                                         }}>
                                             <div className="prop__header">
-                                                <div className="prop__label">
-                                                    {address.name}
+                                                <div>
+                                                    <div className="prop__label">
+                                                        {bankAccount.owner}
+                                                    </div>
+                                                    <div className='prop__detail'>
+                                                        {bankAccount.iban}
+                                                    </div>
                                                 </div>
                                                 {
                                                     isSelected && (
@@ -65,6 +71,7 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
                                             </div>
                                             <hr className="app__divider" />
                                             <div>
+                                                <div className='prop__detail'> {address.name} </div>
                                                 <div className='prop__detail'> {address.street} </div>
                                                 <div className='prop__detail'> {address.locality} </div>
                                                 <div className='prop__detail'> {address.zip_code} </div>
@@ -94,6 +101,6 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
     )
 }
 
-export function AddressModalSelectWidget (props: Omit<AddressModalSelectProps, 'name'>): ({ name }: { name: string }) => React.ReactNode {
-    return ({ name }: { name: string }) => AddressModalSelect({ name, ...props })
+export function BankAccountModalSelectWidget (props: Omit<BankAccountModalSelectProps, 'name'>): ({ name }: { name: string }) => React.ReactNode {
+    return ({ name }: { name: string }) => BankAccountModalSelect({ name, ...props })
 }

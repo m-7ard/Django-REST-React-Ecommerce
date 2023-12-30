@@ -1,9 +1,9 @@
 import React from 'react'
-import { useUserContext } from '../Context'
-import Display from '../elements/Settings/Display'
+import { useUserContext } from '../../Context'
+import Display from '../../elements/Settings/Display'
 import { useLoaderData } from 'react-router-dom'
-import { getRequestUserAddresses, getRequestUserBankAccounts } from '../Fetchers'
-import { type Address, type BankAccount } from '../Types'
+import { getRequestUserAddresses, getRequestUserBankAccounts } from '../../Fetchers'
+import { type Address, type BankAccount } from '../../Types'
 
 interface loaderReturn {
     bankAccounts: BankAccount[]

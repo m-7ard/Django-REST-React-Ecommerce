@@ -10,7 +10,6 @@ interface GenericFormInteface {
         label: string
         widget: ({ name }: { name: string }) => React.ReactNode
     }>
-    resettable?: boolean
     button: {
         label: string
     }
@@ -21,7 +20,7 @@ interface GenericFormInteface {
 }
 
 export default function GenericForm ({
-    action, extraClass, method, title, button, fields, onSuccess, resettable = false, hasCSRF = false
+    action, extraClass, method, title, button, fields, onSuccess, hasCSRF = false
 }: GenericFormInteface): React.ReactNode {
     const [errors, setErrors] = useState<Record<string, string[]> | null>(null)
 
@@ -92,11 +91,6 @@ export default function GenericForm ({
             </div>
             <hr className="app__divider" />
             <div className="prop__footer">
-                {
-                    resettable && (
-                        <input className="form__reset" type="reset" />
-                    )
-                }
                 <button type="submit" className="form__submit">
                     {button.label}
                 </button>

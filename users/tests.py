@@ -6,6 +6,60 @@ from .models import CustomUser, Address, BankAccount
 from .serializers import BankAccountSerializer, AddressSerializer
 
 
+class TestUsersMixin(APITestCase):
+    def setUp(self):
+        self.test_user = CustomUser.objects.create_user(
+            email= "test_user@mail.com",
+            password= "userword",
+            display_name= "test_user",
+            account_type= "individual",
+        )
+        self.other_user = CustomUser.objects.create_user(
+            email="other_user@mail.com",
+            password="userword",
+            display_name="other_user",
+            account_type="individual",
+        )
+
+
+class TestAddressesMixin(TestUsersMixin):
+    def setUp(self):
+        super().setUp()
+        self.test_user_address = Address.objects.create(
+            user=self.test_user,
+            name="Test User",
+            street="Test Street",
+            zip_code="10000",
+            locality='Test Town',
+            country="AU",
+        )
+        self.other_user_address = Address.objects.create(
+            user=self.test_user,
+            name="Other User",
+            street="Other Street",
+            zip_code="22222",
+            locality='Other Town',
+            country="DE",
+        )
+
+
+class TestBankAccountsMixin(TestAddressesMixin):
+    def setUp(self):
+        super().setUp()
+        self.test_user_bank = BankAccount.objects.create(
+            user=self.test_user,
+            owner="Test User",
+            address=self.test_user_address,
+            iban="GB00WEST0000XXXX0000XXXX00",
+        )
+        self.other_user_bank = BankAccount.objects.create(
+            user=self.other_user,
+            owner="Other User",
+            address=self.other_user_address,
+            iban="GB00EAST0000XXXX0000XXXX00",
+        )
+
+
 class UserTest(APITestCase):
     user_data = {
         "email": "test_user@mail.com",
@@ -467,3 +521,109 @@ class AddressViewSetTest(APITestCase):
             Address.objects.filter(pk=self.other_user_address.pk).exists(),
             "Users must not be able to edit other user's addresses",
         )
+
+
+class BaseTransactionTest(TestBankAccountsMixin):
+    def setUp(self):
+        super().setUp()
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.test_user.funds = 100
+        self.test_user.save()
+        self.urls_to_test = [
+            '/api/deposit/',
+            '/api/withdraw/',
+        ]
+
+    def test_unauthorized_transcactions(self):
+        for url in self.urls_to_test:
+            response = self.client.post(url, {
+                'action_bank_account': self.other_user_bank.pk,
+                'amount': 20,
+            })
+
+            self.other_user.refresh_from_db()
+
+            self.assertEqual(response.status_code, 403, f"Request user must be bank account owner. [{url}]")
+            # note we only set test_user's funds to 100
+            self.assertEqual(self.other_user.funds, 0, f"Unauthorised transactions must not go through. [{url}]")
+
+    def test_invalid_negative_deposit(self):
+        for url in self.urls_to_test:
+            response = self.client.post(url, {
+                'action_bank_account': self.test_user_bank.pk,
+                'amount': -20,
+            })
+
+            self.test_user.refresh_from_db()
+
+            self.assertEqual(response.status_code, 400, f"Transactions must be greater than zero. [{url}]")
+            self.assertEqual(self.test_user.funds, 100, f"Negative amount transactions must not go through. [{url}]")
+
+    def test_invalid_zero_deposit(self):
+        for url in self.urls_to_test:
+            response = self.client.post(url, {
+                'action_bank_account': self.test_user_bank.pk,
+                'amount': 0,
+            })
+
+            self.test_user.refresh_from_db()
+
+            self.assertEqual(response.status_code, 400, f"Transactions must be greater than zero. [{url}]")
+            self.assertEqual(self.test_user.funds, 100, f"Zero amount transactions must not change funds. [{url}]")
+
+
+
+class DepositTransactionTest(TestBankAccountsMixin):
+    def setUp(self):
+        super().setUp()
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+
+    def test_valid_deposit(self):
+        response = self.client.post('/api/deposit/', {
+            'action_bank_account': self.test_user_bank.pk,
+            'amount': 20,
+        })
+
+        self.test_user.refresh_from_db()
+
+        self.assertEqual(response.status_code, 201, "Failed to create deposit.")
+        self.assertEqual(self.test_user.funds, 20, "Failed to increase funds through deposit.")
+
+
+class WithdrawalTransactionTest(TestBankAccountsMixin):
+    def setUp(self):
+        super().setUp()
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.test_user.funds = 100
+        self.test_user.save()
+
+    def test_valid_withdrawal(self):
+        response = self.client.post('/api/withdraw/', {
+            'action_bank_account': self.test_user_bank.pk,
+            'amount': 20,
+        })
+
+        self.test_user.refresh_from_db()
+
+        self.assertEqual(response.status_code, 201, "Failed to create withdrawal.")
+        self.assertEqual(self.test_user.funds, 80, "Failed to decrease funds through withdrawal.")
+
+    def test_invalid_amount_withdrawal(self):
+        response = self.client.post('/api/withdraw/', {
+            'action_bank_account': self.test_user_bank.pk,
+            'amount': 999,
+        })
+
+        self.test_user.refresh_from_db()
+
+        self.assertEqual(response.status_code, 400, "User must not be allowed to withdraw more than their funds.")
+        self.assertEqual(self.test_user.funds, 100, "Larger than user funds amounts must not go through.")

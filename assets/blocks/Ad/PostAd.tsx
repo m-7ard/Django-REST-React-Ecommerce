@@ -18,7 +18,6 @@ export default function PostAd (): React.ReactNode {
             title="Post Ad"
             button={{ label: 'Post Ad' }}
             hasCSRF
-            resettable
             fields={[
                 {
                     name: 'title',

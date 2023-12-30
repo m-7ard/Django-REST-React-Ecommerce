@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation } from 'react-router-dom'
-import AppHeader from './blocks/AppHeader'
+import AppHeader from './blocks/Store/AppHeader'
 import { getCategoryData } from './Fetchers'
 import { UserContext, CategoryContext } from './Context'
 import { type CategoryData, type User } from './Types'

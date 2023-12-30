@@ -21,17 +21,21 @@ export default function Prompt ({ title, onClose, body, footer }: PromptProps): 
                     </div>
                 </div>
                 <hr className="app__divider" />
-                {body != null && (
-                    <div className="prop__body">
-                        {body}
-                    </div>
-                )}
+                {
+                    body != null && (
+                        <div className="prop__body">
+                            {body}
+                        </div>
+                    )
+                }
                 <hr className="app__divider" />
-                {footer != null && (
-                    <div className="prop__footer">
-                        {footer}
-                    </div>
-                )}
+                {
+                    footer != null && (
+                        <div className="prop__footer">
+                            {footer}
+                        </div>
+                    )
+                }
             </div>
         </div>
     )

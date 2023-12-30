@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useUserContext } from '../Context'
-import Dropdown from '../elements/Dropdown'
-import Directory from '../elements/app_header/Directory'
-import { getCookie } from '../Utils'
-import Icon from '../elements/Icon'
+import { useUserContext } from '../../Context'
+import Dropdown from '../../elements/Dropdown'
+import Directory from '../../elements/app_header/Directory'
+import { getCookie } from '../../Utils'
+import Icon from '../../elements/Icon'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()

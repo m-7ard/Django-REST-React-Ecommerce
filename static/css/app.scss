@@ -1235,21 +1235,20 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
     gap: $space-large;
+
+    &__item {
+        @include base-button;
+        align-items: unset;
+
+        &:hover, &--selected {
+            background-color: map-get($light, light);
+        }
+    }
 }
 
 .address, .bank-account {
     .prop__detail {
         @include ellipsis;
-    }
-}
-
-.address\@prompt {
-    @include base-button;
-    @extend .address;
-    align-items: unset;
-
-    &:hover, &--selected {
-        background-color: map-get($light, light);
     }
 }
 
@@ -1314,10 +1313,6 @@
         cursor: pointer;
 
         &:hover #{$self}__remove {
-            visibility: visible;
-        }
-
-        &:hover #{$self}__nav {
             visibility: visible;
         }
 

@@ -1657,14 +1657,7 @@
   grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
   gap: 0.75rem;
 }
-
-.address .prop__detail, .address\@prompt .prop__detail, .bank-account .prop__detail {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: clip;
-}
-
-.address\@prompt {
+.card-grid__item {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: clip;
@@ -1676,8 +1669,14 @@
   flex-shrink: 0;
   align-items: unset;
 }
-.address\@prompt:hover, .address\@prompt--selected {
+.card-grid__item:hover, .card-grid__item--selected {
   background-color: #F2F4F3;
+}
+
+.address .prop__detail, .bank-account .prop__detail {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
 }
 
 .drawer {
@@ -1746,9 +1745,6 @@
   cursor: pointer;
 }
 .multi-image-input\@form__element:hover .multi-image-input\@form__remove {
-  visibility: visible;
-}
-.multi-image-input\@form__element:hover .multi-image-input\@form__nav {
   visibility: visible;
 }
 .multi-image-input\@form__element.is-input {
