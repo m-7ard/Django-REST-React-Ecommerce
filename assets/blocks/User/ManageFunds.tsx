@@ -32,7 +32,7 @@ export default function ManageFunds (): React.ReactNode {
                     <Link className="prop__label is-link" to={'add/'}>
                         Add Funds
                     </Link>
-                    <Link className="prop__label is-link">
+                    <Link className="prop__label is-link" to={'withdraw/'}>
                         Withdraw Funds
                     </Link>
                 </div>
@@ -60,7 +60,7 @@ export default function ManageFunds (): React.ReactNode {
                                 </div>
                             </div>
                             <div className='prop__label'>
-                                -{transaction.signed_amount}€
+                                {transaction.signed_amount}€
                             </div>
                         </div>
                     )

@@ -27,6 +27,7 @@ import ManageAddresses from './blocks/Address/ManageAddresses'
 import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
 import AddFunds from './blocks/User/AddFunds'
+import WithdrawFunds from './blocks/User/WithdrawFunds'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -131,6 +132,18 @@ window.addEventListener('load', () => {
                     element={
                         <LoginRequired>
                             <AddFunds />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const bankAccounts = await getRequestUserBankAccounts()
+                        return bankAccounts
+                    }}
+                />
+                <Route
+                    path="funds/withdraw/"
+                    element={
+                        <LoginRequired>
+                            <WithdrawFunds />
                         </LoginRequired>
                     }
                     loader={async () => {

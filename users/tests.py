@@ -2,8 +2,8 @@ from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 
-from .models import CustomUser, Address, BankAccount
-from .serializers import BankAccountSerializer, AddressSerializer
+from .models import CustomUser, Address, BankAccount, BankTransaction
+from .serializers import BankAccountSerializer, AddressSerializer, TransactionModelSerializer
 
 
 class TestUsersMixin(APITestCase):
@@ -628,4 +628,34 @@ class WithdrawalTransactionTest(TestBankAccountsMixin):
         self.assertEqual(self.test_user.funds, 100, "Larger than user funds amounts must not go through.")
 
 
+class TransactionGenericViewSetTest(TestBankAccountsMixin):
+    def setUp(self):
+        super().setUp()
+        self.client.login(
+            email="test_user@mail.com",
+            password="userword",
+        )
+        self.test_user.funds = 100
+        self.test_user.save()
+        self.deposit = BankTransaction.objects.create(
+            kind='deposit',
+            amount=50,
+            action_bank_account=self.test_user_bank
+        )
+        self.withdrawal = BankTransaction.objects.create(
+            kind='deposit',
+            amount=25,
+            action_bank_account=self.test_user_bank          
+        )
+
+    def test_valid_listing(self):
+        response = self.client.get("/api/transactions/")
+        self.assertEqual(response.status_code, 200, "Failed to list user transactions.")
+        self.assertEqual(
+            response.data,
+            TransactionModelSerializer(self.test_user.transactions.all(), many=True).data,
+            "Listed transactions data do not match with user transactions data."
+        )
+
     
+
