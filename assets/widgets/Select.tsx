@@ -1,42 +1,72 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { type NormalizedData } from '../Utils'
 import { type NormalizedDataItem } from '../Types'
+import Icon from '../elements/Icon'
 
-interface SelectInterface {
+interface SelectProps {
     name: string
-    options: NormalizedDataItem[]
-    initial?: NormalizedDataItem
-    className: string
-    placeholder?: string
+    normalizedData: NormalizedData
+    placeholder: string
+    initial?: number
+    selectClass?: string
+    rootClass?: string
+    optionListClass?: string
+    optionClass?: string
+    rows?: number
 }
 
-export default function Select ({ name, options, initial, className, placeholder }: SelectInterface): React.ReactNode {
-    /*
-
-    TODO: redisign this whole component and consider
-    changing category select to a tooltip
-
-    */
-
+export default function Select ({ name, normalizedData, initial, placeholder, selectClass, rootClass, optionListClass, optionClass, rows }: SelectProps): React.ReactNode {
     const [open, setOpen] = useState(false)
-    const [root, setRoot] = useState(initial)
+    const [choice, setChoice] = useState(initial == null ? null : normalizedData.getChoice(initial))
     const [optionListPositioning, setOptionListPositioning] = useState<{
         top?: string | 0
         left?: string | 0
         width: string
+        height: string
     }>({
         top: 0,
         left: 0,
-        width: 'auto'
+        width: 'auto',
+        height: 'auto'
     })
     const selectRef = useRef<HTMLDivElement | null>(null)
+    const rootRef = useRef<HTMLDivElement | null>(null)
+
+    useLayoutEffect(() => {
+        if (open) {
+            positionOptionList()
+        }
+    }, [open])
+
+    const positionOptionList = (): void => {
+        if (rootRef.current == null) {
+            return
+        }
+
+        const dimensions = rootRef.current.getBoundingClientRect()
+        setOptionListPositioning({
+            top: `${dimensions.bottom}px`,
+            left: `${dimensions.left}px`,
+            width: `${rootRef.current.offsetWidth}px`,
+            height: `${rootRef.current.offsetHeight * (rows ?? 1)}px`
+        })
+    }
 
     useEffect(() => {
-        const handleWindowClick = (event: MouseEvent): void => {
+        const closeOnWindowClick = (event: MouseEvent): void => {
             if (!(event.button === 0) || selectRef.current == null) {
                 return
             }
 
-            if (!selectRef.current.contains(event.target as Node)) {
+            const target = event.target as HTMLElement
+            if (
+                selectRef.current.contains(target as Node) &&
+                target.closest('[data-role="close"]') != null
+            ) {
+                setOpen(false)
+            }
+
+            if (!selectRef.current.contains(target as Node)) {
                 setOpen(false)
             }
         }
@@ -46,88 +76,58 @@ export default function Select ({ name, options, initial, className, placeholder
                 return
             }
 
-            positionOptionList(selectRef.current as HTMLElement)
+            positionOptionList()
         }
 
-        window.addEventListener('mouseup', handleWindowClick as EventListener)
-        window.addEventListener('resize', handleWindowResize)
+        if (open) {
+            window.addEventListener('mouseup', closeOnWindowClick)
+            window.addEventListener('resize', handleWindowResize)
+        }
 
         return () => {
-            window.removeEventListener('mouseup', handleWindowClick)
+            window.removeEventListener('mouseup', closeOnWindowClick)
             window.removeEventListener('resize', handleWindowResize)
         }
-    }, [selectRef])
+    }, [open])
 
-    const positionOptionList = (selectRoot: HTMLElement): void => {
-        const dimensions = selectRoot.getBoundingClientRect()
-        setOptionListPositioning({
-            top: `${dimensions.bottom}px`,
-            left: `${dimensions.left}px`,
-            width: `${selectRoot.offsetWidth}px`
-        })
-    }
-
-    const toggleSelect = (event: React.MouseEvent<HTMLButtonElement>): void => {
-        if (open) {
-            setOpen(false)
-            return
-        }
-
-        if (!(event.target instanceof Element)) {
-            return
-        }
-
-        const selectRoot: HTMLElement | null = event.target.closest('[data-role="root"]')
-        if (selectRoot == null) {
-            return
-        }
-
-        positionOptionList(selectRoot)
-        setOpen(true)
-    }
-
-    function Option ({ option }: { option: NormalizedDataItem }): React.ReactNode {
+    function Option ({ value, label }: NormalizedDataItem): React.ReactNode {
         return (
-            <button
-                data-role="option"
-                onClick={() => {
-                    setRoot(option)
-                }}
-            >
-                <div data-role="label">
-                    {option.label}
-                </div>
-                <input type="radio" name={name} checked={option.value === root.value} onChange={() => undefined} />
-            </button>
+            <div className={`select__option ${optionClass}`} onClick={() => {
+                setChoice({ value, label })
+            }}>
+                {label}
+                <input type='radio' name={name} defaultValue={value} defaultChecked={choice?.value === value}/>
+            </div>
         )
     }
 
     return (
         <div
-            className={className}
-            data-role="select"
+            className={`select ${selectClass}`}
             data-state={open ? 'open' : 'closed'}
-            ref={selectRef}
+            {...(open && { ref: selectRef })}
         >
-            <button
-                value={root == null ? placeholder : root.value}
-                data-role="root"
-                onClick={toggleSelect}
+            <div
+                className={`select__root ${rootClass}`}
+                {...(open && { ref: rootRef })}
+                onClick={() => {
+                    setOpen(!open)
+                }}
             >
-                <div className="icon icon--small" data-role="marker">
-                    <i className="material-icons">
-                        expand_more
-                    </i>
-                </div>
-                <div data-role="label">
-                    {root == null ? placeholder : root.label}
-                </div>
-            </button>
-            <div data-role="option-list" style={{ ...optionListPositioning }}>
-                {options.map((option, i) => (
-                    <Option option={option} key={i} />
-                ))}
+                {choice == null ? placeholder : choice.label}
+                <span data-role="marker">
+                    <Icon name='chevron_right' size='small' />
+                </span>
+            </div>
+            <div className={`select__option-list ${optionListClass}`} style={optionListPositioning}>
+                {normalizedData.data.map((item) => {
+                    return Option(item)
+                })}
             </div>
         </div>
     )
+}
+
+export function SelectWidget (props: Omit<SelectProps, 'name'>): ({ name }: { name: string }) => React.ReactNode {
+    return ({ name }: { name: string }) => Select({ name, ...props })
 }

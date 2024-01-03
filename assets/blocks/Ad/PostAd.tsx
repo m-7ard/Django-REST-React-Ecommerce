@@ -1,12 +1,11 @@
 import React from 'react'
 
 import { useNavigate } from 'react-router-dom'
-import { useLoginRequired } from '../Utils'
-import { CharInputWidget } from '../widgets/CharInput'
-import { CharTextAreaWidget } from '../widgets/CharTextArea'
-import { CategoryPickerWidget } from '../widgets/CategoryPicker'
-import { AdImageInputWidget } from '../widgets/AdImageInput'
-import GenericForm from '../elements/GenericForm'
+import { CharInputWidget } from '../../widgets/CharInput'
+import { CharTextAreaWidget } from '../../widgets/CharTextArea'
+import { AdImageInputWidget } from '../../widgets/AdImageInput'
+import GenericForm from '../../elements/GenericForm'
+import { CategoryModalSelectWidget } from '../../widgets/ModalSelects/CategoryModalSelect'
 
 export default function PostAd (): React.ReactNode {
     const navigate = useNavigate()
@@ -19,7 +18,6 @@ export default function PostAd (): React.ReactNode {
             title="Post Ad"
             button={{ label: 'Post Ad' }}
             hasCSRF
-            resettable
             fields={[
                 {
                     name: 'title',
@@ -46,7 +44,7 @@ export default function PostAd (): React.ReactNode {
                 {
                     name: 'category',
                     label: 'Category',
-                    widget: CategoryPickerWidget({})
+                    widget: CategoryModalSelectWidget({})
                 },
                 {
                     name: 'images',

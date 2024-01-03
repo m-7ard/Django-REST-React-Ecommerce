@@ -5,14 +5,21 @@ from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
 from django.http.response import JsonResponse
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+)
+from rest_framework.exceptions import ValidationError
 
 from .models import Category, Ad
-from .serializers import CategorySerializer, AdModelSerializer
-from users.models import CustomUser
+from .serializers import CategorySerializer, AdModelSerializer, AdBoostSerializer
+from users.models import CustomUser, FeeTransaction
 
 
 class IndexView(TemplateView):
@@ -26,13 +33,42 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class AdViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+    ]
     queryset = Ad.objects.all()
     serializer_class = AdModelSerializer
 
+    @action(methods=["POST"], detail=True)
+    def boost(self, request, pk=None):
+        ad = get_object_or_404(request.user.ads.all(), pk=pk)
+        serializer = AdBoostSerializer(
+            data=dict(self.request.data), context={"ad": ad, "request": self.request}
+        )
+        serializer.is_valid(raise_exception=True)
+        boosts = serializer.data["boosts"]
+        for boost in boosts:
+            if boost == "highlight_ad":
+                ad.apply_highlight_boost()
+            elif boost == "top_ad":
+                ad.apply_top_boost()
+            elif boost == "gallery_ad":
+                ad.apply_gallery_boost()
+            elif boost == "push_ad":
+                ad.apply_push_boost()
+
+            FeeTransaction.objects.create(
+                kind=boost,
+                amount=FeeTransaction.AMOUNT_MAP[boost],
+                payer=self.request.user
+            )
+
+        ad.save()
+        return Response(status=200)
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-    
+
 
 class ListUserAds(APIView):
     def get(self, request, pk, *args, **kwargs):

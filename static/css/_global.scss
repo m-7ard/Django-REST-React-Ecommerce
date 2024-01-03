@@ -35,7 +35,6 @@
 
 @mixin has-shadow {
     box-shadow: 0 2px 6px 0px rgba(map-get($light, dark), 0.5);
-    //box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
 }
 
 @mixin absolute-box($height, $width) {
@@ -136,14 +135,14 @@
     @include default-color-transition;
     @include flex-row($space-small $space-large, $space-medium);
     font-size: get-font-size(secondary, small); 
-    border-radius: $space-small;
+    border-radius: $radius-small;
 }
 
 @mixin medium-button {
     @include default-color-transition;
-    @include flex-row($space-medium $space-large, $space-medium);
+    @include flex-row($space-medium-large $space-large, $space-medium);
     font-size: get-font-size(secondary, medium);
-    border-radius: $radius-medium;
+    border-radius: $radius-small;
 }
 
 @mixin large-button {
@@ -153,11 +152,14 @@
     border-radius: $radius-medium;
 }
 
-@keyframes spin { 
-    100% { 
-        transform: rotate(360deg); 
-    } 
+@mixin ignore-height {
+    height: 0px !important;
+    align-items: center !important;
+    display: inline-flex !important;
+    overflow: visible !important;
 }
+
+$font-weights: (400, 500, 700);
 
 $font-sizes: (
     secondary: (
@@ -232,3 +234,17 @@ $radius-medium: 4px;
 $radius-large: 9999px;
 
 
+@mixin font-class($weight, $size) {
+    font-weight: $weight;
+    font-size: $size;
+}
+
+@each $weight in $font-weights {
+    @each $category, $sizes in $font-sizes {
+        @each $size, $value in $sizes {
+            .#{$category}-#{$size}-#{$weight} {
+                @include font-class($weight, $value);
+            }
+        }
+    }
+}

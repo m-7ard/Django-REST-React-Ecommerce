@@ -50,12 +50,37 @@ class Ad(models.Model):
     images = models.JSONField(default=list)
 
     date_created = models.DateTimeField(auto_now_add=True)
+
     latest_push_date = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateTimeField(default=ad_default_expiry_date)
     highlight_expiry = models.DateTimeField(default=datetime.now)
+    top_expiry = models.DateTimeField(default=datetime.now)
+    gallery_expiry = models.DateTimeField(default=datetime.now)
 
     def is_highlight(self):
         return self.highlight_expiry > datetime.now()
+
+    def is_top(self):
+        return self.top_expiry > datetime.now()
+    
+    def is_gallery(self):
+        return self.gallery_expiry > datetime.now()
+    
+    def apply_highlight_boost(self):
+        self.highlight_expiry = datetime.now() + timedelta(days=14)
+        self.save()
+
+    def apply_gallery_boost(self):
+        self.gallery_expiry = datetime.now() + timedelta(days=14)
+        self.save()
+
+    def apply_top_boost(self):
+        self.top_expiry = datetime.now() + timedelta(days=14)
+        self.save()
+        
+    def apply_push_boost(self):
+        self.latest_push_date = datetime.now()
+        self.save()
 
     def save(self, *args, **kwargs):
         if self.category.subcategories.all():
