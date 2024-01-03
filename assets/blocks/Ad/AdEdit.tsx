@@ -31,7 +31,6 @@ export default function AdEdit (): React.ReactNode {
             title="Edit Ad"
             button={{ label: 'Edit Ad' }}
             hasCSRF
-            resettable
             fields={[
                 {
                     name: 'title',

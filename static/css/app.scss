@@ -1386,3 +1386,24 @@
         @include ellipsis;
     }
 }
+
+.ad-boost-select\@form {
+    @include base-button;
+    display: grid;
+    align-items: center;
+    gap: $space-small $space-large;
+
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-rows: auto auto;
+
+    &__price {
+        grid-column: 4 / -1;
+        grid-row: 1 / 2;
+    }
+
+    &__description {
+        text-wrap: pretty;
+        grid-column: 2 / -1;
+        grid-row: 2 / -1;
+    }
+}

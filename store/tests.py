@@ -8,12 +8,34 @@ from django.core.files.storage import FileSystemStorage
 from django.test import override_settings
 from django.conf import settings
 
-from users.models import CustomUser
+from users.models import CustomUser, FeeTransaction
+from users.tests import TestUsersMixin, TestAddressesMixin, TestBankAccountsMixin
 from .models import Ad, Category
 from .serializers import AdModelSerializer
 
 
 MEDIA_ROOT = settings.MEDIA_ROOT
+
+
+class TestCategoryMixin():
+    def setUp(self):
+        self.base_category = Category.objects.create(name="Base Category")
+        self.leaf_category = Category.objects.create(
+            name="Leaf Category", parent=self.base_category
+        )
+
+
+class TestAdMixin(TestCategoryMixin):
+    def setUp(self):
+        TestCategoryMixin.setUp(self)
+        self.test_user_ad = Ad.objects.create(
+            title="Test User Ad",
+            description="This is a test ad.",
+            price=100,
+            created_by=self.test_user,
+            images=["image1.jpg", "image2.jpg"],
+            category=self.leaf_category,
+        )
 
 
 class AdModelTest(APITestCase):
@@ -252,22 +274,30 @@ class FrontpageApiViewTest(APITestCase):
             price=50,
             created_by=self.user,
             category=self.leaf_category,
-        )        
+        )
 
     def test_frontpage_api_view(self):
-        response = self.client.get('/api/frontpage_data/')
-        self.assertEqual(response.status_code, 200, "Failed to retrieve frontpage data.")
+        response = self.client.get("/api/frontpage_data/")
+        self.assertEqual(
+            response.status_code, 200, "Failed to retrieve frontpage data."
+        )
 
-        self.assertIn("HIGHLIGHT_ADS", response.data, "Missing 'HIGHLIGHT_ADS' key in response.")
-        self.assertIn("RECENT_ADS", response.data, "Missing 'RECENT_ADS' key in response.")
+        self.assertIn(
+            "HIGHLIGHT_ADS", response.data, "Missing 'HIGHLIGHT_ADS' key in response."
+        )
+        self.assertIn(
+            "RECENT_ADS", response.data, "Missing 'RECENT_ADS' key in response."
+        )
 
         highlight_ads_data = response.data["HIGHLIGHT_ADS"]
-        self.assertEqual(len(highlight_ads_data), 2, "Unexpected number of highlight ads.")
+        self.assertEqual(
+            len(highlight_ads_data), 2, "Unexpected number of highlight ads."
+        )
 
         recent_ads_data = response.data["RECENT_ADS"]
         self.assertEqual(len(recent_ads_data), 4, "Unexpected number of recent ads.")
 
-    
+
 class AdImageFieldUploadViewTest(APITestCase):
     def setUp(self):
         self.user = CustomUser.objects.create_user(
@@ -281,29 +311,105 @@ class AdImageFieldUploadViewTest(APITestCase):
             password="userword",
         )
         self.storage = FileSystemStorage(MEDIA_ROOT)
-        self.small_image = self.storage.open('tests/small_image.png')
-        self.large_image = self.storage.open('tests/large_image.png')
-        self.inavlid_file = self.storage.open('tests/invalid_file.txt')
+        self.small_image = self.storage.open("tests/small_image.png")
+        self.large_image = self.storage.open("tests/large_image.png")
+        self.inavlid_file = self.storage.open("tests/invalid_file.txt")
 
-    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + "\\tests\\temp_files"))
     def test_valid_upload(self):
-        response = self.client.post('/api/validate_image/', {"image": [self.small_image]})
+        response = self.client.post(
+            "/api/validate_image/", {"image": [self.small_image]}
+        )
         self.assertEqual(response.status_code, 200, "Failed to upload image.")
-        self.assertIn('fileName', response.data, "AdImageFieldUploadView did not return filename.")
-        self.assertTrue(self.storage.exists(response.data['fileName']), "Valid files must be stored.")
+        self.assertIn(
+            "fileName", response.data, "AdImageFieldUploadView did not return filename."
+        )
+        self.assertTrue(
+            self.storage.exists(response.data["fileName"]),
+            "Valid files must be stored.",
+        )
 
-    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + "\\tests\\temp_files"))
     def test_too_large_image(self):
-        response = self.client.post('/api/validate_image/', {"image": [self.large_image]})
-        self.assertEqual(response.status_code, 413, "Images over 12mb must not be allowed to be uploaded.")
-    
-    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + '\\tests\\temp_files'))
+        response = self.client.post(
+            "/api/validate_image/", {"image": [self.large_image]}
+        )
+        self.assertEqual(
+            response.status_code,
+            413,
+            "Images over 12mb must not be allowed to be uploaded.",
+        )
+
+    @override_settings(MEDIA_ROOT=(MEDIA_ROOT + "\\tests\\temp_files"))
     def test_invalid_format_file(self):
-        response = self.client.post('/api/validate_image/', {"image": [self.inavlid_file]})
-        self.assertEqual(response.status_code, 415, "Invalid file formats must not be allowed to be uploaded.")
+        response = self.client.post(
+            "/api/validate_image/", {"image": [self.inavlid_file]}
+        )
+        self.assertEqual(
+            response.status_code,
+            415,
+            "Invalid file formats must not be allowed to be uploaded.",
+        )
 
     def tearDown(self):
         try:
-            shutil.rmtree(MEDIA_ROOT + '\\tests\\temp_files')
+            shutil.rmtree(MEDIA_ROOT + "\\tests\\temp_files")
         except OSError:
             pass
+
+
+class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
+    def setUp(self):
+        TestBankAccountsMixin.setUp(self)
+        TestAdMixin.setUp(self)
+        self.client.login(**self.test_user_login_credentials)
+        self.test_user.funds = 1000
+        self.test_user.save()
+
+    def test_valid_boost(self):
+        old_latest_push_date = self.test_user_ad.latest_push_date
+        old_highlight_expiry = self.test_user_ad.highlight_expiry
+        old_top_expiry = self.test_user_ad.top_expiry
+        old_gallery_expiry = self.test_user_ad.gallery_expiry
+
+        response = self.client.post(
+            f"/api/ads/{self.test_user_ad.pk}/boost/",
+            {"boosts": ["highlight_ad", "top_ad", "gallery_ad", "push_ad"]},
+        )
+
+        self.assertEqual(
+            response.status_code, 200, "Failed to perform a valid ad boost."
+        )
+
+        self.test_user_ad.refresh_from_db()
+        self.assertGreater(self.test_user_ad.latest_push_date, old_latest_push_date)
+        self.assertGreater(self.test_user_ad.highlight_expiry, old_highlight_expiry)
+        self.assertGreater(self.test_user_ad.top_expiry, old_top_expiry)
+        self.assertGreater(self.test_user_ad.gallery_expiry, old_gallery_expiry)
+        all_fee_transactions = FeeTransaction.objects.all()
+        self.assertEqual(len(all_fee_transactions), 4, "Valid boosts must create fee transaction")
+
+    def test_invalid_kind_boost(self):
+        response = self.client.post(
+            f"/api/ads/{self.test_user_ad.pk}/boost/",
+            {"boosts": ["highlight_ad", "something_invalid"]},
+        )
+
+        self.assertEqual(response.status_code, 400, "Invalid boosts must fail.")
+
+    def test_invalid_already_boosted(self):
+        self.test_user.funds = 0
+        self.test_user.save()
+        self.test_user_ad.apply_gallery_boost()
+        self.test_user_ad.refresh_from_db()
+        old_gallery_expiry = self.test_user_ad.gallery_expiry 
+    
+        response = self.client.post(
+            f"/api/ads/{self.test_user_ad.pk}/boost/",
+            {"boosts": ["gallery_ad", "push_ad"]},
+        )
+
+        self.test_user_ad.refresh_from_db()
+        self.assertEqual(response.status_code, 400, "Boost must fail if funds are insufficient.")
+        self.assertEqual(self.test_user.funds, 0, "Failed boosts must not change user funds.")
+        self.assertEqual(self.test_user_ad.gallery_expiry, old_gallery_expiry, "Failed boosts must not apply the effect.")

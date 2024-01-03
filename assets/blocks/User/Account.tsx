@@ -117,14 +117,14 @@ export default function Account (): React.ReactNode {
                                     </i>
                                 </div>
                             </div>
-                            <div className="ad@account__button">
+                            <Link className="ad@account__button" to={`/ad/${ad.pk}/boost/`}>
                                 Boost
                                 <div className="icon icon--small">
                                     <i className="material-icons">
                                         fast_forward
                                     </i>
                                 </div>
-                            </div>
+                            </Link>
                         </div>
                     </div>
                 ))}

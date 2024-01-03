@@ -168,3 +168,4 @@ class WithdrawalSerializer(TransactionTypeSerializer):
             raise serializers.ValidationError("Withdrawal amount cannot be larger than user funds.")
 
         return value
+    

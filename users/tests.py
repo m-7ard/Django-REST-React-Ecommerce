@@ -6,7 +6,7 @@ from .models import CustomUser, Address, BankAccount, BankTransaction
 from .serializers import BankAccountSerializer, AddressSerializer, TransactionModelSerializer
 
 
-class TestUsersMixin(APITestCase):
+class TestUsersMixin():
     def setUp(self):
         self.test_user = CustomUser.objects.create_user(
             email= "test_user@mail.com",
@@ -14,12 +14,14 @@ class TestUsersMixin(APITestCase):
             display_name= "test_user",
             account_type= "individual",
         )
+        self.test_user_login_credentials = {"email": "test_user@mail.com", "password": "userword"}
         self.other_user = CustomUser.objects.create_user(
             email="other_user@mail.com",
             password="userword",
             display_name="other_user",
             account_type="individual",
         )
+        self.other_user_login_credentials = {"email": "other_user@mail.com", "password": "userword"}
 
 
 class TestAddressesMixin(TestUsersMixin):

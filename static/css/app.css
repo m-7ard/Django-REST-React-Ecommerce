@@ -1824,4 +1824,30 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow-x: clip;
+}
+
+.ad-boost-select\@form {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  flex-shrink: 0;
+  display: grid;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-rows: auto auto;
+}
+.ad-boost-select\@form__price {
+  grid-column: 4/-1;
+  grid-row: 1/2;
+}
+.ad-boost-select\@form__description {
+  text-wrap: pretty;
+  grid-column: 2/-1;
+  grid-row: 2/-1;
 }/*# sourceMappingURL=app.css.map */

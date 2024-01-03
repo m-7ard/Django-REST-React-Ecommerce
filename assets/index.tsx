@@ -28,6 +28,7 @@ import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTran
 import CreateAddress from './blocks/Address/CreateAddress'
 import AddFunds from './blocks/User/AddFunds'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
+import AdBoost from './blocks/Ad/AdBoost'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -180,6 +181,14 @@ window.addEventListener('load', () => {
                     <Route
                         path="edit/success/"
                         element={<AdEditConfirmation />}
+                    />
+                    <Route
+                        path="boost/"
+                        element={
+                            <LoginRequired>
+                                <AdBoost />
+                            </LoginRequired>
+                        }
                     />
                 </Route>
             </Route>

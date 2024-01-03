@@ -71,7 +71,7 @@ export default function GenericForm ({
             <hr className="app__divider" />
             <div className="prop__body">
                 {
-                    (errors != null) && (
+                    (errors?.non_field_errors != null) && (
                         <div className="form__field">
                             {
                                 errors.non_field_errors?.map((message: string, i: number) => (
