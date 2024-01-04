@@ -65,6 +65,24 @@ class AdViewSet(viewsets.ModelViewSet):
 
         ad.save()
         return Response(status=200)
+    
+    @action(methods=["GET"], detail=False)
+    def search(self, request):
+        ads = Ad.objects.all()
+        query_search = request.query_params.get('q')
+        min_price = request.query_params.get('min_price', 0)
+        max_price = request.query_params.get('max_price')
+        if query_search:
+            ads = ads.filter(title__icontains=query_search)
+        if min_price:
+            ads = ads.filter(price__gte=min(min_price, max_price))
+        if max_price:
+            ads = ads.filter(price__lte=max(min_price, max_price))
+            
+
+        serializer = self.get_serializer(ads, many=True)
+        return Response(serializer.data)
+        
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

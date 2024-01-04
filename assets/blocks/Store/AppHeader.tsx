@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUserContext } from '../../Context'
 import Dropdown from '../../elements/Dropdown'
-import Directory from '../../elements/app_header/Directory'
+import Directory from '../../elements/AppHeader/Directory'
 import { getCookie } from '../../Utils'
 import Icon from '../../elements/Icon'
 
@@ -21,6 +21,21 @@ export default function AppHeader (): React.ReactNode {
         })
 
         navigate('/')
+    }
+
+    function Search (): React.ReactNode {
+        return (
+            <form className="header@app__search-widget" action='/search/' method='GET'>
+                <div className="header@app__search-field">
+                    <div data-role="input">
+                        <input type="text" name='q' />
+                    </div>
+                </div>
+                <button className="header@app__search-button" type='submit'>
+                    <Icon name='search' size='small' ignoreHeight />
+                </button>
+            </form>
+        )
     }
 
     return (
@@ -91,16 +106,7 @@ export default function AppHeader (): React.ReactNode {
             </div>
             <div className="header@app__section header@app__section--main">
                 <div className="header@app__content">
-                    <div className="header@app__search-widget">
-                        <div className="header@app__search-field">
-                            <div data-role="input">
-                                <input type="text" />
-                            </div>
-                        </div>
-                        <div className="header@app__search-button">
-                            <Icon name='search' size='small' ignoreHeight />
-                        </div>
-                    </div>
+                    <Search />
                     <Link to="/post-ad/">
                         <div className="header@app__post-ad">
                             <Icon name='new_label' size='small' ignoreHeight />

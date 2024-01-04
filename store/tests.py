@@ -413,3 +413,58 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
         self.assertEqual(response.status_code, 400, "Boost must fail if funds are insufficient.")
         self.assertEqual(self.test_user.funds, 0, "Failed boosts must not change user funds.")
         self.assertEqual(self.test_user_ad.gallery_expiry, old_gallery_expiry, "Failed boosts must not apply the effect.")
+
+
+class AdSearchTest(APITestCase, TestUsersMixin):
+    def setUp(self):
+        TestUsersMixin.setUp(self)
+        self.base_category = Category.objects.create(name="All Categories")
+        self.cooking_category = Category.objects.create(name="Cooking", parent=self.base_category)
+        self.electronics_category = Category.objects.create(name="Electronics", parent=self.base_category)
+        self.books_category = Category.objects.create(name="Books", parent=self.base_category)
+        
+        self.cooking_pan_ad = Ad.objects.create(
+            title="Cooking Pan",
+            price=50,
+            category=self.cooking_category,
+            created_by=self.test_user,
+        )
+        self.phone_ad = Ad.objects.create(
+            title="Phone XI 0 Model",
+            price=1000,
+            category=self.electronics_category,
+            created_by=self.test_user,
+        )
+        self.model_building_book_ad = Ad.objects.create(
+            title="Ship Model Building with Illustrated Examples. XI edition",
+            price=20,
+            category=self.books_category,
+            created_by=self.test_user,
+        )
+
+    def test_empty_search(self):
+        response = self.client.get('/api/ads/search/')
+        self.assertEqual(response.status_code, 200, "Failed to search for ads.")
+        self.assertEqual(response.data, AdModelSerializer(Ad.objects.all(), many=True).data, "Empty search must return all ads.")
+
+    def test_title_search(self):
+        response = self.client.get('/api/ads/search/?q=model')
+        self.assertEqual(
+            len(response.data),
+            2,
+            "Check that there are 2 ads with 'model' in their titles"    
+        )
+
+    def test_price_search(self):
+        response_1 = self.client.get('/api/ads/search/?min_price=0&max_price=50')
+        self.assertEqual(
+            len(response_1.data),
+            2,
+            "Check that there are 2 ads with price equal or smaller than 50."  
+        )
+        response_2 = self.client.get('/api/ads/search/?min_price=50&max_price=0')
+        self.assertEqual(
+            response_2.data,
+            response_1.data,
+            "If min price is bigger than the max price, it should flip the values."  
+        )

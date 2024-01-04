@@ -106,7 +106,7 @@ export class NormalizedData {
         const choice = this.data.find((choice) => choice.value === value)
 
         if (choice == null) {
-            throw Error('Not a valid choice')
+            throw Error(`Not a valid choice. Caused by: ${value} (${typeof value})`)
         }
 
         return choice
@@ -945,3 +945,37 @@ export function usePicker <T> (initial?: T): {
         setConfirmedValue
     }
 }
+
+export const AD_RETURN_POLICIES = [
+    {
+        value: '7_days',
+        label: '7 Days Return Policy'
+    },
+    {
+        value: '30_days',
+        label: '30 Days Return Policy'
+    },
+    {
+        value: 'warranty',
+        label: 'Warranty Period Policy'
+    }
+]
+
+export const AD_CONDITIONS = [
+    {
+        value: 'new',
+        label: 'New'
+    },
+    {
+        value: 'almost_new',
+        label: 'Almost New'
+    },
+    {
+        value: 'used',
+        label: 'Used'
+    },
+    {
+        value: 'damaged',
+        label: 'Damaged'
+    }
+]

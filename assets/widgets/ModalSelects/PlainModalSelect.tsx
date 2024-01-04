@@ -15,7 +15,7 @@ interface PlainModalSelectProps {
 export default function PlainModalSelect ({ name, title, normalizedData, placeholder, initial }: PlainModalSelectProps): React.ReactNode {
     const [open, setOpen] = useState(false)
     const { stagedValue, confirmedValue, setStagedValue, setConfirmedValue } = usePicker(
-        initial == null
+        initial == null || initial === ''
             ? undefined
             : normalizedData.getChoice(initial)
     )
@@ -47,21 +47,23 @@ export default function PlainModalSelect ({ name, title, normalizedData, placeho
                         }}
                         body={
                             <div className='select@prompt'>
-                                {normalizedData.data.map((item, i) => {
-                                    const isSelected = currentlySelected?.value === item.value
-                                    return (
-                                        <div className={`select@prompt__option ${isSelected ? 'select@prompt__option--selected' : ''}`} key={i} onClick={() => {
-                                            setStagedValue(item)
-                                        }}>
-                                            {item.label}
-                                            {
-                                                isSelected && (
-                                                    <Icon name='check_circle' size='small' ignoreHeight />
-                                                )
-                                            }
-                                        </div>
-                                    )
-                                })}
+                                {
+                                    normalizedData.data.map((item, i) => {
+                                        const isSelected = currentlySelected?.value === item.value
+                                        return (
+                                            <div className={`select@prompt__option ${isSelected ? 'select@prompt__option--selected' : ''}`} key={i} onClick={() => {
+                                                setStagedValue(item)
+                                            }}>
+                                                {item.label}
+                                                {
+                                                    isSelected && (
+                                                        <Icon name='check_circle' size='small' ignoreHeight />
+                                                    )
+                                                }
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
                         }
                         footer={

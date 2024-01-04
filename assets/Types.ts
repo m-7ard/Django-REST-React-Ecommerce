@@ -38,10 +38,18 @@ export interface BaseAd {
     images: string[]
     category: number
     created_by: User
+    title: string
     description: string
     price: number
     expiry_date: string
-    title: string
+    highlight: boolean
+    top: boolean
+    gallery: boolean
+    unlisted: boolean
+    available: number
+    shipping: number
+    condition?: 'new' | 'used' | 'almost_new' | 'damaged'
+    return_policy: '7_days' | '30_days' | 'warranty'
     [key: string]: unknown
 }
 

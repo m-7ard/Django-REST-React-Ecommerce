@@ -31,23 +31,18 @@ class AdModelSerializer(serializers.ModelSerializer):
         format="%Y.%m.%d", required=False, read_only=True
     )
     highlight = serializers.SerializerMethodField()
+    top = serializers.SerializerMethodField()
+    gallery = serializers.SerializerMethodField()
+
+    condition_display = serializers.CharField(source="get_condition_display")
+    return_policy_display = serializers.CharField(source="get_return_policy_display")
+    pk = serializers.ReadOnlyField(source="id")
 
     class Meta:
         model = Ad
-        fields = [
-            "pk",
-            "title",
-            "description",
-            "price",
-            "category",
-            "created_by",
-            "images",
-            "date_created",
-            "latest_push_date",
-            "highlight",
-            "expiry_date",
-        ]
+        fields = "__all__"
         read_only_fields = ["pk", "latest_push_date", "date_created"]
+        extra_fields = ["pk", "condition_display", "return_policy_display"]
 
     def validate_images(self, value):
         file_name_list = value[:]
@@ -60,6 +55,12 @@ class AdModelSerializer(serializers.ModelSerializer):
 
     def get_highlight(self, obj):
         return obj.is_highlight()
+
+    def get_top(self, obj):
+        return obj.is_top()
+
+    def get_gallery(self, obj):
+        return obj.is_gallery()
 
 
 class AdBoostSerializer(serializers.Serializer):

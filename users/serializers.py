@@ -60,6 +60,7 @@ class UserSerializer(serializers.ModelSerializer):
     )
     default_bank = serializers.PrimaryKeyRelatedField(read_only=True)
     default_address = serializers.PrimaryKeyRelatedField(read_only=True)
+    avatar = serializers.CharField(source="avatar.url")
 
     class Meta:
         model = CustomUser

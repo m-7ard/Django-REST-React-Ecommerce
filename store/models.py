@@ -38,9 +38,25 @@ def ad_default_expiry_date():
 
 
 class Ad(models.Model):
+    RETURN_POLICIES = (
+        ('7_days', '7 Days Return Policy'),
+        ('30_days', '30 Days Return Policy'),
+        ('warranty', 'Warranty Period Policy'),
+    )
+    CONDITIONS = (
+        ('new', 'New'),
+        ('almost_new', 'Almost New'),    
+        ('used', 'Used'),
+        ('damaged', 'Damaged'),
+    )
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=4096, blank=True)
     price = models.PositiveIntegerField()
+    shipping = models.PositiveIntegerField()
+    return_policy = models.CharField(max_length=30, choices=RETURN_POLICIES)
+    condition = models.CharField(max_length=30, choices=CONDITIONS, blank=True)
+    available = models.PositiveIntegerField()
+    unlisted = models.BooleanField(default=False)
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, limit_choices_to=Q(subcategories=None)
     )

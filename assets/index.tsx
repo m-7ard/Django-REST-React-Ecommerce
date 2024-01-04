@@ -29,6 +29,8 @@ import CreateAddress from './blocks/Address/CreateAddress'
 import AddFunds from './blocks/User/AddFunds'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
+import SearchAds from './blocks/Store/SearchAds'
+import { loader as searchAdsLoader } from './blocks/Store/SearchAds'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -60,6 +62,11 @@ window.addEventListener('load', () => {
                         </LoginRequired>
                     }
                     loader={accountLoader}
+                />
+                <Route
+                    path='search/'
+                    element={<SearchAds />}
+                    loader={searchAdsLoader}
                 />
                 <Route
                     path='bank-accounts/'

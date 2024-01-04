@@ -8,6 +8,8 @@ import { type BaseAd } from '../../Types'
 import { getAdData } from '../../Fetchers'
 import { useUserContext } from '../../Context'
 import { CategoryModalSelectWidget } from '../../widgets/ModalSelects/CategoryModalSelect'
+import { PlainModalSelectWidget } from '../../widgets/ModalSelects/PlainModalSelect'
+import { AD_CONDITIONS, AD_RETURN_POLICIES, NormalizedData } from '../../Utils'
 
 export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
     const ad = await getAdData(params.pk)
@@ -50,6 +52,14 @@ export default function AdEdit (): React.ReactNode {
                     })
                 },
                 {
+                    name: 'shipping',
+                    label: 'Shipping Cost',
+                    widget: CharInputWidget({
+                        inputMode: 'numeric',
+                        initial: ad.shipping
+                    })
+                },
+                {
                     name: 'description',
                     label: 'Description',
                     widget: CharTextAreaWidget({
@@ -69,6 +79,42 @@ export default function AdEdit (): React.ReactNode {
                     label: 'Images',
                     widget: AdImageInputWidget({
                         initial: ad.images
+                    })
+                },
+                {
+                    name: 'available',
+                    label: 'Amount Available',
+                    widget: CharInputWidget({
+                        inputMode: 'numeric',
+                        initial: ad.available
+                    })
+                },
+                {
+                    name: 'condition',
+                    label: 'Condition (Optional)',
+                    widget: PlainModalSelectWidget({
+                        normalizedData: new NormalizedData({
+                            data: AD_CONDITIONS,
+                            labelKey: 'label',
+                            valueKey: 'value'
+                        }),
+                        title: 'Select Condition',
+                        placeholder: 'Select Condition',
+                        initial: ad.condition
+                    })
+                },
+                {
+                    name: 'return_policy',
+                    label: 'Return Policy',
+                    widget: PlainModalSelectWidget({
+                        normalizedData: new NormalizedData({
+                            data: AD_RETURN_POLICIES,
+                            labelKey: 'label',
+                            valueKey: 'value'
+                        }),
+                        title: 'Select Return Policy',
+                        placeholder: 'Select Return Policy',
+                        initial: ad.return_policy
                     })
                 }
             ]}

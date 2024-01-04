@@ -34,7 +34,6 @@
     }
 
     &__body {
-        padding: $space-large;
         gap: $space-large 0;
         flex-grow: 1;
         background-color: #FAFCFC;
@@ -373,7 +372,7 @@
     max-width: 49rem;
     max-height: 30rem;
     flex: 1;
-    height: 100%;
+    height: fit-content;
     overflow: auto;
     border: 1px solid map-get($light, dark);
     border-radius: $radius-medium;
@@ -702,6 +701,60 @@
     &__actions {
         @include flex-row(0, $space-small $space-large);
         flex-wrap: wrap;
+    }
+
+    @media only screen and (max-width: 400px) {
+       &__image {
+            width: 100%;
+       }
+
+       &__main {
+            @include flex-column(0, $space-large);
+       }
+    }
+}
+
+.ad\@search {
+    @include has-shadow;
+    border: 1px solid map-get($light, dark);
+    background-color: #ffffff;
+    
+    &__main {
+        @include flex-row(0, $space-large);
+    }
+
+    &__title {
+        font-size: get-font-size(primary, medium);
+        font-weight: 500;
+        color: map-get($black, dark);
+    }
+
+    &__subtitle {
+        font-size: get-font-size(secondary, medium);
+        font-weight: 500;
+        color: map-get($black, dark);
+    }
+
+    &__price {
+        font-size: get-font-size(primary, small);
+        font-weight: 700;
+        color: map-get($black, dark);
+    }
+
+    &__image{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
     }
 
     @media only screen and (max-width: 400px) {
@@ -1167,6 +1220,10 @@
         border-radius: 0;
         justify-content: space-between;
 
+        &:last-of-type {
+            border: 0;
+        }
+
         .icon {
             color: map-get($black, light);
         }
@@ -1405,5 +1462,21 @@
         text-wrap: pretty;
         grid-column: 2 / -1;
         grid-row: 2 / -1;
+    }
+}
+
+.search {
+    @include flex-column(0, $space-large);
+
+    &__mobile-section {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+        border-bottom: 1px solid map-get($light, dark);
+    }
+
+    @media only screen and (min-width: 500px) {
+        &__mobile-header {
+            display: none;
+        }
     }
 }
