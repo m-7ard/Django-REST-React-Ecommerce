@@ -15,12 +15,12 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAuthenticated,
 )
-from rest_framework.exceptions import ValidationError
 
 from .models import Category, Ad
 from .serializers import CategorySerializer, AdModelSerializer, AdBoostSerializer
+from .paginators import AdSearchPaginator
 from users.models import CustomUser, FeeTransaction
-
+from commons import paginate
 
 class IndexView(TemplateView):
     template_name = "store/frontpage.html"
@@ -38,6 +38,7 @@ class AdViewSet(viewsets.ModelViewSet):
     ]
     queryset = Ad.objects.all()
     serializer_class = AdModelSerializer
+    pagination_class = AdSearchPaginator
 
     @action(methods=["POST"], detail=True)
     def boost(self, request, pk=None):
@@ -66,22 +67,22 @@ class AdViewSet(viewsets.ModelViewSet):
         ad.save()
         return Response(status=200)
     
+    @paginate
     @action(methods=["GET"], detail=False)
     def search(self, request):
         ads = Ad.objects.all()
         query_search = request.query_params.get('q')
-        min_price = request.query_params.get('min_price', 0)
+        min_price = int(request.query_params.get('min_price', 0))
         max_price = request.query_params.get('max_price')
         if query_search:
             ads = ads.filter(title__icontains=query_search)
         if min_price:
-            ads = ads.filter(price__gte=min(min_price, max_price))
+            ads = ads.filter(price__gte=min_price)
         if max_price:
             ads = ads.filter(price__lte=max(min_price, max_price))
             
 
-        serializer = self.get_serializer(ads, many=True)
-        return Response(serializer.data)
+        return ads
         
 
     def perform_create(self, serializer):

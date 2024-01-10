@@ -4,7 +4,7 @@ interface FormFieldInterface {
     widget: ({ name }: { name: string }) => React.ReactNode
     name: string
     label?: string
-    errors: Record<string, string[]> | null
+    errors?: Record<string, string[]>
 }
 
 export default function FormField ({

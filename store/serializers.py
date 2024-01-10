@@ -34,8 +34,8 @@ class AdModelSerializer(serializers.ModelSerializer):
     top = serializers.SerializerMethodField()
     gallery = serializers.SerializerMethodField()
 
-    condition_display = serializers.CharField(source="get_condition_display")
-    return_policy_display = serializers.CharField(source="get_return_policy_display")
+    condition_display = serializers.CharField(source="get_condition_display", read_only=True)
+    return_policy_display = serializers.CharField(source="get_return_policy_display", read_only=True)
     pk = serializers.ReadOnlyField(source="id")
 
     class Meta:

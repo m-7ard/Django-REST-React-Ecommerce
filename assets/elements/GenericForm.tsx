@@ -57,6 +57,7 @@ export default function GenericForm ({
         }
         else {
             const data = await response.json()
+            console.log(data)
             setErrors(data)
         }
     }

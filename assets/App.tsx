@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation } from 'react-router-dom'
 import AppHeader from './blocks/Store/AppHeader'
 import { getCategoryData } from './Fetchers'
-import { UserContext, CategoryContext } from './Context'
-import { type CategoryData, type User } from './Types'
+import { UserContext, CategoryContext, SearchAdsContext, SearchAdsContextInterface } from './Context'
+import { type SearchAdsInputs, type CategoryData, type User } from './Types'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
@@ -16,6 +16,7 @@ export default function App (): React.ReactNode {
     const location = useLocation()
     const [user, setUser] = useState<User | null>(null)
     const categoryData = useLoaderData() as CategoryData
+    const [searchAdsInputs, setSearchAdsInputs] = useState<SearchAdsInputs | undefined>()
 
     useEffect(() => {
         async function setRequestUser (): Promise<void> {
@@ -37,10 +38,13 @@ export default function App (): React.ReactNode {
             <DndProvider backend={HTML5Backend}>
                 <CategoryContext.Provider value={categoryData}>
                     <UserContext.Provider value={{ user, setUser }}>
-                        <AppHeader />
-                        <div className="app__body content-grid">
-                            <Outlet />
-                        </div>
+                        <SearchAdsContext.Provider value={{ searchAdsInputs, setSearchAdsInputs }}>
+                            <AppHeader />
+                            <div className="app__body content-grid">
+                                <Outlet />
+                            </div>
+                        </SearchAdsContext.Provider>
+
                     </UserContext.Provider>
                 </CategoryContext.Provider>
             </DndProvider>

@@ -77,7 +77,6 @@ class BankAccountViewset(ModelViewSet):
         return Response(status=200)
 
 
-
 class AddressViewset(ModelViewSet):
     permissions_classes = [IsAuthenticated]
     serializer_class = serializers.AddressSerializer

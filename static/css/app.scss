@@ -366,7 +366,6 @@
     padding: $space-large;
 }
 
-
 .prompt {
     background-color: white;
     max-width: 49rem;
@@ -401,8 +400,9 @@
 }
 
 
-.ad {
+.ad\@ad-details {
     gap: $space-large;
+    padding: $space-large;
     height: fit-content;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -424,6 +424,10 @@
 
         [data-role="image-picker"] {
             @include flex-column(0, inherit);
+
+            &:not(:has([data-role="select-image"])) {
+                display: none;
+            }
 
             @media only screen and (max-width: 980px) {
                 flex-direction: row;
@@ -686,6 +690,8 @@
         img {
             max-width: 100%;
             max-height: 100%;
+            object-fit: cover;
+            overflow: clip;
         }
     }
 
@@ -754,6 +760,8 @@
         img {
             max-width: 100%;
             max-height: 100%;
+            object-fit: cover;
+            overflow: clip;
         }
     }
 
@@ -1474,9 +1482,47 @@
         border-bottom: 1px solid map-get($light, dark);
     }
 
-    @media only screen and (min-width: 500px) {
-        &__mobile-header {
-            display: none;
+    
+    &__page-select {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__page-button {
+        @include base-button;
+        @include small-button;
+        @include has-shadow;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        font-weight: bold;
+        align-self: stretch;
+        transition: transform 0.1s;
+
+        &--selected, &:hover {
+            background-color: map-get($light, neutral);
         }
+
+        &--disabled {
+            color: map-get($light, dark);
+            border: 1px solid map-get($light, neutral);
+        }
+    }
+}
+
+.filter {
+    position: fixed;
+    inset: 0;
+    background-color: white;
+    z-index: 1000;
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+    }
+
+    &__option {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
     }
 }

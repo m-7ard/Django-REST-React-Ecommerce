@@ -92,3 +92,10 @@ export interface Transaction {
     subkind: string
     date: string
 }
+
+export interface SearchAdsInputs {
+    q?: string
+    min_price?: number
+    max_price?: number
+    [key: string]: string | number | File | undefined
+}

@@ -1,6 +1,6 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useUserContext } from '../../Context'
+import React, { useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchAdsContext, useUserContext } from '../../Context'
 import Dropdown from '../../elements/Dropdown'
 import Directory from '../../elements/AppHeader/Directory'
 import { getCookie } from '../../Utils'
@@ -9,6 +9,7 @@ import Icon from '../../elements/Icon'
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
     const { user } = useUserContext()
+    const { searchAdsInputs, setSearchAdsInputs } = useSearchAdsContext()
 
     async function logout (): Promise<void> {
         const csrfToken = getCookie('csrftoken')

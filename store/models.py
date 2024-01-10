@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import Q
+from django.contrib.sessions.models import Session
 
 from users.models import CustomUser
 
@@ -105,3 +106,15 @@ class Ad(models.Model):
             )
 
         super().save(*args, **kwargs)
+
+
+class Cart(models.Model):
+    KINDS = (
+        ('visitor', 'Visitor Cart'),
+        ('user', 'User Cart'),
+    )
+
+    kind = models.CharField(max_length=20, choices=KINDS)
+    user = models.OneToOneField(CustomUser, related_name='cart', on_delete=models.CASCADE, null=True)
+    visitor = models.OneToOneField(Session, related_name='cart', on_delete=models.CASCADE, null=True)
+    ads = models.ManyToManyField(Ad, related_name='in_carts')
