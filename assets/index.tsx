@@ -29,8 +29,8 @@ import CreateAddress from './blocks/Address/CreateAddress'
 import AddFunds from './blocks/User/AddFunds'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
-import SearchAds from './blocks/Store/SearchAds'
-import { loader as searchAdsLoader } from './blocks/Store/SearchAds'
+import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
+import Cart from './blocks/Store/Cart'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -113,7 +113,10 @@ window.addEventListener('load', () => {
                         return data
                     }}
                 />
-
+                <Route
+                    path='cart/'
+                    element={ <Cart /> }
+                />
                 <Route
                     path='settings/'
                     element={

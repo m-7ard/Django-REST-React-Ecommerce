@@ -7,6 +7,7 @@ from store.views import IndexView
 
 
 urlpatterns = [
+    path('silk/', include('silk.urls', namespace='silk')),
     path('admin/', admin.site.urls),
     path('', IndexView.as_view()),
     path('', include('store.urls')),

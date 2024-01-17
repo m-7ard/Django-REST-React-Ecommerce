@@ -6,6 +6,7 @@ __pycache__
 db.sqlite3
 media/*
 !media/tests/
+!media/stock/
 
 # npm / js
 node_modules

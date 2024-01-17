@@ -53,6 +53,7 @@
 
 @mixin flex-row($padding, $gap) {
 	display: flex;
+	flex-direction: row;
     padding: $padding;
     gap: $gap;
 }

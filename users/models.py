@@ -2,6 +2,7 @@ from django.db import models, IntegrityError
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.validators import RegexValidator
+from django.apps import apps
 
 from commons import LIST_OF_COUNTRIES
 
@@ -65,6 +66,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        super().save(*args, **kwargs)
+
+        if creating:
+            Cart = apps.get_model('store', 'Cart')
+            Cart.objects.create(kind='user', user=self)
 
 
 class Transaction(models.Model):

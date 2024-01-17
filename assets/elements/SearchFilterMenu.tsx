@@ -14,7 +14,9 @@ export default function SearchFilterMenu (): React.ReactNode {
             const filterFormData = new FormData(form)
             const newParams = new URLSearchParams()
             prevSearchParams.forEach((value, key) => {
-                newParams.set(key, value)
+                if (key !== 'page') {
+                    newParams.set(key, value)
+                }
             })
             filterFormData.forEach((value, key) => {
                 if (value != null && value !== '') {

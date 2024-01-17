@@ -1,5 +1,6 @@
 from django.contrib.auth import login, logout
-from django.shortcuts import get_object_or_404
+from django.apps import apps
+from django.contrib.sessions.models import Session
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import permissions
@@ -30,7 +31,7 @@ class LoginView(APIView):
         user = serializer.validated_data["user"]
         login(request, user)
         return Response(
-            serializers.UserSerializer(user).data, status=status.HTTP_200_OK
+            serializers.FullUserSerializer(user).data, status=status.HTTP_200_OK
         )
 
 
@@ -45,14 +46,38 @@ class LogoutView(APIView):
 class CurrentUser(APIView):
     permission_classes = [AllowAny]
 
+    def return_user(self, user):
+        data = serializers.FullUserSerializer(user).data
+        return Response(data, status=status.HTTP_200_OK)
+    
+    def return_visitor(self, request):
+        Cart = apps.get_model('store', 'Cart')
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            visitor_session = Session.objects.get(session_key=request.session.session_key)
+            Cart.objects.create(
+                kind='visitor', 
+                visitor=visitor_session
+            )
+            request.session['has_cart'] = True
+
+            data = serializers.VisitorUserSerializer(visitor_session).data
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+        
+        # In case of duplicate request (potentially unnecessary(?))
+        visitor_session = Session.objects.get(session_key=request.session.session_key)
+        data = serializers.VisitorUserSerializer(visitor_session).data
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+    
     def get(self, request, format=None):
         user = request.user
-
         if user.is_authenticated:
-            data = serializers.UserSerializer(user).data
-            return Response(data, status=status.HTTP_200_OK)
+            return self.return_user(user)
+        
+        return self.return_visitor(request)
 
-        return Response(None, status=status.HTTP_404_NOT_FOUND)
+        
 
 
 class BankAccountViewset(ModelViewSet):

@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from django.contrib.sessions.models import Session
 from django.contrib.auth import authenticate
-from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from .models import CustomUser, Address, BankAccount, BankTransaction, Transaction
@@ -54,13 +54,30 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
+class VisitorUserSerializer(serializers.ModelSerializer):
+    cart = serializers.SerializerMethodField()
+
+    def get_cart(self, instance):
+        from store.serializers import CartSerializer
+        return CartSerializer(instance.cart).data
+
+    class Meta:
+        model = Session
+        fields = ["cart"]
+
+
+class FullUserSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(
         format="%Y.%m.%d", required=False, read_only=True
     )
     default_bank = serializers.PrimaryKeyRelatedField(read_only=True)
     default_address = serializers.PrimaryKeyRelatedField(read_only=True)
     avatar = serializers.CharField(source="avatar.url")
+    cart = serializers.SerializerMethodField()
+
+    def get_cart(self, instance):
+        from store.serializers import CartSerializer
+        return CartSerializer(instance.cart).data
 
     class Meta:
         model = CustomUser
@@ -74,7 +91,14 @@ class UserSerializer(serializers.ModelSerializer):
             "funds",
             "default_bank",
             "default_address",
+            "cart",
         ]
+
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["display_name", "pk"]
 
 
 class AddressSerializer(serializers.ModelSerializer):

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react'
-import { type LoaderFunctionArgs, useLoaderData, useLocation, Link, useSearchParams } from 'react-router-dom'
+import React from 'react'
+import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom'
 import { type BaseAd } from '../../Types'
 import { addDotsToNumber } from '../../Utils'
-import { useSearchAdsContext } from '../../Context'
 import SearchFilterMenu from '../../elements/SearchFilterMenu'
 import Icon from '../../elements/Icon'
 
@@ -11,7 +10,7 @@ export async function loader ({ request }: LoaderFunctionArgs): Promise<BaseAd[]
     const searchParams = url.searchParams
     const response = await fetch(`/api/ads/search/?${searchParams.toString()}`)
     const adSearch = await response.json()
-    return adSearch
+    return [adSearch, response.ok]
 }
 
 function generatePageNumbers (currentPage: number, totalPages: number): number[] {
@@ -42,12 +41,33 @@ export default function SearchAds (): React.ReactNode {
 
     const pageSizeParam = searchParams.get('page_size')
     const pageSize: number = pageSizeParam != null ? parseInt(pageSizeParam) : 25
-    const adSearch = useLoaderData() as {
-        count: number
-        next: string | null
-        previous: string | null
-        results: BaseAd[]
+    const [adSearch, success] = useLoaderData() as [
+        {
+            count: number
+            next: string | null
+            previous: string | null
+            results: BaseAd[]
+        },
+        true
+    ] | [
+        {
+            detail: string
+        },
+        false
+    ]
+
+    if (!success) {
+        return (
+            <div className="prop prop--vertical">
+                <div className='prop prop--vertical prop--highlighted'>
+                    <div className='prop__detail'>
+                        {adSearch.detail}
+                    </div>
+                </div>
+            </div>
+        )
     }
+
     const totalPageNumber = Math.ceil(adSearch.count / pageSize)
     const changePage = (n: number): void => {
         setSearchParams((prevSearchParams) => {

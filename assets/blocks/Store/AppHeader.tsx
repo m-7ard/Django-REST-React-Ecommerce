@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useSearchAdsContext, useUserContext } from '../../Context'
+import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useCartContext, useUserContext } from '../../Context'
 import Dropdown from '../../elements/Dropdown'
 import Directory from '../../elements/AppHeader/Directory'
 import { getCookie } from '../../Utils'
@@ -9,7 +9,7 @@ import Icon from '../../elements/Icon'
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
     const { user } = useUserContext()
-    const { searchAdsInputs, setSearchAdsInputs } = useSearchAdsContext()
+    const { cart } = useCartContext()
 
     async function logout (): Promise<void> {
         const csrfToken = getCookie('csrftoken')
@@ -61,7 +61,7 @@ export default function AppHeader (): React.ReactNode {
                                 </>
                             )
                         }
-                        <Directory iconName='shopping_cart' to='/' text='(0)' />
+                        <Directory iconName='shopping_cart' to='/cart/' text={`(${cart.items.reduce((acc, item) => acc + item.amount, 0)})`} />
                         <Dropdown
                             extraClass={'header@app__account'}
                             trigger={

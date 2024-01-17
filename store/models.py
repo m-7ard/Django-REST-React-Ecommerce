@@ -115,6 +115,17 @@ class Cart(models.Model):
     )
 
     kind = models.CharField(max_length=20, choices=KINDS)
-    user = models.OneToOneField(CustomUser, related_name='cart', on_delete=models.CASCADE, null=True)
-    visitor = models.OneToOneField(Session, related_name='cart', on_delete=models.CASCADE, null=True)
-    ads = models.ManyToManyField(Ad, related_name='in_carts')
+    user = models.OneToOneField(CustomUser, related_name='cart', on_delete=models.CASCADE, null=True, blank=True)
+    visitor = models.OneToOneField(Session, related_name='cart', on_delete=models.CASCADE, null=True, blank=True)
+    ads = models.ManyToManyField(Ad, related_name='in_carts', through="CartItem")
+
+    def __str__(self) -> str:
+        if self.kind == 'visitor':
+            return f'Visitor {self.visitor.pk}'
+        else:
+            return f'{self.user}'
+    
+class CartItem(models.Model):
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    amount = models.PositiveIntegerField(default=1)

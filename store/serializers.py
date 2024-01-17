@@ -3,9 +3,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
-from .models import Category, Ad
+from .models import Category, Ad, Cart, CartItem
 from users.models import FeeTransaction
-from users.serializers import UserSerializer
+from users.serializers import FullUserSerializer, PublicUserSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class AdModelSerializer(serializers.ModelSerializer):
     images = serializers.JSONField()
-    created_by = UserSerializer(required=False, allow_null=True)
+    created_by = FullUserSerializer(required=False, allow_null=True)
     date_created = serializers.DateTimeField(
         format="%Y.%m.%d", required=False, read_only=True
     )
@@ -34,8 +34,12 @@ class AdModelSerializer(serializers.ModelSerializer):
     top = serializers.SerializerMethodField()
     gallery = serializers.SerializerMethodField()
 
-    condition_display = serializers.CharField(source="get_condition_display", read_only=True)
-    return_policy_display = serializers.CharField(source="get_return_policy_display", read_only=True)
+    condition_display = serializers.CharField(
+        source="get_condition_display", read_only=True
+    )
+    return_policy_display = serializers.CharField(
+        source="get_return_policy_display", read_only=True
+    )
     pk = serializers.ReadOnlyField(source="id")
 
     class Meta:
@@ -100,3 +104,54 @@ class AdBoostSerializer(serializers.Serializer):
             raise ValidationError("User funds are not enough to cover the boosts.")
 
         return value
+
+
+class CartCheckoutConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = [
+            "pk",
+            "price",
+            "title",
+            "unlisted",
+            "shipping",
+            "available",
+            "condition"
+        ]
+
+
+class CartAdSerializer(serializers.ModelSerializer):
+    created_by = PublicUserSerializer(read_only=True)
+    condition = serializers.CharField(source="get_condition_display")
+    return_policy = serializers.CharField(source="get_return_policy_display")
+
+    class Meta:
+        model = Ad
+        fields = [
+            "title",
+            "price",
+            "condition",
+            "shipping",
+            "return_policy",
+            "created_by",
+            "images",
+            "available",
+            "unlisted",
+            "pk",
+        ]
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    ad = CartAdSerializer(read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = ["amount", "ad", "pk"]
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Cart
+        fields = ["items"]

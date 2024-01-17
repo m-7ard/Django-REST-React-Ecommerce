@@ -1,11 +1,14 @@
 from datetime import datetime
 import random
+import json
 
 from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
 from django.http.response import JsonResponse
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.contrib.sessions.models import Session
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,11 +19,19 @@ from rest_framework.permissions import (
     IsAuthenticated,
 )
 
-from .models import Category, Ad
-from .serializers import CategorySerializer, AdModelSerializer, AdBoostSerializer
+from .models import Category, Ad, CartItem
+from .serializers import (
+    CategorySerializer,
+    AdModelSerializer,
+    AdBoostSerializer,
+    CartItemSerializer,
+    CartAdSerializer,
+    CartSerializer,
+)
 from .paginators import AdSearchPaginator
 from users.models import CustomUser, FeeTransaction
 from commons import paginate
+
 
 class IndexView(TemplateView):
     template_name = "store/frontpage.html"
@@ -61,29 +72,45 @@ class AdViewSet(viewsets.ModelViewSet):
             FeeTransaction.objects.create(
                 kind=boost,
                 amount=FeeTransaction.AMOUNT_MAP[boost],
-                payer=self.request.user
+                payer=self.request.user,
             )
 
         ad.save()
-        return Response(status=200)
-    
+        return Response(status=status.HTTP_200_OK)
+
     @paginate
     @action(methods=["GET"], detail=False)
     def search(self, request):
         ads = Ad.objects.all()
-        query_search = request.query_params.get('q')
-        min_price = int(request.query_params.get('min_price', 0))
-        max_price = request.query_params.get('max_price')
+        query_search = request.query_params.get("q")
+        min_price = int(request.query_params.get("min_price", 0))
+        max_price = request.query_params.get("max_price")
         if query_search:
             ads = ads.filter(title__icontains=query_search)
         if min_price:
             ads = ads.filter(price__gte=min_price)
         if max_price:
             ads = ads.filter(price__lte=max(min_price, max_price))
-            
 
         return ads
-        
+
+    @action(methods=["GET"], detail=True)
+    def add_to_cart(self, request, pk=None):
+        if request.user.is_authenticated:
+            user = request.user
+            cart = user.cart
+        else:
+            visitor_session = Session.objects.get(
+                session_key=request.session.session_key
+            )
+            cart = visitor_session.cart
+
+        ad = self.get_object()
+        cart.ads.add(ad)
+        item = cart.items.get(ad=ad)
+        return Response(
+            CartItemSerializer(item).data, status=status.HTTP_200_OK
+        )
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -103,7 +130,7 @@ class AdImageFieldUploadView(APIView):
     def post(self, request, *args, **kwargs):
         files = request.FILES.getlist("image")
         if len(files) != 1:
-            return JsonResponse(status=400)
+            return JsonResponse(status=status.HTTP_400_BAD_REQUEST)
 
         file = files[0]
 
@@ -113,7 +140,7 @@ class AdImageFieldUploadView(APIView):
                     "name": file.name,
                     "msg": "Wrong format file. Only PNG and JPG is allowed.",
                 },
-                status=415,
+                status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             )
         if file.size > 12582912:
             # 12582912 is 12 mb
@@ -122,7 +149,7 @@ class AdImageFieldUploadView(APIView):
                     "name": file.name,
                     "msg": "Image too big. Only up to 12mb is allowed.",
                 },
-                status=413,
+                status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             )
 
         storage = FileSystemStorage(settings.MEDIA_ROOT)
@@ -132,7 +159,7 @@ class AdImageFieldUploadView(APIView):
             {
                 "fileName": stored_file_name,
             },
-            status=200,
+            status=status.HTTP_200_OK,
         )
 
 
@@ -159,3 +186,60 @@ class FrontpageApiView(APIView):
                 "RECENT_ADS": AdModelSerializer(recent_ads, many=True).data,
             }
         )
+
+
+class ConfirmCheckoutAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        items = json.loads(request.POST.get("items", "[]"))
+        errors = {}
+        fields_to_compare = ["price", "title", "unlisted", "shipping", "condition"]
+
+        if request.user.is_authenticated:
+            cart = request.user.cart
+        else:
+            visitor_session = Session.objects.get(
+                session_key=request.session.session_key
+            )
+            cart = visitor_session.cart
+
+        cart_items_pks = cart.items.values_list("pk", flat=True)
+        for item in items:
+            changes = {}
+            item_errors = {}
+
+            if item["pk"] not in cart_items_pks:
+                item_errors['item'] = f'"{item["ad"]["title"]}" is no longer in cart.'
+                
+                errors[item["pk"]] = {
+                    "changes": changes,
+                    "item_errors": item_errors,
+                }
+                continue
+            
+            ad_data = CartAdSerializer(Ad.objects.get(pk=item["ad"]["pk"])).data
+            if item["amount"] > ad_data["available"]:
+                item_errors['amount'] = f'Amount cannot be greater than available.'
+            
+            if item["amount"] <= 0 or isinstance(item, int):
+                item_errors['amount'] = f'Invalid amount.'
+
+            for field in fields_to_compare:
+                if item["ad"][field] != ad_data[field]:
+                    changes[field] = [item["ad"][field], ad_data[field]]
+
+            if changes or item_errors:
+                errors[item["pk"]] = {
+                    "changes": changes,
+                    "item_errors": item_errors,
+                }
+
+        if errors:
+            return Response(
+                {
+                  "items": CartItemSerializer(cart.items.all(), many=True).data, 
+                  "errors": errors
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response(status=status.HTTP_200_OK)

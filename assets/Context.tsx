@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react'
-import { type User, type CategoryData, type Category, SearchAdsInputs } from './Types'
+import { type User, type CategoryData, type Category, type SearchAdsInputs, type Cart } from './Types'
 
 interface UserContextInterface {
     setUser: (data: User) => void
@@ -16,9 +16,15 @@ export interface SearchAdsContextInterface {
     searchAdsInputs?: SearchAdsInputs
 }
 
+export interface CartContextInterface {
+    setCart: (data: Cart) => void
+    cart: Cart
+}
+
 export const UserContext = createContext<UserContextInterface | null>(null)
 export const CategoryContext = createContext<CategoryData | null>(null)
 export const SearchAdsContext = createContext<SearchAdsContextInterface | null>(null)
+export const CartContext = createContext<CartContextInterface | null>(null)
 
 export const useUserContext = (): UserContextInterface => {
     const drawerContextValue = useContext(UserContext)
@@ -54,4 +60,16 @@ export const useSearchAdsContext = (): SearchAdsContextInterface => {
     }
 
     return searchAdsContextValue
+}
+
+export const useCartContext = (): CartContextInterface => {
+    const cartContextValue = useContext(CartContext)
+
+    if (cartContextValue == null) {
+        throw new Error(
+            'useCartContext has to be used within <CartContext.Provider>'
+        )
+    }
+
+    return cartContextValue
 }

@@ -28,6 +28,16 @@ export interface UnnormalizedData {
     parentKey?: string
 }
 
+export interface CartItem {
+    ad: BaseAd
+    amount: number
+    pk: number
+}
+
+export interface Cart {
+    items: CartItem[]
+}
+
 export interface User {
     is_authenticated: boolean
     [key: string]: any
