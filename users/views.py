@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from . import serializers
-from .models import BankAccount, Address, BankTransaction, Transaction
+from .models import BankAccount, Address
 
 
 class UserRegisterAPIView(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -78,8 +78,6 @@ class CurrentUser(APIView):
         return self.return_visitor(request)
 
         
-
-
 class BankAccountViewset(ModelViewSet):
     permissions_classes = [IsAuthenticated]
     serializer_class = serializers.BankAccountSerializer
@@ -130,16 +128,7 @@ class TransactionGenericViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin
         return self.request.user.transactions.all()
 
 
-class BankTransactionCreateAPIView(CreateAPIView):
+class WithdrawalCreateAPIView(CreateAPIView):
     permissions_classes = [IsAuthenticated]
-
-    def get_serializer_class(self):
-        kind = self.kwargs.get('kind')
-        if kind == 'withdrawal':
-            return serializers.WithdrawalSerializer
-        elif kind == 'deposit':
-            return serializers.DepositSerializer
-    
-    def perform_create(self, serializer):
-        return serializer.save(kind=self.kwargs.get('kind'))
+    serializer_class = serializers.WithdrawalSerializer
     

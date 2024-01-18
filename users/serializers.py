@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
-from .models import CustomUser, Address, BankAccount, BankTransaction, Transaction
+from .models import CustomUser, Address, BankAccount, WithdrawalTransaction, Transaction
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -174,18 +174,12 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
             raise PermissionDenied("Request user is not bank account owner.", 403)
 
         return value
-    
-
-class DepositSerializer(TransactionTypeSerializer):
-    class Meta:
-        model = BankTransaction
-        exclude = ['kind']
 
 
 class WithdrawalSerializer(TransactionTypeSerializer):
     class Meta:
-        model = BankTransaction
-        exclude = ['kind']
+        model = WithdrawalTransaction
+        fields = ['amount', 'action_bank_account']
 
     def validate_amount(self, value):
         new_balance = self.context["request"].user.funds - value
@@ -193,4 +187,3 @@ class WithdrawalSerializer(TransactionTypeSerializer):
             raise serializers.ValidationError("Withdrawal amount cannot be larger than user funds.")
 
         return value
-    

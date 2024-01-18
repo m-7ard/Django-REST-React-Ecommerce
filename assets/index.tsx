@@ -26,7 +26,6 @@ import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/B
 import ManageAddresses from './blocks/Address/ManageAddresses'
 import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
-import AddFunds from './blocks/User/AddFunds'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
 import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
@@ -136,18 +135,6 @@ window.addEventListener('load', () => {
                     loader={async () => {
                         const transactions = await getRequestUserTransactions()
                         return { transactions }
-                    }}
-                />
-                <Route
-                    path="funds/add/"
-                    element={
-                        <LoginRequired>
-                            <AddFunds />
-                        </LoginRequired>
-                    }
-                    loader={async () => {
-                        const bankAccounts = await getRequestUserBankAccounts()
-                        return bankAccounts
                     }}
                 />
                 <Route

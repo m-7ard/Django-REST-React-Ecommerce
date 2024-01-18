@@ -503,6 +503,19 @@
         }
     }
 
+    &__amount {
+        @include small-button;
+        width: 4rem;
+        box-sizing: border-box;
+        padding: $space-small;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
+    }
+
     @media only screen and (max-width: 980px) {
         &__imagebox {
             grid-column: 1 / 8;

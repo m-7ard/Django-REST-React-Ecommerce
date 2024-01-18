@@ -26,7 +26,6 @@ from .serializers import (
     AdBoostSerializer,
     CartItemSerializer,
     CartAdSerializer,
-    CartSerializer,
 )
 from .paginators import AdSearchPaginator
 from users.models import CustomUser, FeeTransaction
@@ -71,7 +70,6 @@ class AdViewSet(viewsets.ModelViewSet):
 
             FeeTransaction.objects.create(
                 kind=boost,
-                amount=FeeTransaction.AMOUNT_MAP[boost],
                 payer=self.request.user,
             )
 
@@ -106,7 +104,7 @@ class AdViewSet(viewsets.ModelViewSet):
             cart = visitor_session.cart
 
         ad = self.get_object()
-        cart.ads.add(ad)
+        
         item = cart.items.get(ad=ad)
         return Response(
             CartItemSerializer(item).data, status=status.HTTP_200_OK
@@ -220,7 +218,7 @@ class ConfirmCheckoutAPIView(APIView):
             if item["amount"] > ad_data["available"]:
                 item_errors['amount'] = f'Amount cannot be greater than available.'
             
-            if item["amount"] <= 0 or isinstance(item, int):
+            if item["amount"] <= 0:
                 item_errors['amount'] = f'Invalid amount.'
 
             for field in fields_to_compare:

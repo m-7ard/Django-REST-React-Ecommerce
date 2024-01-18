@@ -9,15 +9,15 @@ from django.test import override_settings
 from django.conf import settings
 
 from users.models import CustomUser, FeeTransaction
-from users.tests import TestUsersMixin, TestAddressesMixin, TestBankAccountsMixin
-from .models import Ad, Category
+from users.tests import TestUsersMixin, TestBankAccountsMixin
+from .models import Ad, Category, AdGroup
 from .serializers import AdModelSerializer
 
 
 MEDIA_ROOT = settings.MEDIA_ROOT
 
 
-class TestCategoryMixin():
+class TestCategoryMixin:
     def setUp(self):
         self.base_category = Category.objects.create(name="Base Category")
         self.leaf_category = Category.objects.create(
@@ -387,7 +387,9 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
         self.assertGreater(self.test_user_ad.top_expiry, old_top_expiry)
         self.assertGreater(self.test_user_ad.gallery_expiry, old_gallery_expiry)
         all_fee_transactions = FeeTransaction.objects.all()
-        self.assertEqual(len(all_fee_transactions), 4, "Valid boosts must create fee transaction")
+        self.assertEqual(
+            len(all_fee_transactions), 4, "Valid boosts must create fee transaction"
+        )
 
     def test_invalid_kind_boost(self):
         response = self.client.post(
@@ -402,27 +404,41 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
         self.test_user.save()
         self.test_user_ad.apply_gallery_boost()
         self.test_user_ad.refresh_from_db()
-        old_gallery_expiry = self.test_user_ad.gallery_expiry 
-    
+        old_gallery_expiry = self.test_user_ad.gallery_expiry
+
         response = self.client.post(
             f"/api/ads/{self.test_user_ad.pk}/boost/",
             {"boosts": ["gallery_ad", "push_ad"]},
         )
 
         self.test_user_ad.refresh_from_db()
-        self.assertEqual(response.status_code, 400, "Boost must fail if funds are insufficient.")
-        self.assertEqual(self.test_user.funds, 0, "Failed boosts must not change user funds.")
-        self.assertEqual(self.test_user_ad.gallery_expiry, old_gallery_expiry, "Failed boosts must not apply the effect.")
+        self.assertEqual(
+            response.status_code, 400, "Boost must fail if funds are insufficient."
+        )
+        self.assertEqual(
+            self.test_user.funds, 0, "Failed boosts must not change user funds."
+        )
+        self.assertEqual(
+            self.test_user_ad.gallery_expiry,
+            old_gallery_expiry,
+            "Failed boosts must not apply the effect.",
+        )
 
 
 class AdSearchTest(APITestCase, TestUsersMixin):
     def setUp(self):
         TestUsersMixin.setUp(self)
         self.base_category = Category.objects.create(name="All Categories")
-        self.cooking_category = Category.objects.create(name="Cooking", parent=self.base_category)
-        self.electronics_category = Category.objects.create(name="Electronics", parent=self.base_category)
-        self.books_category = Category.objects.create(name="Books", parent=self.base_category)
-        
+        self.cooking_category = Category.objects.create(
+            name="Cooking", parent=self.base_category
+        )
+        self.electronics_category = Category.objects.create(
+            name="Electronics", parent=self.base_category
+        )
+        self.books_category = Category.objects.create(
+            name="Books", parent=self.base_category
+        )
+
         self.cooking_pan_ad = Ad.objects.create(
             title="Cooking Pan",
             price=50,
@@ -443,28 +459,72 @@ class AdSearchTest(APITestCase, TestUsersMixin):
         )
 
     def test_empty_search(self):
-        response = self.client.get('/api/ads/search/')
+        response = self.client.get("/api/ads/search/")
         self.assertEqual(response.status_code, 200, "Failed to search for ads.")
-        self.assertEqual(response.data, AdModelSerializer(Ad.objects.all(), many=True).data, "Empty search must return all ads.")
+        self.assertEqual(
+            response.data,
+            AdModelSerializer(Ad.objects.all(), many=True).data,
+            "Empty search must return all ads.",
+        )
 
     def test_title_search(self):
-        response = self.client.get('/api/ads/search/?q=model')
+        response = self.client.get("/api/ads/search/?q=model")
         self.assertEqual(
             len(response.data),
             2,
-            "Check that there are 2 ads with 'model' in their titles"    
+            "Check that there are 2 ads with 'model' in their titles",
         )
 
     def test_price_search(self):
-        response_1 = self.client.get('/api/ads/search/?min_price=0&max_price=50')
+        response_1 = self.client.get("/api/ads/search/?min_price=0&max_price=50")
         self.assertEqual(
             len(response_1.data),
             2,
-            "Check that there are 2 ads with price equal or smaller than 50."  
+            "Check that there are 2 ads with price equal or smaller than 50.",
         )
-        response_2 = self.client.get('/api/ads/search/?min_price=50&max_price=0')
+        response_2 = self.client.get("/api/ads/search/?min_price=50&max_price=0")
         self.assertEqual(
             response_2.data,
             response_1.data,
-            "If min price is bigger than the max price, it should flip the values."  
+            "If min price is bigger than the max price, it should flip the values.",
+        )
+
+
+class AdGroupSpecificationTest(TestUsersMixin, TestCategoryMixin, APITestCase):
+    def setUp(self):
+        TestUsersMixin.setUp(self)
+        TestCategoryMixin.setUp(self)
+        self.test_user_ad_group = AdGroup.objects.create(
+            created_by=self.test_user, name="test group"
+        )
+        self.test_user_ad_1 = Ad.objects.create(
+            title="Test User Ad",
+            description="This is a test ad.",
+            price=100,
+            shipping=0,
+            created_by=self.test_user,
+            images=["image1.jpg", "image2.jpg"],
+            category=self.leaf_category,
+            specifications={"color": "red"},
+            group=self.test_user_ad_group,
+            available=1,
+        )
+        self.test_user_ad_2 = Ad.objects.create(
+            title="Test User Ad 2",
+            description="This is a test ad.",
+            price=9999999,
+            shipping=0,
+            created_by=self.test_user,
+            images=["image1.jpg", "image2.jpg"],
+            category=self.leaf_category,
+            specifications={"color": "blue", "status": "premium"},
+            group=self.test_user_ad_group,
+            available=1,
+        )
+
+    def test_get_options(self):
+        self.assertEqual(
+            self.test_user_ad_group.get_options(),
+            {"color": ["red", "blue"], "status": ["premium"]},
+            "get_options returned incorrect format.",
         )

@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.query import Q
 from django.contrib.sessions.models import Session
+from django.core.validators import MinValueValidator
 
 from users.models import CustomUser
+from .validators import BasicJsonValidator
 
 
 class Category(models.Model):
@@ -38,6 +41,20 @@ def ad_default_expiry_date():
     return datetime.now() + timedelta(days=30)
 
 
+class AdGroup(models.Model):
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='ad_groups')
+    name = models.CharField(max_length=64)
+
+    def get_options(self):
+        grouped_specification = defaultdict(list)
+
+        for specification in self.ads.values_list('specifications', flat=True):
+            for key, value in specification.items():
+                grouped_specification[key].append(value)
+        
+        return dict(grouped_specification)
+
+
 class Ad(models.Model):
     RETURN_POLICIES = (
         ('7_days', '7 Days Return Policy'),
@@ -52,8 +69,8 @@ class Ad(models.Model):
     )
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=4096, blank=True)
-    price = models.PositiveIntegerField()
-    shipping = models.PositiveIntegerField()
+    price = models.FloatField(validators=[MinValueValidator(0)])
+    shipping = models.FloatField(validators=[MinValueValidator(0)])
     return_policy = models.CharField(max_length=30, choices=RETURN_POLICIES)
     condition = models.CharField(max_length=30, choices=CONDITIONS, blank=True)
     available = models.PositiveIntegerField()
@@ -65,8 +82,14 @@ class Ad(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name="ads", null=True
     )
     images = models.JSONField(default=list)
-
+    
+    
+    group = models.ForeignKey(AdGroup, on_delete=models.SET_NULL, related_name='ads', null=True)
+    specifications = models.JSONField(default=dict, validators=[BasicJsonValidator])
+    
+    
     date_created = models.DateTimeField(auto_now_add=True)
+    
 
     latest_push_date = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateTimeField(default=ad_default_expiry_date)
@@ -117,7 +140,6 @@ class Cart(models.Model):
     kind = models.CharField(max_length=20, choices=KINDS)
     user = models.OneToOneField(CustomUser, related_name='cart', on_delete=models.CASCADE, null=True, blank=True)
     visitor = models.OneToOneField(Session, related_name='cart', on_delete=models.CASCADE, null=True, blank=True)
-    ads = models.ManyToManyField(Ad, related_name='in_carts', through="CartItem")
 
     def __str__(self) -> str:
         if self.kind == 'visitor':
@@ -128,4 +150,4 @@ class Cart(models.Model):
 class CartItem(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    amount = models.PositiveIntegerField(default=1)
+    amount = models.PositiveIntegerField()

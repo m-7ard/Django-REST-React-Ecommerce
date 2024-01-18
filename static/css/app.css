@@ -810,6 +810,23 @@
   color: #F2F4F3;
   background-color: #1C2B31;
 }
+.ad-details__amount {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: row;
+  padding: 0.25rem 0.75rem;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  border-radius: 2px;
+  width: 4rem;
+  box-sizing: border-box;
+  padding: 0.25rem;
+  border: 1px solid #D6DDD9;
+  background-color: #F2F4F3;
+}
+.ad-details__amount:focus {
+  background-color: #E4E9E6;
+}
 @media only screen and (max-width: 980px) {
   .ad-details__imagebox {
     grid-column: 1/8;

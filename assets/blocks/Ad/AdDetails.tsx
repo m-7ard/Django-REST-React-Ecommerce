@@ -10,6 +10,23 @@ export async function loader ({ params }: { params: { pk: number } }): Promise<B
     return ad
 }
 
+function AmountController ({ ad }: { ad: BaseAd }): React.ReactNode {
+    const soldOut = ad.available === 0
+    const [amount, setAmount] = useState(soldOut ? 0 : 1)
+
+    return (
+        <div className='prop__row prop__row--centered'>
+            <div className='prop__label'>
+                Amount
+            </div>
+            <input defaultValue={amount} max={ad.available} className='ad-details__amount' type='number' />
+            <div className='prop__detail'>
+                {soldOut ? 'Sold Out' : `${ad.available} Available`}
+            </div>
+        </div>
+    )
+}
+
 export default function AdDetails (): React.ReactNode {
     const ad = useLoaderData() as BaseAd
     const { allCategories } = useCategoryContext()
@@ -54,7 +71,7 @@ export default function AdDetails (): React.ReactNode {
     }
 
     return (
-        <div className="ad-details">
+        <div className="ad-details prop">
             <div className="ad-details__header">
                 <div className="ad-details__category">
                     {NormalizedCategories.getRouteString(ad.category)}
@@ -97,6 +114,7 @@ export default function AdDetails (): React.ReactNode {
                     </div>
                 </div>
                 <hr className="app__divider" />
+                <AmountController ad={ad} />
                 <div className="ad-details__button ad-details__button--yellow">
                     Buy Now
                 </div>
