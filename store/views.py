@@ -53,8 +53,13 @@ class AdViewSet(viewsets.ModelViewSet):
     @action(methods=["POST"], detail=True)
     def boost(self, request, pk=None):
         ad = get_object_or_404(request.user.ads.all(), pk=pk)
+        payer_bank_account = get_object_or_404(request.user.bank_accounts.all(), pk=request.data.get('payer_bank_account'))
         serializer = AdBoostSerializer(
-            data=dict(self.request.data), context={"ad": ad, "request": self.request}
+            data=dict(self.request.data), context={
+                "request": self.request,
+                "ad": ad, 
+                "payer_bank_account": payer_bank_account
+            }
         )
         serializer.is_valid(raise_exception=True)
         boosts = serializer.data["boosts"]
@@ -70,7 +75,7 @@ class AdViewSet(viewsets.ModelViewSet):
 
             FeeTransaction.objects.create(
                 kind=boost,
-                payer=self.request.user,
+                payer_bank_account=payer_bank_account,
             )
 
         ad.save()

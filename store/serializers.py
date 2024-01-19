@@ -19,7 +19,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class AdModelSerializer(serializers.ModelSerializer):
-    images = serializers.JSONField()
     created_by = FullUserSerializer(required=False, allow_null=True)
     date_created = serializers.DateTimeField(
         format="%Y.%m.%d", required=False, read_only=True
@@ -33,7 +32,6 @@ class AdModelSerializer(serializers.ModelSerializer):
     highlight = serializers.SerializerMethodField()
     top = serializers.SerializerMethodField()
     gallery = serializers.SerializerMethodField()
-
     condition_display = serializers.CharField(
         source="get_condition_display", read_only=True
     )
@@ -41,6 +39,7 @@ class AdModelSerializer(serializers.ModelSerializer):
         source="get_return_policy_display", read_only=True
     )
     pk = serializers.ReadOnlyField(source="id")
+    images = serializers.JSONField()
 
     class Meta:
         model = Ad
@@ -99,9 +98,12 @@ class AdBoostSerializer(serializers.Serializer):
         if self.context.get("request").user != ad.created_by:
             raise ValidationError("Ad can only be boosted by the ad owner.")
 
+        if self.context.get("payer_bank_account").user != ad.created_by:
+            raise ValidationError("Bank account must be owner by the ad owner.")
+
+
         boost_cost = sum([FeeTransaction.AMOUNT_MAP[boost] for boost in value])
-        if boost_cost > self.context.get("request").user.funds:
-            raise ValidationError("User funds are not enough to cover the boosts.")
+        # validate that bank can cover the cost (?)
 
         return value
 

@@ -186,6 +186,11 @@ window.addEventListener('load', () => {
                                 <AdBoost />
                             </LoginRequired>
                         }
+                        loader={async () => {
+                            const bankAccounts = await getRequestUserBankAccounts()
+                            console.log(bankAccounts)
+                            return bankAccounts
+                        }}
                     />
                 </Route>
             </Route>

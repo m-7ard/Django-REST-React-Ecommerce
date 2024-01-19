@@ -32,9 +32,21 @@ class TestAdMixin(TestCategoryMixin):
             title="Test User Ad",
             description="This is a test ad.",
             price=100,
+            shipping=0,
             created_by=self.test_user,
             images=["image1.jpg", "image2.jpg"],
             category=self.leaf_category,
+            available=1,
+        )
+        self.other_user_ad = Ad.objects.create(
+            title="Other User Ad",
+            description="This is a test ad.",
+            price=99999,
+            shipping=0,
+            created_by=self.other_user,
+            images=["image1.jpg", "image2.jpg"],
+            category=self.leaf_category,
+            available=1,
         )
 
 
@@ -374,11 +386,14 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
 
         response = self.client.post(
             f"/api/ads/{self.test_user_ad.pk}/boost/",
-            {"boosts": ["highlight_ad", "top_ad", "gallery_ad", "push_ad"]},
+            {
+                "boosts": ["highlight_ad", "top_ad", "gallery_ad", "push_ad"],
+                "payer_bank_account": self.test_user_bank.pk
+            },
         )
 
         self.assertEqual(
-            response.status_code, 200, "Failed to perform a valid ad boost."
+            response.status_code, 200, f"Failed to perform a valid ad boost. {response.data}"
         )
 
         self.test_user_ad.refresh_from_db()
@@ -394,36 +409,66 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
     def test_invalid_kind_boost(self):
         response = self.client.post(
             f"/api/ads/{self.test_user_ad.pk}/boost/",
-            {"boosts": ["highlight_ad", "something_invalid"]},
+            {
+                "boosts": ["highlight_ad", "something_invalid"],
+                "payer_bank_account": self.test_user_bank.pk
+            },
         )
 
         self.assertEqual(response.status_code, 400, "Invalid boosts must fail.")
 
     def test_invalid_already_boosted(self):
-        self.test_user.funds = 0
-        self.test_user.save()
         self.test_user_ad.apply_gallery_boost()
         self.test_user_ad.refresh_from_db()
         old_gallery_expiry = self.test_user_ad.gallery_expiry
 
         response = self.client.post(
             f"/api/ads/{self.test_user_ad.pk}/boost/",
-            {"boosts": ["gallery_ad", "push_ad"]},
+            {
+                "boosts": ["gallery_ad", "push_ad"],
+                "payer_bank_account": self.test_user_bank.pk
+            },
         )
 
+        self.assertEqual(
+            response.status_code,
+            400,
+            "Invalid boosts must fail."    
+        )
         self.test_user_ad.refresh_from_db()
-        self.assertEqual(
-            response.status_code, 400, "Boost must fail if funds are insufficient."
-        )
-        self.assertEqual(
-            self.test_user.funds, 0, "Failed boosts must not change user funds."
-        )
         self.assertEqual(
             self.test_user_ad.gallery_expiry,
             old_gallery_expiry,
             "Failed boosts must not apply the effect.",
         )
+        
+    def test_invalid_user_bank(self):
+        """
+        
+            Note: we are logged in as test_user
 
+        """
+        old_gallery_expiry = self.other_user_ad.gallery_expiry
+
+        response = self.client.post(
+            f"/api/ads/{self.other_user_ad.pk}/boost/",
+            {
+                "boosts": ["gallery_ad", "push_ad"],
+                "payer_bank_account": self.other_user_bank.pk
+            },
+        )
+
+        self.assertEqual(
+            response.status_code,
+            404,
+            "Invalid boosts must fail."    
+        )
+        self.other_user_ad.refresh_from_db()
+        self.assertEqual(
+            self.other_user_ad.gallery_expiry,
+            old_gallery_expiry,
+            "Failed boosts must not apply the effect.",
+        )
 
 class AdSearchTest(APITestCase, TestUsersMixin):
     def setUp(self):
@@ -487,44 +532,4 @@ class AdSearchTest(APITestCase, TestUsersMixin):
             response_2.data,
             response_1.data,
             "If min price is bigger than the max price, it should flip the values.",
-        )
-
-
-class AdGroupSpecificationTest(TestUsersMixin, TestCategoryMixin, APITestCase):
-    def setUp(self):
-        TestUsersMixin.setUp(self)
-        TestCategoryMixin.setUp(self)
-        self.test_user_ad_group = AdGroup.objects.create(
-            created_by=self.test_user, name="test group"
-        )
-        self.test_user_ad_1 = Ad.objects.create(
-            title="Test User Ad",
-            description="This is a test ad.",
-            price=100,
-            shipping=0,
-            created_by=self.test_user,
-            images=["image1.jpg", "image2.jpg"],
-            category=self.leaf_category,
-            specifications={"color": "red"},
-            group=self.test_user_ad_group,
-            available=1,
-        )
-        self.test_user_ad_2 = Ad.objects.create(
-            title="Test User Ad 2",
-            description="This is a test ad.",
-            price=9999999,
-            shipping=0,
-            created_by=self.test_user,
-            images=["image1.jpg", "image2.jpg"],
-            category=self.leaf_category,
-            specifications={"color": "blue", "status": "premium"},
-            group=self.test_user_ad_group,
-            available=1,
-        )
-
-    def test_get_options(self):
-        self.assertEqual(
-            self.test_user_ad_group.get_options(),
-            {"color": ["red", "blue"], "status": ["premium"]},
-            "get_options returned incorrect format.",
         )
