@@ -4,26 +4,40 @@ import GenericForm from '../../elements/GenericForm'
 import { CharInputWidget } from '../../widgets/CharInput'
 import { CharTextAreaWidget } from '../../widgets/CharTextArea'
 import { AdImageInputWidget } from '../../widgets/AdImageInput'
-import { type BaseAd } from '../../Types'
-import { getAdData } from '../../Fetchers'
+import { type AdGroup, type BaseAd } from '../../Types'
+import { getAdData, getRequestUserAdGroups } from '../../Fetchers'
 import { useUserContext } from '../../Context'
 import { CategoryModalSelectWidget } from '../../widgets/ModalSelects/CategoryModalSelect'
 import { PlainModalSelectWidget } from '../../widgets/ModalSelects/PlainModalSelect'
 import { AD_CONDITIONS, AD_RETURN_POLICIES, NormalizedData } from '../../Utils'
+import { SpecificationInputWidget } from '../../widgets/SpecificationInput'
 
-export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
+interface LoaderData {
+    ad: BaseAd
+    adGroups: AdGroup[]
+}
+
+export async function loader ({ params }: { params: { pk: number } }): Promise<LoaderData> {
     const ad = await getAdData(params.pk)
-    return ad
+    const adGroups = await getRequestUserAdGroups()
+
+    return { ad, adGroups }
 }
 
 export default function AdEdit (): React.ReactNode {
     const navigate = useNavigate()
-    const ad = useLoaderData() as BaseAd
+    const { ad, adGroups } = useLoaderData() as LoaderData
     const { user } = useUserContext()
 
     if (ad.created_by.pk !== user.pk) {
         return <Navigate to={'/'} />
     }
+
+    const normalizedAdGroups = new NormalizedData({
+        data: adGroups,
+        labelKey: 'name',
+        valueKey: 'pk'
+    })
 
     return (
         <GenericForm
@@ -80,6 +94,25 @@ export default function AdEdit (): React.ReactNode {
                     widget: AdImageInputWidget({
                         initial: ad.images
                     })
+                },
+                {
+                    name: 'specifications',
+                    label: 'Specifications',
+                    widget: SpecificationInputWidget({
+                        initial: ad.specifications_json
+                    }),
+                    optional: true
+                },
+                {
+                    name: 'group',
+                    label: 'Group',
+                    widget: PlainModalSelectWidget({
+                        title: 'Select Ad Group',
+                        normalizedData: normalizedAdGroups,
+                        placeholder: 'Select Ad Group',
+                        initial: ad.group
+                    }),
+                    optional: true
                 },
                 {
                     name: 'available',

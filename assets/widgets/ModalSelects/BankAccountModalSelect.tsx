@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BankAccount, type Address } from '../../Types'
+import { type BankAccount, type Address } from '../../Types'
 import { usePicker } from '../../Utils'
 import Prompt from '../../elements/Prompt'
 import Icon from '../../elements/Icon'
@@ -83,16 +83,24 @@ export default function BankAccountModalSelect ({ name, title, bankAccountList, 
                             </div>
                         }
                         footer={
-                            <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
-                                if (currentlySelected == null) {
-                                    return
-                                }
+                            <>
+                                <div className='prompt__reset' onMouseUp={() => {
+                                    setConfirmedValue(undefined)
+                                    setStagedValue(undefined)
+                                }}>
+                                    Reset
+                                </div>
+                                <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
+                                    if (currentlySelected == null) {
+                                        return
+                                    }
 
-                                setConfirmedValue(currentlySelected)
-                                closeModal()
-                            }}>
-                                Confirm
-                            </div>
+                                    setConfirmedValue(currentlySelected)
+                                    closeModal()
+                                }}>
+                                    Confirm
+                                </div>
+                            </>
                         }
                     />
                 )

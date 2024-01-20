@@ -70,6 +70,12 @@ export default function AdDetails (): React.ReactNode {
         )
     }
 
+    /*
+    
+        TODO: write a way to now filter by options on the details
+    
+    */
+
     return (
         <div className="ad-details prop">
             <div className="ad-details__header">

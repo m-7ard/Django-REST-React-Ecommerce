@@ -1,9 +1,12 @@
+import json
+import re
+
 from django.core.files.storage import FileSystemStorage
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
-from .models import Category, Ad, Cart, CartItem
+from .models import Category, Ad, Cart, CartItem, AdGroup
 from users.models import FeeTransaction
 from users.serializers import FullUserSerializer, PublicUserSerializer
 
@@ -19,7 +22,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class AdModelSerializer(serializers.ModelSerializer):
-    created_by = FullUserSerializer(required=False, allow_null=True)
+    pk = serializers.ReadOnlyField(source="id")
+    created_by = PublicUserSerializer(required=False, allow_null=True)
     date_created = serializers.DateTimeField(
         format="%Y.%m.%d", required=False, read_only=True
     )
@@ -38,14 +42,68 @@ class AdModelSerializer(serializers.ModelSerializer):
     return_policy_display = serializers.CharField(
         source="get_return_policy_display", read_only=True
     )
-    pk = serializers.ReadOnlyField(source="id")
-    images = serializers.JSONField()
+    images = serializers.JSONField(required=True)
+    specifications = serializers.ListField(required=False, write_only=True)
+    specifications_json = serializers.JSONField(required=False, read_only=True, source='specifications')
+
+    def validate_specifications(self, value):
+        specifications = {}
+        for field in value:
+            field_object = json.loads(field)
+            key, value = field_object
+            key = key.strip()
+            value = value.strip()
+            if len(key) == 0 and len(value) == 0:
+                continue
+
+            if not self.is_valid_specification_key(key):
+                raise ValidationError(
+                    f"'{key}' cannot be used as name for specification field. Field name must be alphanumeric (spaces and hypens allowed), at least 1 character long."
+                )
+            
+            if not self.is_valid_specification_value(value):
+                raise ValidationError(
+                    f"'{value}' cannot be used as value for specification field. Field value must be alphanumeric (spaces and hypens allowed), at least 1 character long."
+                )
+
+            if key in specifications.keys():
+                raise ValidationError(
+                    f"The '{key}' specification field can only appear once. Please review and ensure that each specification is unique."   
+                )
+            
+            specifications[key] = value
+
+        return specifications
 
     class Meta:
         model = Ad
-        fields = "__all__"
-        read_only_fields = ["pk", "latest_push_date", "date_created"]
-        extra_fields = ["pk", "condition_display", "return_policy_display"]
+        fields = [
+            "title",
+            "description",
+            "price",
+            "shipping",
+            "return_policy",
+            "condition",
+            "available",
+            "unlisted",
+            "category",
+            "created_by",
+            "images",
+            "group",
+            "specifications",
+            "specifications_json",
+
+            "date_created",
+            "expiry_date",
+            "latest_push_date",
+            "highlight",
+            "top",
+            "gallery",
+
+            "pk", 
+            "condition_display", 
+            "return_policy_display"
+        ]
 
     def validate_images(self, value):
         file_name_list = value[:]
@@ -53,6 +111,9 @@ class AdModelSerializer(serializers.ModelSerializer):
         for file_name in file_name_list:
             if not storage.exists(file_name):
                 file_name_list.remove(file_name)
+        
+        if len(file_name_list) == 0:
+            raise ValidationError("Must attach at least one image.")
 
         return file_name_list
 
@@ -64,6 +125,14 @@ class AdModelSerializer(serializers.ModelSerializer):
 
     def get_gallery(self, obj):
         return obj.is_gallery()
+    
+    def is_valid_specification_key(self, input_string):
+        pattern = re.compile(r'^[a-zA-Z0-9\s-]{1,}$')
+        return bool(pattern.match(input_string))
+    
+    def is_valid_specification_value(self, input_string):
+        pattern = re.compile(r'^[a-zA-Z0-9\s-]{1,}$')
+        return bool(pattern.match(input_string))
 
 
 class AdBoostSerializer(serializers.Serializer):
@@ -101,7 +170,6 @@ class AdBoostSerializer(serializers.Serializer):
         if self.context.get("payer_bank_account").user != ad.created_by:
             raise ValidationError("Bank account must be owner by the ad owner.")
 
-
         boost_cost = sum([FeeTransaction.AMOUNT_MAP[boost] for boost in value])
         # validate that bank can cover the cost (?)
 
@@ -118,7 +186,7 @@ class CartCheckoutConfirmationSerializer(serializers.ModelSerializer):
             "unlisted",
             "shipping",
             "available",
-            "condition"
+            "condition",
         ]
 
 
@@ -157,3 +225,29 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ["items"]
+
+
+class SimpleAdModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = ["title", "pk"]
+
+
+class AdGroupSerializer(serializers.ModelSerializer):
+    options = serializers.SerializerMethodField()
+    ads = SimpleAdModelSerializer(many=True)
+
+    def get_options(self, obj):
+        return obj.get_options()
+
+    def validate_name(self, value):
+        if value in self.context.get("request").user.ad_groups.values_list(
+            "name", flat=True
+        ):
+            raise ValidationError("Ad Group must have a unqiue name.")
+
+        return value
+
+    class Meta:
+        model = AdGroup
+        fields = ["name", "options", "pk", "ads"]

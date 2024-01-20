@@ -1,19 +1,20 @@
 import React from 'react'
 
-interface FormFieldInterface {
+export interface FormFieldInterface {
     widget: ({ name }: { name: string }) => React.ReactNode
     name: string
     label?: string
     errors?: Record<string, string[]>
+    optional?: boolean
 }
 
 export default function FormField ({
-    widget, name, label, errors
+    widget, name, label, errors, optional = false
 }: FormFieldInterface): React.ReactNode {
     return (
         <div className="form__field" data-name={name}>
             <div className="form__label">
-                {label}
+                {`${label}${optional ? ' (Optional)' : ''}`}
             </div>
             {widget({ name })}
             {

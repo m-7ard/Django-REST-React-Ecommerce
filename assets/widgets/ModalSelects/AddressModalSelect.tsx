@@ -76,16 +76,24 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
                             </div>
                         }
                         footer={
-                            <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
-                                if (currentlySelected == null) {
-                                    return
-                                }
+                            <>
+                                <div className='prompt__reset' onMouseUp={() => {
+                                    setConfirmedValue(undefined)
+                                    setStagedValue(undefined)
+                                }}>
+                                    Reset
+                                </div>
+                                <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
+                                    if (currentlySelected == null) {
+                                        return
+                                    }
 
-                                setConfirmedValue(currentlySelected)
-                                closeModal()
-                            }}>
-                                Confirm
-                            </div>
+                                    setConfirmedValue(currentlySelected)
+                                    closeModal()
+                                }}>
+                                    Confirm
+                                </div>
+                            </>
                         }
                     />
                 )

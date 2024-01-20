@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useNavigate } from 'react-router-dom'
+import { useLoaderData, useNavigate } from 'react-router-dom'
 import { CharInputWidget } from '../../widgets/CharInput'
 import { CharTextAreaWidget } from '../../widgets/CharTextArea'
 import { AdImageInputWidget } from '../../widgets/AdImageInput'
@@ -8,9 +8,19 @@ import GenericForm from '../../elements/GenericForm'
 import { CategoryModalSelectWidget } from '../../widgets/ModalSelects/CategoryModalSelect'
 import { PlainModalSelectWidget } from '../../widgets/ModalSelects/PlainModalSelect'
 import { AD_CONDITIONS, AD_RETURN_POLICIES, NormalizedData } from '../../Utils'
+import { SpecificationInputWidget } from '../../widgets/SpecificationInput'
+import { type AdGroup } from '../../Types'
 
 export default function PostAd (): React.ReactNode {
     const navigate = useNavigate()
+    const { adGroups } = useLoaderData() as {
+        adGroups: AdGroup[]
+    }
+    const normalizedAdGroups = new NormalizedData({
+        data: adGroups,
+        labelKey: 'name',
+        valueKey: 'pk'
+    })
 
     return (
         <GenericForm
@@ -48,7 +58,8 @@ export default function PostAd (): React.ReactNode {
                     label: 'Description',
                     widget: CharTextAreaWidget({
                         maxLength: 4096
-                    })
+                    }),
+                    optional: true
                 },
                 {
                     name: 'category',
@@ -58,7 +69,24 @@ export default function PostAd (): React.ReactNode {
                 {
                     name: 'images',
                     label: 'Images',
-                    widget: AdImageInputWidget({})
+                    widget: AdImageInputWidget({}),
+                    optional: true
+                },
+                {
+                    name: 'specifications',
+                    label: 'Specifications',
+                    widget: SpecificationInputWidget({}),
+                    optional: true
+                },
+                {
+                    name: 'group',
+                    label: 'Group',
+                    widget: PlainModalSelectWidget({
+                        title: 'Select Ad Group',
+                        normalizedData: normalizedAdGroups,
+                        placeholder: 'Select Ad Group'
+                    }),
+                    optional: true
                 },
                 {
                     name: 'available',
@@ -69,7 +97,7 @@ export default function PostAd (): React.ReactNode {
                 },
                 {
                     name: 'condition',
-                    label: 'Condition (Optional)',
+                    label: 'Condition',
                     widget: PlainModalSelectWidget({
                         normalizedData: new NormalizedData({
                             data: AD_CONDITIONS,
@@ -78,7 +106,8 @@ export default function PostAd (): React.ReactNode {
                         }),
                         title: 'Select Condition',
                         placeholder: 'Select Condition'
-                    })
+                    }),
+                    optional: true
                 },
                 {
                     name: 'return_policy',

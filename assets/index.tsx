@@ -16,7 +16,7 @@ import Login from './blocks/Auth/Login'
 import PostAd from './blocks/Ad/PostAd'
 import AdPostConfirmation from './blocks/Ad/AdPostConfirmation'
 import AdDetails, { loader as adDetailLoader } from './blocks/Ad/AdDetails'
-import AdEdit from './blocks/Ad/AdEdit'
+import AdEdit, { loader as adEditLoader } from './blocks/Ad/AdEdit'
 import AdEditConfirmation from './blocks/Ad/AdEditConfirmation'
 import { LoginRequired } from './Utils'
 import ManageFunds from './blocks/User/ManageFunds'
@@ -24,12 +24,13 @@ import Settings, { loader as settingsLoader } from './blocks/User/Settings'
 import ManageBankAccounts from './blocks/BankAccount/ManageBankAccounts'
 import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/BankAccount/CreateBankAccount'
 import ManageAddresses from './blocks/Address/ManageAddresses'
-import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
+import { getRequestUserAdGroups, getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
 import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
 import Cart from './blocks/Store/Cart'
+import AdGroups from './blocks/User/AdGroups'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -126,6 +127,18 @@ window.addEventListener('load', () => {
                     loader={settingsLoader}
                 />
                 <Route
+                    path='ad-groups/'
+                    element={
+                        <LoginRequired>
+                            <AdGroups />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const adGroups = await getRequestUserAdGroups()
+                        return adGroups
+                    }}
+                />
+                <Route
                     path="funds/"
                     element={
                         <LoginRequired>
@@ -152,11 +165,18 @@ window.addEventListener('load', () => {
                 <Route
                     path="post-ad/"
                 >
-                    <Route index element={
-                        <LoginRequired>
-                            <PostAd />
-                        </LoginRequired>
-                    } />
+                    <Route
+                        index
+                        element={
+                            <LoginRequired>
+                                <PostAd />
+                            </LoginRequired>
+                        }
+                        loader={async () => {
+                            const adGroups = await getRequestUserAdGroups()
+                            return { adGroups }
+                        }}
+                    />
                     <Route
                         path="success/"
                         element={<AdPostConfirmation />}
@@ -173,7 +193,7 @@ window.addEventListener('load', () => {
                                 <AdEdit />
                             </LoginRequired>
                         }
-                        loader={adDetailLoader}
+                        loader={adEditLoader}
                     />
                     <Route
                         path="edit/success/"
@@ -188,7 +208,6 @@ window.addEventListener('load', () => {
                         }
                         loader={async () => {
                             const bankAccounts = await getRequestUserBankAccounts()
-                            console.log(bankAccounts)
                             return bankAccounts
                         }}
                     />

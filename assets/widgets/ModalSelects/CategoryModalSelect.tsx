@@ -118,16 +118,25 @@ export default function CategoryModalSelect ({ initial, name }: CategoryModalSel
                             </div>
                         }
                         footer={
-                            <div className={`prompt__confirm ${isConfirmable ? '' : 'prompt__confirm--disabled'}`} onClick={() => {
-                                if (!isConfirmable) {
-                                    return
-                                }
+                            <>
+                                <div className='prompt__reset' onMouseUp={() => {
+                                    setConfirmedValue(undefined)
+                                    setStagedValue(undefined)
+                                    setIsConfirmable(false)
+                                }}>
+                                    Reset
+                                </div>
+                                <div className={`prompt__confirm ${isConfirmable ? '' : 'prompt__confirm--disabled'}`} onClick={() => {
+                                    if (!isConfirmable) {
+                                        return
+                                    }
 
-                                setConfirmedValue(currentlySelected)
-                                closeModal()
-                            }}>
-                                Confirm
-                            </div>
+                                    setConfirmedValue(currentlySelected)
+                                    closeModal()
+                                }}>
+                                    Confirm
+                                </div>
+                            </>
                         }
                     />
                 )

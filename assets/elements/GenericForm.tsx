@@ -1,15 +1,11 @@
-import React, { useState } from 'react'
-import FormField from './FormField'
+import React, { type FormEvent, useState } from 'react'
+import FormField, { type FormFieldInterface } from './FormField'
 import { getCookie } from '../Utils'
 
 interface GenericFormInteface {
     action: string
     title: string
-    fields: Array<{
-        name: string
-        label: string
-        widget: ({ name }: { name: string }) => React.ReactNode
-    }>
+    fields: FormFieldInterface[]
     button: {
         label: string
     }
@@ -22,9 +18,9 @@ interface GenericFormInteface {
 export default function GenericForm ({
     action, extraClass, method, title, button, fields, onSuccess, hasCSRF = false
 }: GenericFormInteface): React.ReactNode {
-    const [errors, setErrors] = useState<Record<string, string[]> | null>(null)
+    const [errors, setErrors] = useState<Record<string, string[]> | undefined>()
 
-    async function handleForm (event: Event): Promise<void> {
+    async function handleForm (event: FormEvent<HTMLFormElement>): Promise<void> {
         event.preventDefault()
         const form = (event.target as HTMLElement).closest('form')
 
@@ -57,13 +53,14 @@ export default function GenericForm ({
         }
         else {
             const data = await response.json()
-            console.log(data)
             setErrors(data)
         }
     }
 
     return (
-        <form action={action} className={`form prop prop--vertical ${extraClass}`} onSubmit={handleForm}>
+        <form action={action} className={`form prop prop--vertical ${extraClass}`} onSubmit={(event) => {
+            void handleForm(event)
+        }}>
             <div className="prop__header">
                 <div className="prop__title">
                     {title}
@@ -85,8 +82,8 @@ export default function GenericForm ({
                     )
                 }
                 {
-                    fields.map(({ widget, name, label }, i) => (
-                        <FormField widget={widget} name={name} label={label} errors={errors} key={i}/>
+                    fields.map(({ widget, name, label, optional }, i) => (
+                        <FormField widget={widget} optional={optional} name={name} label={label} errors={errors} key={i}/>
                     ))
                 }
             </div>

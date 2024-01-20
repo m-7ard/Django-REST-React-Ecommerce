@@ -19,13 +19,14 @@ from rest_framework.permissions import (
     IsAuthenticated,
 )
 
-from .models import Category, Ad, CartItem
+from .models import Category, Ad, CartItem, AdGroup
 from .serializers import (
     CategorySerializer,
     AdModelSerializer,
     AdBoostSerializer,
     CartItemSerializer,
     CartAdSerializer,
+    AdGroupSerializer,
 )
 from .paginators import AdSearchPaginator
 from users.models import CustomUser, FeeTransaction
@@ -246,3 +247,18 @@ class ConfirmCheckoutAPIView(APIView):
             )
 
         return Response(status=status.HTTP_200_OK)
+    
+
+class AdGroupViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+    ]
+    serializer_class = AdGroupSerializer
+
+    def get_queryset(self):
+        return self.request.user.ad_groups.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    

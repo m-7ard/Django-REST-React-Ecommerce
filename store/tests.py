@@ -388,12 +388,14 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
             f"/api/ads/{self.test_user_ad.pk}/boost/",
             {
                 "boosts": ["highlight_ad", "top_ad", "gallery_ad", "push_ad"],
-                "payer_bank_account": self.test_user_bank.pk
+                "payer_bank_account": self.test_user_bank.pk,
             },
         )
 
         self.assertEqual(
-            response.status_code, 200, f"Failed to perform a valid ad boost. {response.data}"
+            response.status_code,
+            200,
+            f"Failed to perform a valid ad boost. {response.data}",
         )
 
         self.test_user_ad.refresh_from_db()
@@ -411,7 +413,7 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
             f"/api/ads/{self.test_user_ad.pk}/boost/",
             {
                 "boosts": ["highlight_ad", "something_invalid"],
-                "payer_bank_account": self.test_user_bank.pk
+                "payer_bank_account": self.test_user_bank.pk,
             },
         )
 
@@ -426,26 +428,22 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
             f"/api/ads/{self.test_user_ad.pk}/boost/",
             {
                 "boosts": ["gallery_ad", "push_ad"],
-                "payer_bank_account": self.test_user_bank.pk
+                "payer_bank_account": self.test_user_bank.pk,
             },
         )
 
-        self.assertEqual(
-            response.status_code,
-            400,
-            "Invalid boosts must fail."    
-        )
+        self.assertEqual(response.status_code, 400, "Invalid boosts must fail.")
         self.test_user_ad.refresh_from_db()
         self.assertEqual(
             self.test_user_ad.gallery_expiry,
             old_gallery_expiry,
             "Failed boosts must not apply the effect.",
         )
-        
+
     def test_invalid_user_bank(self):
         """
-        
-            Note: we are logged in as test_user
+
+        Note: we are logged in as test_user
 
         """
         old_gallery_expiry = self.other_user_ad.gallery_expiry
@@ -454,21 +452,18 @@ class AdBoostTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
             f"/api/ads/{self.other_user_ad.pk}/boost/",
             {
                 "boosts": ["gallery_ad", "push_ad"],
-                "payer_bank_account": self.other_user_bank.pk
+                "payer_bank_account": self.other_user_bank.pk,
             },
         )
 
-        self.assertEqual(
-            response.status_code,
-            404,
-            "Invalid boosts must fail."    
-        )
+        self.assertEqual(response.status_code, 404, "Invalid boosts must fail.")
         self.other_user_ad.refresh_from_db()
         self.assertEqual(
             self.other_user_ad.gallery_expiry,
             old_gallery_expiry,
             "Failed boosts must not apply the effect.",
         )
+
 
 class AdSearchTest(APITestCase, TestUsersMixin):
     def setUp(self):

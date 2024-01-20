@@ -43,6 +43,11 @@ export interface User {
     [key: string]: any
 }
 
+export interface SimpleAd {
+    title: string
+    pk: number
+}
+
 export interface BaseAd {
     pk: number
     images: string[]
@@ -60,6 +65,8 @@ export interface BaseAd {
     shipping: number
     condition?: 'new' | 'used' | 'almost_new' | 'damaged'
     return_policy: '7_days' | '30_days' | 'warranty'
+    specifications_json: Record<string, string>
+    group?: number
     [key: string]: unknown
 }
 
@@ -108,4 +115,11 @@ export interface SearchAdsInputs {
     min_price?: number
     max_price?: number
     [key: string]: string | number | File | undefined
+}
+
+export interface AdGroup {
+    name: string
+    options: Record<string, string>
+    pk: number
+    ads: SimpleAd[]
 }

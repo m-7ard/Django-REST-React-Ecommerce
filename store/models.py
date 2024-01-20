@@ -54,6 +54,13 @@ class AdGroup(models.Model):
         
         return dict(grouped_specification)
 
+    def save(self, *args, **kwargs):
+        if self.name in self.created_by.ad_groups.values_list('name', flat=True):
+            raise ValidationError(
+                "Name must be unique."
+            )
+        
+        super().save(*args, **kwargs)
 
 class Ad(models.Model):
     RETURN_POLICIES = (
@@ -127,6 +134,9 @@ class Ad(models.Model):
             raise ValidationError(
                 "Category must be leaf category. Leaf category has no subcategories."
             )
+
+        if len(self.images) == 0:
+            raise ValidationError("Must attach at least one image.")
 
         super().save(*args, **kwargs)
 

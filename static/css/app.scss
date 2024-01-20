@@ -372,16 +372,19 @@
         @include has-shadow;
         @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
         font-weight: 500;
-        width: fit-content;
-        margin-left: auto;
-        border: 1px solid map-get($light, dark);
-        margin-left: auto;
-        transition: filter 0.2s;
 
         &--disabled {
             cursor: not-allowed;
             filter: saturate(0);
         }
+    }
+
+    &__reset {
+        @include base-button;
+        @include medium-button;
+        @include has-shadow;
+        @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+        font-weight: 500;
     }
 
     &__close {
@@ -1578,6 +1581,29 @@
         padding: $space-small;
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.specifications\@form {
+    &__input {
+        @include medium-button;
+        @include ellipsis;
+        box-sizing: border-box;
+        padding: $space-medium-large;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+
+        &--name {
+            width: 8rem;
+        }
+
+        &--value {
+            flex: 1;
+        }
 
         &:focus {
             background-color: map-get($light, neutral);
