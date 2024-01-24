@@ -46,7 +46,8 @@ export default function SpecificationInput ({ initial, name }: SpecificationInpu
                 const id = getFieldID()
                 return { id, fieldName, fieldValue }
             }
-        ))
+        )
+    )
 
     return (
         <div className="prop__column specifications@form">

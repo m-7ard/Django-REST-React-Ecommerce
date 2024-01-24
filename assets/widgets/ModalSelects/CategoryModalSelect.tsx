@@ -90,7 +90,7 @@ export default function CategoryModalSelect ({ initial, name }: CategoryModalSel
 
     return (
         <>
-            <input name={name} defaultValue={confirmedValue?.value} type='hidden' />
+            <input name={name} defaultValue={confirmedValue?.value ?? undefined} type='hidden' />
             <div className="select@form" onClick={() => {
                 setOpen(true)
             }}>

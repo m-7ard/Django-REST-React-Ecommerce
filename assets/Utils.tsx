@@ -3,8 +3,8 @@ import { Navigate, createSearchParams, useLocation, useNavigate } from 'react-ro
 import { UserContext, useUserContext } from './Context'
 import { type NormalizedDataValue, type NormalizedDataItem, type UnnormalizedData, type PickerValue, PickerControls } from './Types'
 
-export function useLoginRequired () {
-    const { user, setUser } = useContext(UserContext)
+export function useLoginRequired (): void {
+    const { user } = useUserContext()
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -979,3 +979,4 @@ export const AD_CONDITIONS = [
         label: 'Damaged'
     }
 ]
+

@@ -11,7 +11,7 @@ import { AD_CONDITIONS, AD_RETURN_POLICIES, NormalizedData } from '../../Utils'
 import { SpecificationInputWidget } from '../../widgets/SpecificationInput'
 import { type AdGroup } from '../../Types'
 
-export default function PostAd (): React.ReactNode {
+export default function AdPost (): React.ReactNode {
     const navigate = useNavigate()
     const { adGroups } = useLoaderData() as {
         adGroups: AdGroup[]

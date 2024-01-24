@@ -366,6 +366,10 @@
     border: 1px solid map-get($light, dark);
     border-radius: $radius-medium;
 
+    &--small {
+        max-width: 20rem;
+    }
+
     &__confirm {
         @include base-button;
         @include medium-button;
@@ -445,6 +449,7 @@
         font-size: get-font-size(secondary, large);
         color: map-get($black, dark);
         font-weight: 400;
+        white-space: pre;
     }
 
     &__price {
@@ -496,6 +501,10 @@
         justify-content: center;
         font-weight: 700;
 
+        &--small {
+            @include small-button;
+        }
+
         &--yellow {
             @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
             color: get_theme_attr($gunmetal_theme, neutral, bg);
@@ -540,11 +549,13 @@
 .img-display\@ad-details {
     @include flex-column(0, $space-large);
     overflow: hidden;
+    height: 500px;
 
     &__picker {
         @include flex-row(0, $space-large);
         overflow: auto;
-        order: 2;        
+        order: 2;
+        flex-shrink: 0;
     }
 
     &__pickable {
@@ -565,12 +576,19 @@
     &__current {
         user-select: none;
         display: flex;
+        justify-content: center;
+        align-items: center;
         background-color: map-get($light, light);
         border: 1px solid map-get($light, dark);
+        aspect-ratio: 1 / 1;
+        height: fit-content;
+        max-height: 100%;
 
         img {
             max-width: 100%;
             max-height: 100%;
+            height: fit-content;
+            width: fit-content;
             object-fit: cover;
             overflow: clip;
         }
@@ -578,17 +596,18 @@
 
     @media only screen and (min-width: 500px) {
         @include flex-row(0, $space-large);
-        height: 500px;
+        overflow: hidden;
 
         &__picker {
             @include flex-column(0, $space-large);
+            height: 500px;
             order: 0;
         }
 
         &__current {
             flex: 1;
-            justify-content: center;
-            align-items: center;
+            aspect-ratio: 1 / 1;
+            height: fit-content;
         }
     }
 }
@@ -668,6 +687,10 @@
 
         &--centered {
             align-items: center;
+        }
+
+        &--baselined {
+            align-items: baseline;
         }
     }
 
@@ -1608,5 +1631,11 @@
         &:focus {
             background-color: map-get($light, neutral);
         }
+    }
+}
+
+.ad-specification-select {
+    select {
+        width: 100%;
     }
 }

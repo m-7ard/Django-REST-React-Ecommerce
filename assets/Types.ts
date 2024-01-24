@@ -43,8 +43,9 @@ export interface User {
     [key: string]: any
 }
 
-export interface SimpleAd {
+export interface AdGroupAd {
     title: string
+    specifications: Record<string, string>
     pk: number
 }
 
@@ -66,7 +67,8 @@ export interface BaseAd {
     condition?: 'new' | 'used' | 'almost_new' | 'damaged'
     return_policy: '7_days' | '30_days' | 'warranty'
     specifications_json: Record<string, string>
-    group?: number
+    group: number
+    group_data?: AdGroup
     [key: string]: unknown
 }
 
@@ -119,7 +121,7 @@ export interface SearchAdsInputs {
 
 export interface AdGroup {
     name: string
-    options: Record<string, string>
+    options: Record<string, string[]>
     pk: number
-    ads: SimpleAd[]
+    ads: AdGroupAd[]
 }

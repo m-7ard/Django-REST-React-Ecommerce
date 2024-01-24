@@ -89,12 +89,16 @@ class AdViewSet(viewsets.ModelViewSet):
         query_search = request.query_params.get("q")
         min_price = int(request.query_params.get("min_price", 0))
         max_price = request.query_params.get("max_price")
+        category = request.query_params.get("category")
+
         if query_search:
             ads = ads.filter(title__icontains=query_search)
         if min_price:
             ads = ads.filter(price__gte=min_price)
         if max_price:
             ads = ads.filter(price__lte=max(min_price, max_price))
+        if category:
+            ads = ads.filter(category__pk=category)
 
         return ads
 
@@ -123,7 +127,7 @@ class AdViewSet(viewsets.ModelViewSet):
 class ListUserAds(APIView):
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk) if pk else request.user
-        user_ads = Ad.objects.filter(created_by=user)
+        user_ads = Ad.objects.filter(created_by=user).order_by('-date_created')
         serializer = AdModelSerializer(user_ads, many=True)
         return Response(serializer.data)
 

@@ -45,12 +45,13 @@ class AdGroup(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='ad_groups')
     name = models.CharField(max_length=64)
 
-    def get_options(self):
-        grouped_specification = defaultdict(list)
+    @property
+    def options(self):
+        grouped_specification = defaultdict(set)
 
         for specification in self.ads.values_list('specifications', flat=True):
             for key, value in specification.items():
-                grouped_specification[key].append(value)
+                grouped_specification[key].add(value)
         
         return dict(grouped_specification)
 
@@ -61,6 +62,7 @@ class AdGroup(models.Model):
             )
         
         super().save(*args, **kwargs)
+
 
 class Ad(models.Model):
     RETURN_POLICIES = (

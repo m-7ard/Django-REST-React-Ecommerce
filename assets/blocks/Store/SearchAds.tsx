@@ -81,7 +81,7 @@ export default function SearchAds (): React.ReactNode {
     }
 
     return (
-        <div className="search prop">
+        <div className="search prop pamphlet">
             <div className='search__mobile-header'>
                 <div className='search__mobile-section'>
                     <div className='prop__label is-link'>

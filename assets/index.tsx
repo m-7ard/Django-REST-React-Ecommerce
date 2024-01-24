@@ -13,7 +13,7 @@ import Frontpage, { loader as frontpageLoader } from './blocks/Store/Frontpage'
 import Register from './blocks/Auth/Register'
 import Account, { loader as accountLoader } from './blocks/User/Account'
 import Login from './blocks/Auth/Login'
-import PostAd from './blocks/Ad/PostAd'
+import AdPost from './blocks/Ad/AdPost'
 import AdPostConfirmation from './blocks/Ad/AdPostConfirmation'
 import AdDetails, { loader as adDetailLoader } from './blocks/Ad/AdDetails'
 import AdEdit, { loader as adEditLoader } from './blocks/Ad/AdEdit'
@@ -169,7 +169,7 @@ window.addEventListener('load', () => {
                         index
                         element={
                             <LoginRequired>
-                                <PostAd />
+                                <AdPost />
                             </LoginRequired>
                         }
                         loader={async () => {

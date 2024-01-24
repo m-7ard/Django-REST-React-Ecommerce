@@ -21,6 +21,32 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["pk", "name", "parent"]
 
 
+
+class AdGroupAdSerializer(serializers.ModelSerializer):
+    specifications = serializers.JSONField(read_only=True)
+    
+    class Meta:
+        model = Ad
+        fields = ["title", "specifications", "pk"]
+
+
+class AdGroupSerializer(serializers.ModelSerializer):
+    options = serializers.JSONField(read_only=True)
+    ads = AdGroupAdSerializer(many=True, read_only=True)
+
+    def validate_name(self, value):
+        if value in self.context.get("request").user.ad_groups.values_list(
+            "name", flat=True
+        ):
+            raise ValidationError("Ad Group must have a unqiue name.")
+
+        return value
+
+    class Meta:
+        model = AdGroup
+        fields = ["name", "options", "pk", "ads"]
+
+
 class AdModelSerializer(serializers.ModelSerializer):
     pk = serializers.ReadOnlyField(source="id")
     created_by = PublicUserSerializer(required=False, allow_null=True)
@@ -45,9 +71,11 @@ class AdModelSerializer(serializers.ModelSerializer):
     images = serializers.JSONField(required=True)
     specifications = serializers.ListField(required=False, write_only=True)
     specifications_json = serializers.JSONField(required=False, read_only=True, source='specifications')
+    group_data = AdGroupSerializer(read_only=True, source='group')
 
     def validate_specifications(self, value):
         specifications = {}
+
         for field in value:
             field_object = json.loads(field)
             key, value = field_object
@@ -75,6 +103,16 @@ class AdModelSerializer(serializers.ModelSerializer):
 
         return specifications
 
+    def validate(self, data):
+        group = data['group']
+        if group:
+            specifications = data['specifications']
+            ad_matching_specifications = group.ads.filter(specifications=specifications).first()
+            if ad_matching_specifications and ad_matching_specifications != self.instance:
+                raise ValidationError({'specifications': f"Ad with these specifications already exists in group '{group.name}'"})
+
+        return data
+    
     class Meta:
         model = Ad
         fields = [
@@ -90,6 +128,7 @@ class AdModelSerializer(serializers.ModelSerializer):
             "created_by",
             "images",
             "group",
+            "group_data",
             "specifications",
             "specifications_json",
 
@@ -226,28 +265,3 @@ class CartSerializer(serializers.ModelSerializer):
         model = Cart
         fields = ["items"]
 
-
-class SimpleAdModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ad
-        fields = ["title", "pk"]
-
-
-class AdGroupSerializer(serializers.ModelSerializer):
-    options = serializers.SerializerMethodField()
-    ads = SimpleAdModelSerializer(many=True)
-
-    def get_options(self, obj):
-        return obj.get_options()
-
-    def validate_name(self, value):
-        if value in self.context.get("request").user.ad_groups.values_list(
-            "name", flat=True
-        ):
-            raise ValidationError("Ad Group must have a unqiue name.")
-
-        return value
-
-    class Meta:
-        model = AdGroup
-        fields = ["name", "options", "pk", "ads"]

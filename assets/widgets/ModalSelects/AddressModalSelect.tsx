@@ -27,7 +27,7 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
 
     return (
         <>
-            <input name={name} defaultValue={confirmedValue?.pk} type='hidden' />
+            <input name={name} defaultValue={confirmedValue?.pk ?? undefined} type='hidden' />
             <div className="select@form" onClick={() => {
                 setOpen(true)
             }}>
