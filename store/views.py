@@ -87,18 +87,21 @@ class AdViewSet(viewsets.ModelViewSet):
     def search(self, request):
         ads = Ad.objects.all()
         query_search = request.query_params.get("q")
-        min_price = int(request.query_params.get("min_price", 0))
+        min_price = request.query_params.get("min_price")
         max_price = request.query_params.get("max_price")
         category = request.query_params.get("category")
 
-        if query_search:
+        if query_search is not None:
             ads = ads.filter(title__icontains=query_search)
-        if min_price:
-            ads = ads.filter(price__gte=min_price)
-        if max_price:
-            ads = ads.filter(price__lte=max(min_price, max_price))
-        if category:
-            ads = ads.filter(category__pk=category)
+        if min_price is not None:
+            if max_price is not None and int(min_price) > int(max_price):
+                min_price, max_price = max_price, min_price
+
+            ads = ads.filter(price__gte=int(min_price))
+        if max_price is not None:
+            ads = ads.filter(price__lte=int(max_price))
+        if category is not None:
+            ads = ads.filter(category__pk=int(category))
 
         return ads
 

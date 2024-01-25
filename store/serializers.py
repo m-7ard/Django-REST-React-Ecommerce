@@ -104,7 +104,7 @@ class AdModelSerializer(serializers.ModelSerializer):
         return specifications
 
     def validate(self, data):
-        group = data['group']
+        group = data.get('group')
         if group:
             specifications = data['specifications']
             ad_matching_specifications = group.ads.filter(specifications=specifications).first()

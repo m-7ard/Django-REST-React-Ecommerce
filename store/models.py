@@ -142,6 +142,9 @@ class Ad(models.Model):
 
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['-date_created']
+
 
 class Cart(models.Model):
     KINDS = (
