@@ -497,21 +497,29 @@
 
     &__button {
         @include base-button;
-        @include large-button;
         justify-content: center;
-        font-weight: 700;
 
-        &--small {
+        &--specifications {
             @include small-button;
+            @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+            font-weight: 500;
         }
 
-        &--yellow {
+        &--purchase {
+            @include large-button;
             @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
             color: get_theme_attr($gunmetal_theme, neutral, bg);
+            font-weight: 700;
+
+            &.is-disabled {
+                @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+            }
         }
 
-        &--black {
+        &--bookmark {
+            @include large-button;
             @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+            font-weight: 700;
         }
     }
 

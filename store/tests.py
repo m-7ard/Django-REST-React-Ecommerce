@@ -4,6 +4,7 @@ import json
 import os
 
 from rest_framework.test import APITestCase
+from rest_framework.test import APIClient
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
@@ -472,3 +473,37 @@ class AdSearchTest(APITestCase, TestUsersMixin):
             response_1.data['results'],
             "If min price is bigger than the max price, it should flip the values.",
         )
+
+
+class CartTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
+    def setUp(self):
+        TestBankAccountsMixin.setUp(self)
+        TestAdMixin.setUp(self)
+    
+    def test_cart_exists(self):
+        self.assertIsNotNone(self.test_user.cart)
+
+    def test_unauthenticated_add_to_cart(self):
+        self.client.get(f'/api/user/')
+        response_1 = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
+        self.assertEqual(response_1.status_code, 201, "Failed to add to cart for unauthenticated user.")
+        response_2 = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
+        self.assertEqual(response_2.status_code, 200, "Adding ad to cart that is already in cart should just return 200 OK.")
+
+    def test_valid_authenticated_add_to_cart(self):
+        self.client.login(email='test_user@mail.com', password='userword')
+        response_1 = self.client.get(f'/api/ads/{self.other_user_ad.pk}/add_to_cart/', {'amount': 1})
+        self.assertEqual(response_1.status_code, 201, "Failed to add to cart for unauthenticated user.")
+        response_2 = self.client.get(f'/api/ads/{self.other_user_ad.pk}/add_to_cart/', {'amount': 1})
+        self.assertEqual(response_2.status_code, 200, "Adding ad to cart that is already in cart should just return 200 OK.")
+
+    def test_invalid_user_authenticated_add_to_cart(self):
+        self.client.login(email='test_user@mail.com', password='userword')
+        response = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
+        self.assertEqual(response.status_code, 403, "Users must not be able to add their own ads to cart.")
+
+    def test_invalid_amount_authenticated_add_to_cart(self):
+        self.client.login(email='test_user@mail.com', password='userword')
+        response = self.client.get(f'/api/ads/{self.other_user.pk}/add_to_cart/', {'amount': 1000000000000000})
+        self.assertEqual(response.status_code, 400, "Users must not be able to add bigger amount than available.")
+

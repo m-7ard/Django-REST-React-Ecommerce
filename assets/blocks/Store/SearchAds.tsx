@@ -1,5 +1,5 @@
 import React from 'react'
-import { type LoaderFunctionArgs, useLoaderData, useSearchParams } from 'react-router-dom'
+import { type LoaderFunctionArgs, useLoaderData, useSearchParams, Link } from 'react-router-dom'
 import { type BaseAd } from '../../Types'
 import { addDotsToNumber } from '../../Utils'
 import SearchFilterMenu from '../../elements/SearchFilterMenu'
@@ -128,15 +128,15 @@ export default function SearchAds (): React.ReactNode {
                     adSearch.results.map((ad, i) => (
                         <div className="ad@search prop prop--vertical" key={i}>
                             <div className="ad@search__main">
-                                <div className="ad@search__image">
+                                <Link className="ad@search__image" to={`/ad/${ad.pk}/`}>
                                     <img src={`/media/${ad.images?.[0]}`} />
-                                </div>
+                                </Link>
                                 <div className="prop__column grow">
                                     <div className="prop__pairing">
                                         <div>
-                                            <div className="ad@search__title">
+                                            <Link className="ad@search__title" to={`/ad/${ad.pk}/`}>
                                                 {ad.title}
-                                            </div>
+                                            </Link>
                                             {
                                                 ad.condition != null && (
                                                     <div className="ad@search__subtitle">

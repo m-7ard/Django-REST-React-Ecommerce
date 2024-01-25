@@ -54,13 +54,16 @@ class AdViewSet(viewsets.ModelViewSet):
     @action(methods=["POST"], detail=True)
     def boost(self, request, pk=None):
         ad = get_object_or_404(request.user.ads.all(), pk=pk)
-        payer_bank_account = get_object_or_404(request.user.bank_accounts.all(), pk=request.data.get('payer_bank_account'))
+        payer_bank_account = get_object_or_404(
+            request.user.bank_accounts.all(), pk=request.data.get("payer_bank_account")
+        )
         serializer = AdBoostSerializer(
-            data=dict(self.request.data), context={
+            data=dict(self.request.data),
+            context={
                 "request": self.request,
-                "ad": ad, 
-                "payer_bank_account": payer_bank_account
-            }
+                "ad": ad,
+                "payer_bank_account": payer_bank_account,
+            },
         )
         serializer.is_valid(raise_exception=True)
         boosts = serializer.data["boosts"]
@@ -117,11 +120,21 @@ class AdViewSet(viewsets.ModelViewSet):
             cart = visitor_session.cart
 
         ad = self.get_object()
-        
-        item = cart.items.get(ad=ad)
-        return Response(
-            CartItemSerializer(item).data, status=status.HTTP_200_OK
-        )
+        if request.user.is_authenticated and ad.created_by == request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        item = cart.items.filter(ad=ad).first()
+        if not item:
+            amount = int(request.query_params.get("amount"))
+            if amount > ad.available or amount < 1:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            item = CartItem.objects.create(ad=ad, cart=cart, amount=amount)
+            return Response(
+                CartItemSerializer(item).data, status=status.HTTP_201_CREATED
+            )
+
+        return Response(CartItemSerializer(item).data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -130,7 +143,7 @@ class AdViewSet(viewsets.ModelViewSet):
 class ListUserAds(APIView):
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk) if pk else request.user
-        user_ads = Ad.objects.filter(created_by=user).order_by('-date_created')
+        user_ads = Ad.objects.filter(created_by=user).order_by("-date_created")
         serializer = AdModelSerializer(user_ads, many=True)
         return Response(serializer.data)
 
@@ -219,20 +232,20 @@ class ConfirmCheckoutAPIView(APIView):
             item_errors = {}
 
             if item["pk"] not in cart_items_pks:
-                item_errors['item'] = f'"{item["ad"]["title"]}" is no longer in cart.'
-                
+                item_errors["item"] = f'"{item["ad"]["title"]}" is no longer in cart.'
+
                 errors[item["pk"]] = {
                     "changes": changes,
                     "item_errors": item_errors,
                 }
                 continue
-            
+
             ad_data = CartAdSerializer(Ad.objects.get(pk=item["ad"]["pk"])).data
             if item["amount"] > ad_data["available"]:
-                item_errors['amount'] = f'Amount cannot be greater than available.'
-            
+                item_errors["amount"] = f"Amount cannot be greater than available."
+
             if item["amount"] <= 0:
-                item_errors['amount'] = f'Invalid amount.'
+                item_errors["amount"] = f"Invalid amount."
 
             for field in fields_to_compare:
                 if item["ad"][field] != ad_data[field]:
@@ -247,14 +260,14 @@ class ConfirmCheckoutAPIView(APIView):
         if errors:
             return Response(
                 {
-                  "items": CartItemSerializer(cart.items.all(), many=True).data, 
-                  "errors": errors
+                    "items": CartItemSerializer(cart.items.all(), many=True).data,
+                    "errors": errors,
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         return Response(status=status.HTTP_200_OK)
-    
+
 
 class AdGroupViewSet(viewsets.ModelViewSet):
     permission_classes = [
@@ -264,8 +277,6 @@ class AdGroupViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.request.user.ad_groups.all()
-    
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
-    

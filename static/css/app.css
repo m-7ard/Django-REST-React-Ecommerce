@@ -807,17 +807,9 @@
      -moz-user-select: none;
           user-select: none;
   flex-shrink: 0;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-  display: flex;
-  flex-direction: row;
-  padding: 0.75rem;
-  gap: 0.75rem;
-  font-size: 1rem;
-  border-radius: 4px;
   justify-content: center;
-  font-weight: 700;
 }
-.ad-details__button--small {
+.ad-details__button--specifications {
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
   display: flex;
   flex-direction: row;
@@ -825,21 +817,52 @@
   gap: 0.35rem;
   font-size: 0.75rem;
   border-radius: 2px;
+  color: #F2F4F3;
+  background-color: #22333B;
+  font-weight: 500;
 }
-.ad-details__button--yellow {
+.ad-details__button--specifications:hover {
+  color: #F2F4F3;
+  background-color: #1C2B31;
+}
+.ad-details__button--purchase {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: row;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
   color: #0A0908;
   background-color: #AFF128;
   color: #22333B;
+  font-weight: 700;
 }
-.ad-details__button--yellow:hover {
+.ad-details__button--purchase:hover {
   color: #0A0908;
   background-color: #F1CF28;
 }
-.ad-details__button--black {
+.ad-details__button--purchase.is-disabled {
   color: #F2F4F3;
   background-color: #22333B;
 }
-.ad-details__button--black:hover {
+.ad-details__button--purchase.is-disabled:hover {
+  color: #F2F4F3;
+  background-color: #1C2B31;
+}
+.ad-details__button--bookmark {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: row;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  color: #F2F4F3;
+  background-color: #22333B;
+  font-weight: 700;
+}
+.ad-details__button--bookmark:hover {
   color: #F2F4F3;
   background-color: #1C2B31;
 }

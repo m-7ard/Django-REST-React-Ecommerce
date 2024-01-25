@@ -17,7 +17,7 @@ export interface SearchAdsContextInterface {
 }
 
 export interface CartContextInterface {
-    setCart: (data: Cart) => void
+    setCart: React.Dispatch<React.SetStateAction<Cart>>
     cart: Cart
 }
 

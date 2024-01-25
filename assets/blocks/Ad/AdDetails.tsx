@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import { getAdData } from '../../Fetchers'
 import { useCartContext, useCategoryContext } from '../../Context'
-import { NormalizedData, addDotsToNumber, normalizeData } from '../../Utils'
-import { type AdGroup, type BaseAd } from '../../Types'
+import { NormalizedData, addDotsToNumber } from '../../Utils'
+import { type Cart, type AdGroup, type BaseAd } from '../../Types'
 import Prompt from '../../elements/Prompt'
 
 export async function loader ({ params }: { params: { pk: number } }): Promise<BaseAd> {
@@ -11,20 +11,64 @@ export async function loader ({ params }: { params: { pk: number } }): Promise<B
     return ad
 }
 
-function AmountController ({ ad }: { ad: BaseAd }): React.ReactNode {
+function AdPurchaseControl ({ ad, cart, setCart }: {
+    ad: BaseAd
+    cart: Cart
+    setCart: React.Dispatch<React.SetStateAction<Cart>>
+}): React.ReactNode {
     const soldOut = ad.available === 0
-    const [amount, setAmount] = useState(soldOut ? 0 : 1)
+    const amountInput = useRef<HTMLInputElement | null>(null)
+    const addToCart = async (): Promise<void> => {
+        if (amountInput.current == null) {
+            throw Error('Amount Input not set')
+        }
+
+        if (soldOut) {
+            return
+        }
+
+        const response = await fetch(`/api/ads/${ad.pk}/add_to_cart/?amount=${amountInput.current.value}`)
+
+        if (!response.ok) {
+            return
+        }
+
+        const item = await response.json()
+        setCart((previous) => {
+            return { ...previous, items: [...previous.items, item] }
+        })
+    }
 
     return (
-        <div className='prop__row prop__row--centered'>
-            <div className='prop__label'>
-                Amount
+        <>
+            <div className='prop__row prop__row--centered'>
+                <div className='prop__label'>
+                    Amount
+                </div>
+                <input defaultValue={soldOut ? 0 : 1} max={ad.available} className='ad-details__amount' type='number' ref={amountInput} />
+                <div className='prop__detail'>
+                    {soldOut ? 'Sold Out' : `${ad.available} Available`}
+                </div>
             </div>
-            <input defaultValue={amount} max={ad.available} className='ad-details__amount' type='number' />
-            <div className='prop__detail'>
-                {soldOut ? 'Sold Out' : `${ad.available} Available`}
+            <div className="ad-details__button ad-details__button--purchase">
+                Buy Now
             </div>
-        </div>
+            {
+                cart.items.find((item) => item.ad.pk === ad.pk) == null
+                    ? (
+                        <div className="ad-details__button ad-details__button--purchase" onClick={() => {
+                            void addToCart()
+                        }}>
+                            Add to Cart
+                        </div>
+                    )
+                    : (
+                        <Link className="ad-details__button ad-details__button--purchase is-disabled" to={'/cart/'}>
+                            See in Cart
+                        </Link>
+                    )
+            }
+        </>
     )
 }
 
@@ -94,7 +138,7 @@ function SpecificationsSelect ({ groupData, initial }: {
 
     return (
         <>
-            <div className='ad-details__button ad-details__button--small ad-details__button--black' onClick={() => {
+            <div className='ad-details__button ad-details__button--specifications' onClick={() => {
                 setOpen(true)
             }}>
                 Configure Specifications
@@ -208,15 +252,6 @@ export default function AdDetails (): React.ReactNode {
         parentKey: 'parent'
     })
     const categoryPkRoute = NormalizedCategories.getRoute(ad.category)
-    const addToCart = async (): Promise<void> => {
-        const response = await fetch(`/api/ads/${ad.pk}/add_to_cart/`)
-        if (response.status === 404) {
-            return
-        }
-
-        const item = await response.json()
-        setCart({ items: [...cart.items, item] })
-    }
 
     const ImageDisplay = (): React.ReactNode => {
         const [current, setCurrent] = useState(ad.images[0])
@@ -348,26 +383,8 @@ export default function AdDetails (): React.ReactNode {
                         )
                 }
                 <hr className="app__divider" />
-                <AmountController ad={ad} />
-                <div className="ad-details__button ad-details__button--yellow">
-                    Buy Now
-                </div>
-                {
-                    cart.items.find((item) => item.ad.pk === ad.pk) == null
-                        ? (
-                            <div className="ad-details__button ad-details__button--yellow" onClick={() => {
-                                void addToCart()
-                            }}>
-                                Add to Cart
-                            </div>
-                        )
-                        : (
-                            <div className="ad-details__button ad-details__button--black">
-                                See in Cart
-                            </div>
-                        )
-                }
-                <div className="ad-details__button ad-details__button--black">
+                <AdPurchaseControl ad={ad} cart={cart} setCart={setCart} />
+                <div className="ad-details__button ad-details__button--bookmark">
                     Bookmark
                 </div>
             </div>
