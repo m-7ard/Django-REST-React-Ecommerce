@@ -24,6 +24,9 @@ urlpatterns = [
     path("api/list_user_ads/<int:pk>/", views.ListUserAds.as_view()),
     path("api/list_user_ads/", views.ListUserAds.as_view(), kwargs={"pk": None}),
     path("api/confirm_checkout/", views.ConfirmCheckoutAPIView.as_view()),
+    path("api/list_user_bookmarks/<int:pk>", views.ListUserBookmarks.as_view()),
+    path("api/list_user_bookmarks/", views.ListUserBookmarks.as_view()),
+    
 ]
 
 router = routers.DefaultRouter()

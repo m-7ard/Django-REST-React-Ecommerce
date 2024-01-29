@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { Outlet, ScrollRestoration, useLoaderData, useLocation } from 'react-router-dom'
 import AppHeader from './blocks/Store/AppHeader'
 import { getCategoryData } from './Fetchers'
@@ -34,10 +34,16 @@ export default function App (): React.ReactNode {
         }
 
         void setRequestUser()
+        document.documentElement.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'instant' // Optional if you want to skip the scrolling animation
+        })
     }, [location, user?.is_authenticated])
 
     return (user != null && categoryData != null && cart != null) && (
         <>
+            <ScrollRestoration />
             <div className="app">
                 <DndProvider backend={HTML5Backend}>
                     <CategoryContext.Provider value={categoryData}>
@@ -72,7 +78,6 @@ export default function App (): React.ReactNode {
                                             </div>
                                         ))
                                     }
-
                                 </div>
                             </CartContext.Provider>
                         </UserContext.Provider>

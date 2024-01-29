@@ -74,6 +74,7 @@ class FullUserSerializer(serializers.ModelSerializer):
     default_address = serializers.PrimaryKeyRelatedField(read_only=True)
     avatar = serializers.CharField(source="avatar.url")
     cart = serializers.SerializerMethodField()
+    bookmarks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     def get_cart(self, instance):
         from store.serializers import CartSerializer
@@ -92,6 +93,7 @@ class FullUserSerializer(serializers.ModelSerializer):
             "default_bank",
             "default_address",
             "cart",
+            "bookmarks",
         ]
 
 

@@ -1,8 +1,9 @@
-import React, { createContext, useContext } from 'react'
+import type React from 'react'
+import { createContext, useContext } from 'react'
 import { type User, type CategoryData, type Category, type SearchAdsInputs, type Cart } from './Types'
 
 interface UserContextInterface {
-    setUser: (data: User) => void
+    setUser: React.Dispatch<React.SetStateAction<User>>
     user: User
 }
 

@@ -31,6 +31,7 @@ import AdBoost from './blocks/Ad/AdBoost'
 import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
 import Cart from './blocks/Store/Cart'
 import AdGroups from './blocks/User/AdGroups'
+import Bookmarks, { loader as bookmarkLoader } from './blocks/User/Bookmarks'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -161,6 +162,15 @@ window.addEventListener('load', () => {
                         const bankAccounts = await getRequestUserBankAccounts()
                         return bankAccounts
                     }}
+                />
+                <Route
+                    path="bookmarks/"
+                    element={
+                        <LoginRequired>
+                            <Bookmarks />
+                        </LoginRequired>
+                    }
+                    loader={bookmarkLoader}
                 />
                 <Route
                     path="post-ad/"

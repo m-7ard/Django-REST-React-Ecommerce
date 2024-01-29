@@ -63,6 +63,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     default_address = models.OneToOneField(
         "Address", on_delete=models.RESTRICT, null=True
     )
+    bookmarks = models.ManyToManyField('store.Ad', related_name='bookmarks')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]

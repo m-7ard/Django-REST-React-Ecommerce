@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react'
 import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import { getAdData } from '../../Fetchers'
-import { useCartContext, useCategoryContext } from '../../Context'
-import { NormalizedData, addDotsToNumber } from '../../Utils'
+import { useCartContext, useCategoryContext, useUserContext } from '../../Context'
+import { NormalizedData, getCookie } from '../../Utils'
 import { type Cart, type AdGroup, type BaseAd } from '../../Types'
 import Prompt from '../../elements/Prompt'
 
@@ -18,6 +18,7 @@ function AdPurchaseControl ({ ad, cart, setCart }: {
 }): React.ReactNode {
     const soldOut = ad.available === 0
     const amountInput = useRef<HTMLInputElement | null>(null)
+    const { user } = useUserContext()
     const addToCart = async (): Promise<void> => {
         if (amountInput.current == null) {
             throw Error('Amount Input not set')
@@ -39,7 +40,7 @@ function AdPurchaseControl ({ ad, cart, setCart }: {
         })
     }
 
-    return (
+    return !(user.pk === ad.created_by.pk) && (
         <>
             <div className='prop__row prop__row--centered'>
                 <div className='prop__label'>
@@ -77,12 +78,7 @@ function SpecificationsSelect ({ groupData, initial }: {
     initial: Record<string, string>
 }): React.ReactNode {
     const navigate = useNavigate()
-    const normalizedInitial = Object.entries(initial).reduce<
-    Array<{ fieldName: string, fieldValue: string }>
-    >((acc, [fieldName, fieldValue]) => {
-        acc.push({ fieldName, fieldValue })
-        return acc
-    }, [])
+    const normalizedInitial = Object.entries(initial).map(([fieldName, fieldValue]) => ({ fieldName, fieldValue }))
     const [selected, setSelected] = useState(normalizedInitial)
 
     // Ads that contain at least all the selected fields
@@ -241,10 +237,35 @@ function SpecificationsSelect ({ groupData, initial }: {
     )
 }
 
+function ImageDisplay ({ ad }: { ad: BaseAd }): React.ReactNode {
+    const [current, setCurrent] = useState(ad.images[0])
+
+    return (
+        <div className='img-display@ad-details'>
+            <div className='img-display@ad-details__picker'>
+                {
+                    ad.images.map((filename, i) => (
+                        <div className='img-display@ad-details__pickable' key={i} onMouseEnter={() => {
+                            setCurrent(filename)
+                        }}>
+                            <img src={`/media/${filename}`} alt="pickable" />
+                        </div>
+                    ))
+                }
+            </div>
+            <div className='img-display@ad-details__current'>
+                <img src={`/media/${current}`} alt="current" />
+            </div>
+        </div>
+    )
+}
+
 export default function AdDetails (): React.ReactNode {
     const ad = useLoaderData() as BaseAd
+    const { user, setUser } = useUserContext()
     const { allCategories } = useCategoryContext()
     const { cart, setCart } = useCartContext()
+    const navigate = useNavigate()
     const NormalizedCategories = new NormalizedData({
         data: allCategories,
         valueKey: 'pk',
@@ -253,27 +274,22 @@ export default function AdDetails (): React.ReactNode {
     })
     const categoryPkRoute = NormalizedCategories.getRoute(ad.category)
 
-    const ImageDisplay = (): React.ReactNode => {
-        const [current, setCurrent] = useState(ad.images[0])
-
-        return (
-            <div className='img-display@ad-details'>
-                <div className='img-display@ad-details__picker'>
-                    {
-                        ad.images.map((filename, i) => (
-                            <div className='img-display@ad-details__pickable' key={i} onMouseEnter={() => {
-                                setCurrent(filename)
-                            }}>
-                                <img src={`/media/${filename}`} alt="pickable" />
-                            </div>
-                        ))
-                    }
-                </div>
-                <div className='img-display@ad-details__current'>
-                    <img src={`/media/${current}`} alt="current" />
-                </div>
-            </div>
-        )
+    const addToBookmarks = async (): Promise<void> => {
+        const csrfToken = getCookie('csrftoken')
+        const response = await fetch(`/api/ads/${ad.pk}/add_to_bookmarks/`, {
+            method: 'POST',
+            ...(csrfToken != null && {
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+        })
+        if (response.ok) {
+            setUser((previous) => ({ ...previous, bookmarks: [...user.bookmarks, ad.pk] }))
+        }
+        else {
+            navigate('/login/')
+        }
     }
 
     return (
@@ -289,7 +305,7 @@ export default function AdDetails (): React.ReactNode {
                 </div>
             </div>
             <div className="ad-details__imagebox">
-                <ImageDisplay />
+                <ImageDisplay ad={ad} />
             </div>
             <div className="ad-details__main">
                 <div className="ad-details__main-header">
@@ -297,7 +313,7 @@ export default function AdDetails (): React.ReactNode {
                         {ad.title}
                     </div>
                     <div className="ad-details__price">
-                        {addDotsToNumber(ad.price)}
+                        {ad.price}
                         $
                     </div>
                 </div>
@@ -384,9 +400,21 @@ export default function AdDetails (): React.ReactNode {
                 }
                 <hr className="app__divider" />
                 <AdPurchaseControl ad={ad} cart={cart} setCart={setCart} />
-                <div className="ad-details__button ad-details__button--bookmark">
-                    Bookmark
-                </div>
+                {
+                    (user.bookmarks as number[])?.includes(ad.pk)
+                        ? (
+                            <Link to={'/bookmarks/'} className="ad-details__button ad-details__button--bookmark">
+                                See In Bookmarks
+                            </Link>
+                        )
+                        : (
+                            <div className="ad-details__button ad-details__button--bookmark" onMouseUp={() => {
+                                void addToBookmarks()
+                            }}>
+                                Add To Bookmarks
+                            </div>
+                        )
+                }
             </div>
             <div className="ad-details__footer">
                 <div className="ad-details__label">

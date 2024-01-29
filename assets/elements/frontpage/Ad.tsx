@@ -1,6 +1,5 @@
 import React, { type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { addDotsToNumber } from '../../Utils'
 import { type BaseAd } from '../../Types'
 
 interface AdProps {
@@ -23,7 +22,7 @@ export default function Ad ({ isHighlight, data }: AdProps): ReactNode {
                     {title}
                 </div>
                 <div className="ad@frontpage__pricetag">
-                    {addDotsToNumber(price)}
+                    {price}
                     €
                 </div>
             </Link>
@@ -41,7 +40,7 @@ export default function Ad ({ isHighlight, data }: AdProps): ReactNode {
                         {title}
                     </div>
                     <div className="ad@frontpage__price">
-                        {addDotsToNumber(price)}
+                        {price}
                         <span data-role='price-symbol'>
                             €
                         </span>

@@ -11,6 +11,7 @@ from django.contrib.sessions.models import Session
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -27,8 +28,9 @@ from .serializers import (
     CartItemSerializer,
     CartAdSerializer,
     AdGroupSerializer,
+    PublicAdModelSerializer,
 )
-from .paginators import AdSearchPaginator
+from .paginators import AdPaginator
 from users.models import CustomUser, FeeTransaction
 from commons import paginate
 
@@ -49,7 +51,7 @@ class AdViewSet(viewsets.ModelViewSet):
     ]
     queryset = Ad.objects.all()
     serializer_class = AdModelSerializer
-    pagination_class = AdSearchPaginator
+    pagination_class = AdPaginator
 
     @action(methods=["POST"], detail=True)
     def boost(self, request, pk=None):
@@ -136,6 +138,44 @@ class AdViewSet(viewsets.ModelViewSet):
 
         return Response(CartItemSerializer(item).data, status=status.HTTP_200_OK)
 
+    @action(methods=["POST"], detail=True)
+    def remove_from_cart(self, request, pk=None):
+        if request.user.is_authenticated:
+            user = request.user
+            cart = user.cart
+        else:
+            visitor_session = Session.objects.get(
+                session_key=request.session.session_key
+            )
+            cart = visitor_session.cart
+
+        ad = self.get_object()
+        item = cart.items.filter(ad=ad).first()
+        if not item:
+            return Response(status=status.HTTP_200_OK)
+
+        item.delete()
+        return Response(status=status.HTTP_200_OK)
+
+    @action(methods=["POST"], detail=True)
+    def add_to_bookmarks(self, request, pk):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        ad = self.get_object()
+        request.user.bookmarks.add(ad)
+        return Response(status=status.HTTP_200_OK)
+    
+
+    @action(methods=["POST"], detail=True)
+    def remove_from_bookmarks(self, request, pk):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        ad = self.get_object()
+        request.user.bookmarks.remove(ad)
+        return Response(status=status.HTTP_200_OK)
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
@@ -146,8 +186,25 @@ class ListUserAds(APIView):
         user_ads = Ad.objects.filter(created_by=user).order_by("-date_created")
         serializer = AdModelSerializer(user_ads, many=True)
         return Response(serializer.data)
+    
 
+class ListUserBookmarks(ListAPIView):
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+    ]
+    pagination_class = AdPaginator
+    serializer_class = PublicAdModelSerializer
 
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        if pk:
+            user = get_object_or_404(CustomUser, pk=pk)
+        else:
+            user = self.request.user
+
+        return user.bookmarks.all()
+    
+        
 class AdImageFieldUploadView(APIView):
     permission_classes = [IsAuthenticated]
 

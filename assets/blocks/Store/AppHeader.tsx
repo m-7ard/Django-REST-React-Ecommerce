@@ -76,7 +76,7 @@ export default function AppHeader (): React.ReactNode {
                                                     <Link to={'/account/'} data-role="close"> Profile </Link>
                                                     <Link to={'/ad-groups/'} data-role='close'> Ad Groups </Link>
                                                     <div data-role="close"> Orders </div>
-                                                    <div data-role="close"> Bookmarks </div>
+                                                    <Link to={'/bookmarks/'} data-role="close"> Bookmarks </Link>
                                                     <Link to={'/settings/'} data-role="close"> Settings </Link>
                                                     <Link data-role="close" to={'/funds/'}> Funds <span data-role='funds'>{`(${user.funds}€)`}</span> </Link>
                                                     <div data-role="close"> Bids </div>

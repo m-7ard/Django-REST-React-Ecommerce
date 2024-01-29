@@ -1,4 +1,4 @@
-import React, { type Context, createContext, useContext, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { useCartContext } from '../../Context'
 import { Link } from 'react-router-dom'
 import { getCookie } from '../../Utils'
@@ -17,10 +17,11 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
         setItemAmount: Dispatch<SetStateAction<Record<number, number>>>
         selected: number[]
         setSelected: Dispatch<SetStateAction<number[]>>
-        errors: errorsInterface
+        errors?: errorsInterface
     }
 }): React.ReactNode {
     const { setItemAmount, selected, setSelected, errors } = cartData
+    const { setCart } = useCartContext()
     const fieldErrors = errors?.[pk]
     const changeErrors = fieldErrors != null && Object.entries(fieldErrors.changes).length !== 0 && (
         <>
@@ -43,6 +44,23 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
             </div>
         </>
     )
+
+    const removeFromCart = async (ad: BaseAd): Promise<void> => {
+        const csrfToken = getCookie('csrftoken')
+        const headers: HeadersInit = {}
+        if (csrfToken != null) {
+            headers['X-CSRFToken'] = csrfToken
+        }
+
+        const response = await fetch(`/api/ads/${ad.pk}/remove_from_cart/`, {
+            method: 'POST',
+            headers
+        })
+        if (response.ok) {
+            setCart((previous) => ({ ...previous, items: previous.items.filter((item) => item.pk !== pk) }))
+        }
+    }
+
     const itemErrors = fieldErrors != null && Object.entries(fieldErrors.item_errors).length !== 0 && (
         <>
             <hr className='app__divider' />
@@ -136,7 +154,9 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
                     <div className='prop__detail is-link'>
                         Bookmark
                     </div>
-                    <div className='prop__detail is-link'>
+                    <div className='prop__detail is-link' onClick={() =>
+                        void removeFromCart(ad)
+                    }>
                         Remove
                     </div>
                 </div>
@@ -148,7 +168,7 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
 }
 
 export default function Cart (): React.ReactNode {
-    const { cart } = useCartContext()
+    const { cart, setCart } = useCartContext()
     const [selected, setSelected] = useState(cart.items.map(({ pk }) => pk))
     const [itemAmount, setItemAmount] = useState(cart.items.reduce<Record<number, number>>(
         (acc, { pk, amount }) => {
@@ -156,13 +176,12 @@ export default function Cart (): React.ReactNode {
             return acc
         }, {}
     ))
-    const [errors, setErrors] = useState<errorsInterface | null>(null)
-    const [items, setItems] = useState(cart.items)
+    const [errors, setErrors] = useState<errorsInterface | undefined>()
     const cartData = { setItemAmount, selected, setSelected, itemAmount, errors }
 
     const confirmCheckout = async (): Promise<void> => {
         const formData = new FormData()
-        const itemData = items.map((item) => {
+        const itemData = cart.items.map((item) => {
             item.amount = itemAmount[item.pk]
             return item
         })
@@ -180,7 +199,7 @@ export default function Cart (): React.ReactNode {
 
         if (!response.ok) {
             const data = await response.json()
-            setItems(data.items)
+            setCart((previous) => ({ ...previous, items: data.items }))
             setErrors(data.errors)
         }
     }
@@ -195,7 +214,7 @@ export default function Cart (): React.ReactNode {
             <hr className="app__divider" />
             <div className="prop__body">
                 {
-                    items.map(({ ad, amount, pk }, i) => <CartItemComponent ad={ad} amount={amount} pk={pk} key={i} cartData={cartData}/>)
+                    cart.items.map(({ ad, amount, pk }, i) => <CartItemComponent ad={ad} amount={amount} pk={pk} key={i} cartData={cartData}/>)
                 }
             </div>
             <hr className="app__divider" />
@@ -204,7 +223,7 @@ export default function Cart (): React.ReactNode {
                     Cost
                 </div>
                 <div className='prop__info'>
-                    {items.reduce((acc, { pk, ad }) => selected.includes(pk) ? acc + (ad.price * itemAmount[pk]) : acc, 0)}
+                    {cart.items.reduce((acc, { pk, ad }) => selected.includes(pk) ? acc + (ad.price * itemAmount[pk]) : acc, 0)}
                     €
                 </div>
             </div>
@@ -213,7 +232,7 @@ export default function Cart (): React.ReactNode {
                     Shipping
                 </div>
                 <div className='prop__detail'>
-                    {items.reduce((acc, { pk, ad }) => selected.includes(pk) ? acc + ad.shipping : acc, 0)}
+                    {cart.items.reduce((acc, { pk, ad }) => selected.includes(pk) ? acc + ad.shipping : acc, 0)}
                     €
                 </div>
             </div>

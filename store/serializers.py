@@ -21,10 +21,9 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["pk", "name", "parent"]
 
 
-
 class AdGroupAdSerializer(serializers.ModelSerializer):
     specifications = serializers.JSONField(read_only=True)
-    
+
     class Meta:
         model = Ad
         fields = ["title", "specifications", "pk"]
@@ -47,6 +46,65 @@ class AdGroupSerializer(serializers.ModelSerializer):
         fields = ["name", "options", "pk", "ads"]
 
 
+class PublicAdModelSerializer(serializers.ModelSerializer):
+    pk = serializers.ReadOnlyField(source="id")
+    created_by = PublicUserSerializer(allow_null=True)
+    date_created = serializers.DateTimeField(format="%Y.%m.%d", read_only=True)
+    latest_push_date = serializers.DateTimeField(
+        format="%Y.%m.%d %H:%M:%S", read_only=True
+    )
+    expiry_date = serializers.DateTimeField(format="%Y.%m.%d", read_only=True)
+    condition = serializers.CharField(source="get_condition_display")
+    return_policy = serializers.CharField(source="get_return_policy_display")
+    highlight = serializers.SerializerMethodField()
+    top = serializers.SerializerMethodField()
+    gallery = serializers.SerializerMethodField()
+    images = serializers.JSONField()
+    specifications = serializers.ListField()
+    group_data = AdGroupSerializer(source="group")
+
+    def create(self, validated_data):
+        raise ValidationError("Read-only serializer")
+
+    def update(self, instance, validated_data):
+        raise ValidationError("Read-only serializer")
+
+    def get_highlight(self, obj):
+        return obj.is_highlight()
+
+    def get_top(self, obj):
+        return obj.is_top()
+
+    def get_gallery(self, obj):
+        return obj.is_gallery()
+
+    class Meta:
+        model = Ad
+        fields = [
+            "title",
+            "description",
+            "price",
+            "shipping",
+            "return_policy",
+            "condition",
+            "available",
+            "unlisted",
+            "category",
+            "created_by",
+            "images",
+            "group",
+            "group_data",
+            "specifications",
+            "date_created",
+            "expiry_date",
+            "latest_push_date",
+            "highlight",
+            "top",
+            "gallery",
+            "pk",
+        ]
+
+
 class AdModelSerializer(serializers.ModelSerializer):
     pk = serializers.ReadOnlyField(source="id")
     created_by = PublicUserSerializer(required=False, allow_null=True)
@@ -62,16 +120,14 @@ class AdModelSerializer(serializers.ModelSerializer):
     highlight = serializers.SerializerMethodField()
     top = serializers.SerializerMethodField()
     gallery = serializers.SerializerMethodField()
-    condition_display = serializers.CharField(
-        source="get_condition_display", read_only=True
-    )
-    return_policy_display = serializers.CharField(
-        source="get_return_policy_display", read_only=True
-    )
     images = serializers.JSONField(required=True)
     specifications = serializers.ListField(required=False, write_only=True)
-    specifications_json = serializers.JSONField(required=False, read_only=True, source='specifications')
-    group_data = AdGroupSerializer(read_only=True, source='group')
+    specifications_json = serializers.JSONField(
+        required=False, read_only=True, source="specifications"
+    )
+    group_data = AdGroupSerializer(read_only=True, source="group")
+    condition_display = serializers.CharField(source="get_condition_display", read_only=True)
+    return_policy_display = serializers.CharField(source="get_return_policy_display", read_only=True)
 
     def validate_specifications(self, value):
         specifications = {}
@@ -88,7 +144,7 @@ class AdModelSerializer(serializers.ModelSerializer):
                 raise ValidationError(
                     f"'{key}' cannot be used as name for specification field. Field name must be alphanumeric (spaces and hypens allowed), at least 1 character long."
                 )
-            
+
             if not self.is_valid_specification_value(value):
                 raise ValidationError(
                     f"'{value}' cannot be used as value for specification field. Field value must be alphanumeric (spaces and hypens allowed), at least 1 character long."
@@ -96,23 +152,32 @@ class AdModelSerializer(serializers.ModelSerializer):
 
             if key in specifications.keys():
                 raise ValidationError(
-                    f"The '{key}' specification field can only appear once. Please review and ensure that each specification is unique."   
+                    f"The '{key}' specification field can only appear once. Please review and ensure that each specification is unique."
                 )
-            
+
             specifications[key] = value
 
         return specifications
 
     def validate(self, data):
-        group = data.get('group')
+        group = data.get("group")
         if group:
-            specifications = data['specifications']
-            ad_matching_specifications = group.ads.filter(specifications=specifications).first()
-            if ad_matching_specifications and ad_matching_specifications != self.instance:
-                raise ValidationError({'specifications': f"Ad with these specifications already exists in group '{group.name}'"})
+            specifications = data["specifications"]
+            ad_matching_specifications = group.ads.filter(
+                specifications=specifications
+            ).first()
+            if (
+                ad_matching_specifications
+                and ad_matching_specifications != self.instance
+            ):
+                raise ValidationError(
+                    {
+                        "specifications": f"Ad with these specifications already exists in group '{group.name}'"
+                    }
+                )
 
         return data
-    
+
     class Meta:
         model = Ad
         fields = [
@@ -131,17 +196,15 @@ class AdModelSerializer(serializers.ModelSerializer):
             "group_data",
             "specifications",
             "specifications_json",
-
             "date_created",
             "expiry_date",
             "latest_push_date",
             "highlight",
             "top",
             "gallery",
-
-            "pk", 
-            "condition_display", 
-            "return_policy_display"
+            "pk",
+            "condition_display",
+            "return_policy_display",
         ]
 
     def validate_images(self, value):
@@ -150,7 +213,7 @@ class AdModelSerializer(serializers.ModelSerializer):
         for file_name in file_name_list:
             if not storage.exists(file_name):
                 file_name_list.remove(file_name)
-        
+
         if len(file_name_list) == 0:
             raise ValidationError("Must attach at least one image.")
 
@@ -164,13 +227,13 @@ class AdModelSerializer(serializers.ModelSerializer):
 
     def get_gallery(self, obj):
         return obj.is_gallery()
-    
+
     def is_valid_specification_key(self, input_string):
-        pattern = re.compile(r'^[a-zA-Z0-9\s-]{1,}$')
+        pattern = re.compile(r"^[a-zA-Z0-9\s-]{1,}$")
         return bool(pattern.match(input_string))
-    
+
     def is_valid_specification_value(self, input_string):
-        pattern = re.compile(r'^[a-zA-Z0-9\s-]{1,}$')
+        pattern = re.compile(r"^[a-zA-Z0-9\s-]{1,}$")
         return bool(pattern.match(input_string))
 
 
@@ -264,4 +327,3 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ["items"]
-

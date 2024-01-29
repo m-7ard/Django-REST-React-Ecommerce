@@ -506,4 +506,6 @@ class CartTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
         self.client.login(email='test_user@mail.com', password='userword')
         response = self.client.get(f'/api/ads/{self.other_user.pk}/add_to_cart/', {'amount': 1000000000000000})
         self.assertEqual(response.status_code, 400, "Users must not be able to add bigger amount than available.")
+        response = self.client.get(f'/api/ads/{self.other_user.pk}/add_to_cart/', {'amount': 0})
+        self.assertEqual(response.status_code, 400, "Users must not be able to add 0 amount.")
 

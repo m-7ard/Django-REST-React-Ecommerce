@@ -1,9 +1,5 @@
 @use './global' as *;
 
-#root {
-    overflow: hidden;
-}
-
 .content-grid {
     display: grid;
     grid-template-columns: [full-width-start] 1fr [pamphlet-start] minmax(0, 49rem) [pamphlet-end] 1fr [full-width-end];
@@ -378,7 +374,7 @@
         font-weight: 500;
 
         &--disabled {
-            cursor: not-allowed;
+            cursor: no-drop;
             filter: saturate(0);
         }
     }
@@ -501,8 +497,13 @@
 
         &--specifications {
             @include small-button;
-            @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
             font-weight: 500;
+            background-color: map-get($light, light);
+            border: 1px solid map-get($light, dark);
+
+            &:hover {
+                background-color: map-get($light, neutral);
+            }
         }
 
         &--purchase {
@@ -557,7 +558,7 @@
 .img-display\@ad-details {
     @include flex-column(0, $space-large);
     overflow: hidden;
-    height: 500px;
+    max-height: 460px;
 
     &__picker {
         @include flex-row(0, $space-large);
@@ -568,6 +569,9 @@
 
     &__pickable {
         @include base-button;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background-color: map-get($light, light);
         border: 1px solid map-get($light, dark);
         width: 6rem;
@@ -582,40 +586,36 @@
     }
 
     &__current {
-        user-select: none;
         display: flex;
         justify-content: center;
         align-items: center;
+        user-select: none;
         background-color: map-get($light, light);
         border: 1px solid map-get($light, dark);
-        aspect-ratio: 1 / 1;
-        height: fit-content;
+        box-sizing: border-box;
+        overflow: hidden;
         max-height: 100%;
+        aspect-ratio: 1 / 1;
 
         img {
-            max-width: 100%;
             max-height: 100%;
-            height: fit-content;
-            width: fit-content;
-            object-fit: cover;
-            overflow: clip;
+            max-width: 100%;
         }
     }
 
     @media only screen and (min-width: 500px) {
         @include flex-row(0, $space-large);
         overflow: hidden;
+        height: 460px;
 
         &__picker {
             @include flex-column(0, $space-large);
-            height: 500px;
             order: 0;
         }
 
         &__current {
             flex: 1;
-            aspect-ratio: 1 / 1;
-            height: fit-content;
+            height: 100%;
         }
     }
 }
@@ -771,32 +771,6 @@
 }
 
 .ad\@search {
-    @include has-shadow;
-    border: 1px solid map-get($light, dark);
-    background-color: #ffffff;
-    
-    &__main {
-        @include flex-row(0, $space-large);
-    }
-
-    &__title {
-        font-size: get-font-size(primary, medium);
-        font-weight: 500;
-        color: map-get($black, dark);
-    }
-
-    &__subtitle {
-        font-size: get-font-size(secondary, medium);
-        font-weight: 500;
-        color: map-get($black, dark);
-    }
-
-    &__price {
-        font-size: get-font-size(primary, small);
-        font-weight: 700;
-        color: map-get($black, dark);
-    }
-
     &__image{
         display: flex;
         justify-content: center;
@@ -814,6 +788,10 @@
             overflow: clip;
         }
     }
+
+    &__main {
+        @include flex-row(0, $space-large);
+   }
 
     @media only screen and (max-width: 400px) {
        &__image {
@@ -1532,35 +1510,6 @@
         justify-content: space-between;
         border-bottom: 1px solid map-get($light, dark);
     }
-
-    
-    &__page-select {
-        @include flex-row(0, $space-large);
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    &__page-button {
-        @include base-button;
-        @include small-button;
-        @include has-shadow;
-        background-color: map-get($light, light);
-        border: 1px solid map-get($light, dark);
-        font-weight: bold;
-        height: 2rem;
-        box-sizing: border-box;
-        transition: transform 0.1s;
-
-        &--selected, &:hover {
-            background-color: map-get($light, neutral);
-        }
-
-        &--disabled {
-            color: map-get($light, dark);
-            border: 1px solid map-get($light, neutral);
-        }
-    }
 }
 
 .filter {
@@ -1645,5 +1594,54 @@
 .ad-specification-select {
     select {
         width: 100%;
+    }
+}
+
+.pagination {
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include has-shadow;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        font-weight: bold;
+        height: 2rem;
+        box-sizing: border-box;
+        transition: transform 0.1s;
+    
+        &--selected, &:hover {
+            background-color: map-get($light, neutral);
+        }
+    
+        &--disabled {
+            color: map-get($light, dark);
+            border: 1px solid map-get($light, neutral);
+            cursor: no-drop;
+        }
+    }
+
+    &__select {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    &__sizes {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    &__size {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: #0E30D8 !important;
+        cursor: pointer;
+        
+        &:hover, &--selected {
+            text-decoration: underline;
+        }
     }
 }

@@ -162,6 +162,7 @@ class Cart(models.Model):
         else:
             return f'{self.user}'
     
+
 class CartItem(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
