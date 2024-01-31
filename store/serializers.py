@@ -278,24 +278,10 @@ class AdBoostSerializer(serializers.Serializer):
         return value
 
 
-class CartCheckoutConfirmationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ad
-        fields = [
-            "pk",
-            "price",
-            "title",
-            "unlisted",
-            "shipping",
-            "available",
-            "condition",
-        ]
-
-
 class CartAdSerializer(serializers.ModelSerializer):
     created_by = PublicUserSerializer(read_only=True)
-    condition = serializers.CharField(source="get_condition_display")
-    return_policy = serializers.CharField(source="get_return_policy_display")
+    condition_display = serializers.CharField(source="get_condition_display")
+    return_policy_display = serializers.CharField(source="get_return_policy_display")
 
     class Meta:
         model = Ad
@@ -309,6 +295,8 @@ class CartAdSerializer(serializers.ModelSerializer):
             "images",
             "available",
             "unlisted",
+            "condition_display",
+            "return_policy_display",
             "pk",
         ]
 

@@ -66,6 +66,8 @@ export interface BaseAd {
     shipping: number
     condition?: 'new' | 'used' | 'almost_new' | 'damaged'
     return_policy: '7_days' | '30_days' | 'warranty'
+    condition_display: string
+    return_policy_display: string
     specifications_json: Record<string, string>
     group: number
     group_data?: AdGroup

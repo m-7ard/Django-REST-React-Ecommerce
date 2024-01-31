@@ -4,46 +4,29 @@ import { Link } from 'react-router-dom'
 import { getCookie } from '../../Utils'
 import { type BaseAd } from '../../Types'
 
-type errorsInterface = Record<number, {
-    changes: Record<string, [string, string]>
-    item_errors: Record<string, string>
-}>
+interface CartItemErrorsInterface {
+    amount: string[]
+    ad?: Record<string, string[]>
+}
 
-function CartItemComponent ({ ad, amount, pk, cartData }: {
+interface CartErrorsInterface {
+    non_field_errors: string[]
+    [pk: number]: CartItemErrorsInterface
+}
+
+function CartItemComponent ({ ad, amount, pk, errors, cartData }: {
     ad: BaseAd
     amount: number
     pk: number
+    errors?: CartItemErrorsInterface
     cartData: {
         setItemAmount: Dispatch<SetStateAction<Record<number, number>>>
         selected: number[]
         setSelected: Dispatch<SetStateAction<number[]>>
-        errors?: errorsInterface
     }
 }): React.ReactNode {
-    const { setItemAmount, selected, setSelected, errors } = cartData
+    const { setItemAmount, selected, setSelected } = cartData
     const { setCart } = useCartContext()
-    const fieldErrors = errors?.[pk]
-    const changeErrors = fieldErrors != null && Object.entries(fieldErrors.changes).length !== 0 && (
-        <>
-            <hr className='app__divider' />
-            <div>
-                <div className='prop__label'>
-                    Changes
-                </div>
-                {
-                    Object.entries(fieldErrors.changes).map(([field, values], i) => {
-                        const fieldLabel = field.charAt(0).toUpperCase() + field.slice(1)
-
-                        return (
-                            <div className='prop__detail' key={i}>
-                                {`• ${fieldLabel}: ${values[0]} → ${values[1]}`}
-                            </div>
-                        )
-                    })
-                }
-            </div>
-        </>
-    )
 
     const removeFromCart = async (ad: BaseAd): Promise<void> => {
         const csrfToken = getCookie('csrftoken')
@@ -60,28 +43,6 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
             setCart((previous) => ({ ...previous, items: previous.items.filter((item) => item.pk !== pk) }))
         }
     }
-
-    const itemErrors = fieldErrors != null && Object.entries(fieldErrors.item_errors).length !== 0 && (
-        <>
-            <hr className='app__divider' />
-            <div>
-                <div className='prop__label'>
-                    Item
-                </div>
-                {
-                    Object.entries(fieldErrors.item_errors).map(([field, msg], i) => {
-                        const fieldLabel = field.charAt(0).toUpperCase() + field.slice(1)
-
-                        return (
-                            <div className='prop__detail' key={i}>
-                                {`• ${fieldLabel}: ${msg}`}
-                            </div>
-                        )
-                    })
-                }
-            </div>
-        </>
-    )
 
     return (
         <div className="prop prop--vertical prop--highlighted ad@cart">
@@ -111,9 +72,9 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
                                 {ad.title}
                             </Link>
                             {
-                                ad.condition != null && (
+                                ad.condition_display != null && (
                                     <div className='prop__detail'>
-                                        {ad.condition}
+                                        {ad.condition_display}
                                     </div>
                                 )
                             }
@@ -134,7 +95,7 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
                     </div>
                 </div>
             </div>
-            <div className='prop__footer'>
+            <div className='prop__pairing'>
                 <div className='prop__row prop__row--centered'>
                     <div className='prop__detail'>
                         Amount:
@@ -148,21 +109,49 @@ function CartItemComponent ({ ad, amount, pk, cartData }: {
                         ({ad.available} Available)
                     </div>
                 </div>
+                {errors?.amount != null && (
+                    <>
+                        {errors.amount.map((msg, i) => (
+                            <div className='prop__detail is-error' key={i}>
+                                {msg}
+                            </div>
+                        ))}
+                    </>
+                )}
             </div>
             <div className='prop__footer'>
                 <div className='prop__row'>
                     <div className='prop__detail is-link'>
                         Bookmark
                     </div>
-                    <div className='prop__detail is-link' onClick={() =>
+                    <div className='prop__detail is-link' onClick={() => {
                         void removeFromCart(ad)
-                    }>
+                    }}>
                         Remove
                     </div>
                 </div>
             </div>
-            {changeErrors}
-            {itemErrors}
+            {
+                errors?.ad != null && (
+                    <>
+                        <hr className='app__divider' />
+                        <div className='prop__pairing'>
+                            {Object.entries(errors.ad).map(([field, errorMessages], i) => (
+                                <div className='prop__row prop__row--baselined' key={i}>
+                                    <div className='prop__label'>
+                                        {field}
+                                    </div>
+                                    {errorMessages.map((msg, j) => (
+                                        <div className='prop__detail' key={j}>
+                                            {msg}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </>    
+                )
+            }
         </div>
     )
 }
@@ -176,8 +165,8 @@ export default function Cart (): React.ReactNode {
             return acc
         }, {}
     ))
-    const [errors, setErrors] = useState<errorsInterface | undefined>()
-    const cartData = { setItemAmount, selected, setSelected, itemAmount, errors }
+    const [errors, setErrors] = useState<CartErrorsInterface | undefined>()
+    const cartData = { setItemAmount, selected, setSelected, itemAmount }
 
     const confirmCheckout = async (): Promise<void> => {
         const formData = new FormData()
@@ -186,21 +175,25 @@ export default function Cart (): React.ReactNode {
             return item
         })
         formData.append('items', JSON.stringify(itemData))
+        const headers: HeadersInit = {}
         const csrfToken = getCookie('csrftoken')
+        if (csrfToken != null) {
+            headers['X-CSRFToken'] = csrfToken
+        }
+
         const response = await fetch('/api/confirm_checkout/', {
             method: 'POST',
             body: formData,
-            ...(csrfToken != null && {
-                headers: {
-                    'X-CSRFToken': csrfToken
-                }
-            })
+            headers
         })
 
         if (!response.ok) {
             const data = await response.json()
             setCart((previous) => ({ ...previous, items: data.items }))
             setErrors(data.errors)
+        }
+        else {
+            setErrors(undefined)
         }
     }
 
@@ -214,7 +207,7 @@ export default function Cart (): React.ReactNode {
             <hr className="app__divider" />
             <div className="prop__body">
                 {
-                    cart.items.map(({ ad, amount, pk }, i) => <CartItemComponent ad={ad} amount={amount} pk={pk} key={i} cartData={cartData}/>)
+                    cart.items.map(({ ad, amount, pk }, i) => <CartItemComponent ad={ad} amount={amount} pk={pk} key={i} cartData={cartData} errors={errors?.[pk] ?? undefined} />)
                 }
             </div>
             <hr className="app__divider" />

@@ -93,8 +93,8 @@ class Ad(models.Model):
     images = models.JSONField(default=list)
     
     
-    group = models.ForeignKey(AdGroup, on_delete=models.SET_NULL, related_name='ads', null=True)
-    specifications = models.JSONField(default=dict, validators=[BasicJsonValidator])
+    group = models.ForeignKey(AdGroup, on_delete=models.SET_NULL, related_name='ads', null=True, blank=True)
+    specifications = models.JSONField(default=dict, validators=[BasicJsonValidator], blank=True)
     
     
     date_created = models.DateTimeField(auto_now_add=True)

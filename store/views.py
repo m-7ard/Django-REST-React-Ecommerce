@@ -1,6 +1,8 @@
 from datetime import datetime
+from collections import defaultdict
 import random
 import json
+
 
 from django.views.generic import TemplateView, View
 from django.core.files.storage import FileSystemStorage
@@ -30,6 +32,7 @@ from .serializers import (
     AdGroupSerializer,
     PublicAdModelSerializer,
 )
+from .forms import ItemForm
 from .paginators import AdPaginator
 from users.models import CustomUser, FeeTransaction
 from commons import paginate
@@ -272,8 +275,7 @@ class FrontpageApiView(APIView):
 class ConfirmCheckoutAPIView(APIView):
     def post(self, request, *args, **kwargs):
         items = json.loads(request.POST.get("items", "[]"))
-        errors = {}
-        fields_to_compare = ["price", "title", "unlisted", "shipping", "condition"]
+        errors = defaultdict(list)
 
         if request.user.is_authenticated:
             cart = request.user.cart
@@ -284,41 +286,21 @@ class ConfirmCheckoutAPIView(APIView):
             cart = visitor_session.cart
 
         cart_items_pks = cart.items.values_list("pk", flat=True)
+        for i, item in enumerate(items):
+            if item['pk'] not in cart_items_pks:
+                errors['non_field_errors'].append(f'"{item["title"]}" is no longer in cart.')
+                items.pop(i)
+
         for item in items:
-            changes = {}
-            item_errors = {}
-
-            if item["pk"] not in cart_items_pks:
-                item_errors["item"] = f'"{item["ad"]["title"]}" is no longer in cart.'
-
-                errors[item["pk"]] = {
-                    "changes": changes,
-                    "item_errors": item_errors,
-                }
-                continue
-
-            ad_data = CartAdSerializer(Ad.objects.get(pk=item["ad"]["pk"])).data
-            if item["amount"] > ad_data["available"]:
-                item_errors["amount"] = f"Amount cannot be greater than available."
-
-            if item["amount"] <= 0:
-                item_errors["amount"] = f"Invalid amount."
-
-            for field in fields_to_compare:
-                if item["ad"][field] != ad_data[field]:
-                    changes[field] = [item["ad"][field], ad_data[field]]
-
-            if changes or item_errors:
-                errors[item["pk"]] = {
-                    "changes": changes,
-                    "item_errors": item_errors,
-                }
+            item_form = ItemForm(item)
+            if not item_form.is_valid():
+                errors[item['pk']] = item_form.errors
 
         if errors:
             return Response(
                 {
-                    "items": CartItemSerializer(cart.items.all(), many=True).data,
-                    "errors": errors,
+                    'errors': dict(errors),
+                    'items': CartItemSerializer(cart.items, many=True).data
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
