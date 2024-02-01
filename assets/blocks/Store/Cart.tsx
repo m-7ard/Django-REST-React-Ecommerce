@@ -1,6 +1,6 @@
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { useCartContext } from '../../Context'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getCookie } from '../../Utils'
 import { type BaseAd } from '../../Types'
 
@@ -91,7 +91,6 @@ function CartItemComponent ({ ad, amount, pk, errors, cartData }: {
                         <div className='prop__detail'>
                             {ad.shipping === 0 ? 'Free Shipping' : `+${ad.shipping}€ Shipping`}
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -149,7 +148,7 @@ function CartItemComponent ({ ad, amount, pk, errors, cartData }: {
                                 </div>
                             ))}
                         </div>
-                    </>    
+                    </>
                 )
             }
         </div>
@@ -167,10 +166,16 @@ export default function Cart (): React.ReactNode {
     ))
     const [errors, setErrors] = useState<CartErrorsInterface | undefined>()
     const cartData = { setItemAmount, selected, setSelected, itemAmount }
+    const navigate = useNavigate()
 
     const confirmCheckout = async (): Promise<void> => {
         const formData = new FormData()
-        const itemData = cart.items.map((item) => {
+        if (selected.length === 0) {
+            return
+        }
+
+        const selectedItems = cart.items.filter(({ pk }) => selected.includes(pk))
+        const itemData = selectedItems.map((item) => {
             item.amount = itemAmount[item.pk]
             return item
         })
@@ -194,6 +199,7 @@ export default function Cart (): React.ReactNode {
         }
         else {
             setErrors(undefined)
+            navigate('/checkout/', { state: { items: itemData } })
         }
     }
 

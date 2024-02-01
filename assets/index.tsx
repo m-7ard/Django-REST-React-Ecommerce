@@ -32,6 +32,7 @@ import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
 import Cart from './blocks/Store/Cart'
 import AdGroups from './blocks/User/AdGroups'
 import Bookmarks, { loader as bookmarkLoader } from './blocks/User/Bookmarks'
+import Checkout, { loader as checkoutLoader } from './blocks/Store/Checkout'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -222,6 +223,15 @@ window.addEventListener('load', () => {
                         }}
                     />
                 </Route>
+                <Route
+                    path="checkout/"
+                    element={
+                        <LoginRequired>
+                            <Checkout />
+                        </LoginRequired>
+                    }
+                    loader={checkoutLoader}
+                />
             </Route>
         )
     )

@@ -13,7 +13,7 @@ from django.contrib.sessions.models import Session
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -22,15 +22,16 @@ from rest_framework.permissions import (
     IsAuthenticated,
 )
 
-from .models import Category, Ad, CartItem, AdGroup
+from .models import Category, Ad, CartItem, OrderItem
 from .serializers import (
     CategorySerializer,
     AdModelSerializer,
     AdBoostSerializer,
     CartItemSerializer,
-    CartAdSerializer,
     AdGroupSerializer,
     PublicAdModelSerializer,
+    OrderSerializer,
+    OrderItemSerializer
 )
 from .forms import ItemForm
 from .paginators import AdPaginator
@@ -319,3 +320,47 @@ class AdGroupViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+class CreateOrderAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+        items = json.loads(request.POST.get("items", "[]"))
+        errors = defaultdict(list)
+        cart = request.user.cart
+
+        cart_items_pks = cart.items.values_list("pk", flat=True)
+        for i, item in enumerate(items):
+            if item['pk'] not in cart_items_pks:
+                errors['non_field_errors'].append(f'"{item["title"]}" is no longer in cart.')
+                items.pop(i)
+
+        for item in items:
+            item_form = ItemForm(item)
+            if not item_form.is_valid():
+                errors[item['pk']] = item_form.errors
+
+        if errors:
+            return Response(
+                {
+                    'errors': dict(errors),
+                    'items': CartItemSerializer(cart.items, many=True).data
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = OrderSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save(buyer=request.user, status='pending_payment')
+        for item in items:
+            OrderItem.objects.create(
+                order=order,
+                ad=Ad.objects.get(pk=item['ad']['pk']),
+                amount=item['amount']
+            )
+            cart.items.get(pk=item['pk']).delete()
+
+        return Response(status=status.HTTP_201_CREATED)
+

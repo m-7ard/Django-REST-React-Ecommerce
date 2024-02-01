@@ -7,7 +7,7 @@ from django.db.models.query import Q
 from django.contrib.sessions.models import Session
 from django.core.validators import MinValueValidator
 
-from users.models import CustomUser
+from users.models import CustomUser, Address, BankAccount
 from .validators import BasicJsonValidator
 
 
@@ -167,3 +167,60 @@ class CartItem(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     amount = models.PositiveIntegerField()
+
+
+class Order(models.Model):
+    STATUS = (
+        ('pending_payment', 'Pending Payment'),
+        ('pending_shipping', 'Pending Shipping'),
+        ('shipped', 'Shipped'),
+        ('arrived', 'Arrived'),
+        ('completed', 'Completed'),
+        ('pending_return', 'Pending Return'),
+        ('returned', 'Returned'),
+        ('canceled', 'Canceled'),
+    )
+    buyer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='orders', null=True)
+    shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='+', null=True)
+    bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, related_name='+', null=True)
+    status = models.CharField(max_length=40, choices=STATUS)
+    archive = models.JSONField(default=dict)
+
+    @property
+    def total(self):
+        return sum([
+            item.amount * item.ad_archive['price'] + item.ad_archive['shipping']
+            for item in self.items.all()
+        ])
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+
+        if creating:
+            from users.serializers import BankAccountSerializer, AddressSerializer, PublicUserSerializer
+            self.archive = {
+                'shipping_address': AddressSerializer(self.shipping_address).data,
+                'bank_account': BankAccountSerializer(self.bank_account).data,
+                'buyer': PublicUserSerializer(self.buyer).data
+            }
+        
+        super().save()
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    ad = models.ForeignKey(Ad, on_delete=models.SET_NULL, related_name='+', null=True)
+    amount = models.PositiveIntegerField()
+    ad_archive = models.JSONField(default=dict)
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+
+        if creating:
+            from .serializers import ArchiveAdModelSerializer
+            self.ad_archive = ArchiveAdModelSerializer(self.ad).data
+            self.ad.available -= self.amount
+            self.ad.save()
+        
+        super().save()
+

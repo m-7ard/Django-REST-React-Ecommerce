@@ -1649,3 +1649,42 @@
         }
     }
 }
+
+.checkout {
+    &__body {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: auto;
+        gap: $space-large;
+    }
+
+    &__form {
+        grid-column: 1 / 9;    
+        grid-row: 1 / -1;
+    }
+
+    &__total {
+        grid-column: 9 / -1;
+        height: fit-content;
+    }
+
+    &__button {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        justify-content: center;
+        font-weight: 500;
+    }
+
+    @media only screen and (max-width: 720px) {
+        &__form {
+            grid-column: 1 / -1;    
+            grid-row: 2 / -1;
+        }
+    
+        &__total {
+            grid-column: 1 / -1;
+            grid-row: 1 / 2;
+        }
+    }
+}

@@ -6,8 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
-from .models import Category, Ad, Cart, CartItem, AdGroup
-from users.models import FeeTransaction
+from .models import Category, Ad, Cart, CartItem, AdGroup, Order, OrderItem
+from users.models import FeeTransaction, CustomUser, Address, BankAccount
 from users.serializers import FullUserSerializer, PublicUserSerializer
 
 
@@ -46,8 +46,32 @@ class AdGroupSerializer(serializers.ModelSerializer):
         fields = ["name", "options", "pk", "ads"]
 
 
+class ArchiveAdModelSerializer(serializers.ModelSerializer):
+    pk = serializers.ReadOnlyField()
+    created_by = PublicUserSerializer(allow_null=True)
+    condition = serializers.CharField(source="get_condition_display")
+    images = serializers.JSONField()
+    return_policy = serializers.CharField(source="get_return_policy_display")
+    specifications = serializers.ListField()
+
+    class Meta:
+        model = Ad
+        fields = [
+            "title",
+            "price",
+            "shipping",
+            "return_policy",
+            "condition",
+            "created_by",
+            "images",
+            "specifications",
+            "pk",
+        ]
+
+
+
 class PublicAdModelSerializer(serializers.ModelSerializer):
-    pk = serializers.ReadOnlyField(source="id")
+    pk = serializers.ReadOnlyField(source="pk")
     created_by = PublicUserSerializer(allow_null=True)
     date_created = serializers.DateTimeField(format="%Y.%m.%d", read_only=True)
     latest_push_date = serializers.DateTimeField(
@@ -315,3 +339,37 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ["items"]
+
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    ad_archive = serializers.JSONField(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            'order',
+            'ad',
+            'amount',
+            'ad_archive'    
+        ]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    buyer = serializers.PrimaryKeyRelatedField(required=False, queryset=CustomUser.objects.all())
+    archive = serializers.JSONField(read_only=True)
+    items = OrderItemSerializer(many=True, required=False, read_only=True)
+    status = serializers.CharField(default='pending_payment')
+    shipping_address = serializers.PrimaryKeyRelatedField(queryset=Address.objects.all())
+    bank_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all())
+
+    class Meta:
+        model = Order
+        fields = [
+            'buyer',
+            'shipping_address',
+            'bank_account',
+            'status',
+            'archive', 
+            'items'
+        ]

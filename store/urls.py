@@ -26,7 +26,8 @@ urlpatterns = [
     path("api/confirm_checkout/", views.ConfirmCheckoutAPIView.as_view()),
     path("api/list_user_bookmarks/<int:pk>", views.ListUserBookmarks.as_view()),
     path("api/list_user_bookmarks/", views.ListUserBookmarks.as_view()),
-    
+    path("api/perform_checkout/", views.CreateOrderAPIView.as_view()),
+
 ]
 
 router = routers.DefaultRouter()

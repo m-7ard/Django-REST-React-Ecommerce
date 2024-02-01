@@ -4,7 +4,9 @@ from .models import (
     Category,
     Ad,
     Cart,
-    CartItem
+    CartItem,
+    Order,
+    OrderItem
 )
 
 
@@ -18,3 +20,5 @@ admin.site.register(Category)
 admin.site.register(Ad, AdAdmin)
 admin.site.register(Cart)
 admin.site.register(CartItem)
+admin.site.register(Order)
+admin.site.register(OrderItem)
