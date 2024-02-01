@@ -20,7 +20,7 @@ export default function AdBoostSelect ({ name }: AdBoostSelectProps): React.Reac
                     setSelectedOptions((previous) => [...previous, value])
                 }
             }}>
-                <input type="checkbox" name={name} defaultValue={value} checked={selectedOptions.includes(value)} />
+                <input type="checkbox" name={name} defaultValue={value} defaultChecked={selectedOptions.includes(value)} />
                 <div className="prop__label">
                     {label}
                 </div>

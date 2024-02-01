@@ -2,6 +2,7 @@ from django.db import models, IntegrityError
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.validators import RegexValidator
+from django.apps import apps
 
 from commons import LIST_OF_COUNTRIES
 
@@ -55,21 +56,30 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     display_name = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
     avatar = models.ImageField(default="default.png")
-    funds = models.IntegerField(default=0)
+    funds = models.FloatField(default=0)
     default_bank = models.OneToOneField(
         "BankAccount", on_delete=models.RESTRICT, null=True
     )
     default_address = models.OneToOneField(
         "Address", on_delete=models.RESTRICT, null=True
     )
+    bookmarks = models.ManyToManyField('store.Ad', related_name='bookmarks')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["display_name"]
 
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        super().save(*args, **kwargs)
+
+        if creating:
+            Cart = apps.get_model('store', 'Cart')
+            Cart.objects.create(kind='user', user=self)
+
 
 class Transaction(models.Model):
     KINDS = (
-        ("bank_transaction", "Bank Transaction"),
+        ("withdrawal", "Withdrawal Transaction"),
         ("payment_transaction", "Payment Transaction"),
         ("fee_transaction", "Fee Transaction"),
     )
@@ -113,17 +123,20 @@ class TransactionType(models.Model):
         super().save(*args, **kwargs)
 
 
-class BankTransaction(TransactionType):
-    TRANSACTION_TYPE = "bank_transaction"
-    KINDS = (
-        ("deposit", "Deposit"),
-        ("withdrawal", "Withdrawal"),
-    )
-
-    kind = models.CharField(max_length=20, choices=KINDS)
+class WithdrawalTransaction(TransactionType):
+    """
+    
+    Note: this was originally BankTransaction, featuring
+    'Withdrawal' and 'Deposit' as KINDS, but in a realistic
+    scenario, funds should only represent funds received
+    through sales, and that amount should not be able to be
+    used for in-site purchases, due to tax reasons and the like.
+    
+    """
+    TRANSACTION_TYPE = "withdrawal"
     transaction = models.OneToOneField(
         Transaction,
-        related_name="bank_transaction",
+        related_name="withdrawal",
         on_delete=models.SET_NULL,
         null=True,
     )
@@ -136,15 +149,14 @@ class BankTransaction(TransactionType):
 
     def check_and_perform_transfer(self):
         user = self.action_bank_account.user
-        if self.kind == "deposit":
-            perform_transfer(self.amount, receiver=user)
-        elif self.kind == "withdrawal":
-            if user.funds < self.amount:
-                raise IntegrityError(
-                    "Withdrawal amount cannot be larger than user funds."
-                )
-            perform_transfer(self.amount, sender=user)
+        if user.funds < self.amount:
+            raise IntegrityError(
+                "Withdrawal amount cannot be larger than user funds."
+            )
 
+        user.funds -= self.amount
+        user.save()
+            
     @property
     def label(self):
         if self.action_bank_account:
@@ -154,14 +166,11 @@ class BankTransaction(TransactionType):
 
     @property
     def signed_amount(self):
-        if self.kind == "withdrawal":
-            return self.amount * -1
-
-        return self.amount
+        return self.amount * -1
 
     @property
     def subkind(self):
-        return self.get_kind_display()
+        return "Withdrawal"
 
 
 class PaymentTransaction(TransactionType):
@@ -169,14 +178,14 @@ class PaymentTransaction(TransactionType):
     KINDS = (("payment", "Payment"), ("refund", "Refund"))
 
     kind = models.CharField(max_length=30, choices=KINDS)
-    sender = models.ForeignKey(
-        CustomUser,
+    sender_bank_account = models.ForeignKey(
+        "BankAccount",
         related_name="sent_payments",
         on_delete=models.SET_NULL,
         null=True,
     )
-    receiver = models.ForeignKey(
-        CustomUser,
+    receiver_bank_account = models.ForeignKey(
+        "BankAccount",
         related_name="received_payments",
         on_delete=models.SET_NULL,
         null=True,
@@ -211,17 +220,23 @@ class FeeTransaction(TransactionType):
         on_delete=models.SET_NULL,
         null=True,
     )
-    payer = models.ForeignKey(
-        CustomUser, related_name="+", on_delete=models.SET_NULL, null=True
+    payer_bank_account = models.ForeignKey(
+        "BankAccount", related_name="+", on_delete=models.SET_NULL, null=True
     )
 
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        if creating:
+            self.amount = self.AMOUNT_MAP[self.kind]
+            
+        super().save(*args, **kwargs)
+
     def check_and_perform_transfer(self):
-        if self.payer.funds < self.amount:
-            raise IntegrityError("Withdrawal amount cannot be larger than user funds.")
-        perform_transfer(self.amount, sender=self.payer)
+        # e.g. Request payment from the user bank
+        pass
 
     def get_visible_to(self):
-        return [self.payer]
+        return [self.payer_bank_account.user]
 
     @property
     def label(self):

@@ -35,40 +35,6 @@ export default function Gallery ({ title, ads, isHighlight }: GalleryInterface):
                             </div>
                         )
                 }
-                {
-                    ads != null
-                        ? (
-                            ads.map((data, i) => (
-                                <Ad
-                                    isHighlight={isHighlight}
-                                    data={data}
-                                    key={i}
-                                />
-                            ))
-                        )
-                        : (
-                            <div className="prop__info">
-                                Nothing Here Yet
-                            </div>
-                        )
-                }
-                {
-                    ads != null
-                        ? (
-                            ads.map((data, i) => (
-                                <Ad
-                                    isHighlight={isHighlight}
-                                    data={data}
-                                    key={i}
-                                />
-                            ))
-                        )
-                        : (
-                            <div className="prop__info">
-                                Nothing Here Yet
-                            </div>
-                        )
-                }
             </div>
         </div>
     )

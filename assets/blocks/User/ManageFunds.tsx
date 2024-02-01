@@ -1,7 +1,7 @@
 import React from 'react'
 import { useUserContext } from '../../Context'
 import { Link, useLoaderData } from 'react-router-dom'
-import { Transaction } from '../../Types'
+import { type Transaction } from '../../Types'
 
 export default function ManageFunds (): React.ReactNode {
     const { user } = useUserContext()
@@ -28,14 +28,9 @@ export default function ManageFunds (): React.ReactNode {
                         </div>
                     </div>
                 </div>
-                <div className='prop__row'>
-                    <Link className="prop__label is-link" to={'add/'}>
-                        Add Funds
-                    </Link>
-                    <Link className="prop__label is-link" to={'withdraw/'}>
-                        Withdraw Funds
-                    </Link>
-                </div>
+                <Link className="prop__label is-link" to={'withdraw/'}>
+                    Withdraw Funds
+                </Link>
             </div>
             <div className="prop__header">
                 <div className="prop__title">

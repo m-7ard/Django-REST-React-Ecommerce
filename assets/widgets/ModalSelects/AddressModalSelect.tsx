@@ -27,7 +27,7 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
 
     return (
         <>
-            <input name={name} defaultValue={confirmedValue?.pk} type='hidden' />
+            <input name={name} defaultValue={confirmedValue?.pk ?? undefined} type='hidden' />
             <div className="select@form" onClick={() => {
                 setOpen(true)
             }}>
@@ -76,16 +76,24 @@ export default function AddressModalSelect ({ name, title, addressList, placehol
                             </div>
                         }
                         footer={
-                            <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
-                                if (currentlySelected == null) {
-                                    return
-                                }
+                            <>
+                                <div className='prompt__reset' onMouseUp={() => {
+                                    setConfirmedValue(undefined)
+                                    setStagedValue(undefined)
+                                }}>
+                                    Reset
+                                </div>
+                                <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
+                                    if (currentlySelected == null) {
+                                        return
+                                    }
 
-                                setConfirmedValue(currentlySelected)
-                                closeModal()
-                            }}>
-                                Confirm
-                            </div>
+                                    setConfirmedValue(currentlySelected)
+                                    closeModal()
+                                }}>
+                                    Confirm
+                                </div>
+                            </>
                         }
                     />
                 )

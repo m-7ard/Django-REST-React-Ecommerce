@@ -1,10 +1,10 @@
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from django.contrib.sessions.models import Session
 from django.contrib.auth import authenticate
-from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
-from .models import CustomUser, Address, BankAccount, BankTransaction, Transaction
+from .models import CustomUser, Address, BankAccount, WithdrawalTransaction, Transaction
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -54,12 +54,31 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
+class VisitorUserSerializer(serializers.ModelSerializer):
+    cart = serializers.SerializerMethodField()
+
+    def get_cart(self, instance):
+        from store.serializers import CartSerializer
+        return CartSerializer(instance.cart).data
+
+    class Meta:
+        model = Session
+        fields = ["cart"]
+
+
+class FullUserSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(
         format="%Y.%m.%d", required=False, read_only=True
     )
     default_bank = serializers.PrimaryKeyRelatedField(read_only=True)
     default_address = serializers.PrimaryKeyRelatedField(read_only=True)
+    avatar = serializers.CharField(source="avatar.url")
+    cart = serializers.SerializerMethodField()
+    bookmarks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    def get_cart(self, instance):
+        from store.serializers import CartSerializer
+        return CartSerializer(instance.cart).data
 
     class Meta:
         model = CustomUser
@@ -73,7 +92,15 @@ class UserSerializer(serializers.ModelSerializer):
             "funds",
             "default_bank",
             "default_address",
+            "cart",
+            "bookmarks",
         ]
+
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["display_name", "pk"]
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -149,18 +176,12 @@ class TransactionTypeSerializer(serializers.ModelSerializer):
             raise PermissionDenied("Request user is not bank account owner.", 403)
 
         return value
-    
-
-class DepositSerializer(TransactionTypeSerializer):
-    class Meta:
-        model = BankTransaction
-        exclude = ['kind']
 
 
 class WithdrawalSerializer(TransactionTypeSerializer):
     class Meta:
-        model = BankTransaction
-        exclude = ['kind']
+        model = WithdrawalTransaction
+        fields = ['amount', 'action_bank_account']
 
     def validate_amount(self, value):
         new_balance = self.context["request"].user.funds - value
@@ -168,4 +189,3 @@ class WithdrawalSerializer(TransactionTypeSerializer):
             raise serializers.ValidationError("Withdrawal amount cannot be larger than user funds.")
 
         return value
-    

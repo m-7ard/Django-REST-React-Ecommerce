@@ -15,7 +15,6 @@ export default function CreateAddress (): React.ReactNode {
         title='Create New Address'
         button={{ label: 'Create Address' }}
         hasCSRF
-        resettable
         fields={[
             {
                 name: 'name',

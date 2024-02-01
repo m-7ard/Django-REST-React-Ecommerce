@@ -1,14 +1,15 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useUserContext } from '../../Context'
+import { useCartContext, useUserContext } from '../../Context'
 import Dropdown from '../../elements/Dropdown'
-import Directory from '../../elements/app_header/Directory'
+import Directory from '../../elements/AppHeader/Directory'
 import { getCookie } from '../../Utils'
 import Icon from '../../elements/Icon'
 
 export default function AppHeader (): React.ReactNode {
     const navigate = useNavigate()
     const { user } = useUserContext()
+    const { cart } = useCartContext()
 
     async function logout (): Promise<void> {
         const csrfToken = getCookie('csrftoken')
@@ -21,6 +22,21 @@ export default function AppHeader (): React.ReactNode {
         })
 
         navigate('/')
+    }
+
+    function Search (): React.ReactNode {
+        return (
+            <form className="header@app__search-widget" action='/search/' method='GET'>
+                <div className="header@app__search-field">
+                    <div data-role="input">
+                        <input type="text" name='q' />
+                    </div>
+                </div>
+                <button className="header@app__search-button" type='submit'>
+                    <Icon name='search' size='small' ignoreHeight />
+                </button>
+            </form>
+        )
     }
 
     return (
@@ -45,7 +61,7 @@ export default function AppHeader (): React.ReactNode {
                                 </>
                             )
                         }
-                        <Directory iconName='shopping_cart' to='/' text='(0)' />
+                        <Directory iconName='shopping_cart' to='/cart/' text={`(${cart.items.reduce((acc, item) => acc + item.amount, 0)})`} />
                         <Dropdown
                             extraClass={'header@app__account'}
                             trigger={
@@ -58,8 +74,9 @@ export default function AppHeader (): React.ReactNode {
                                             ? (
                                                 <>
                                                     <Link to={'/account/'} data-role="close"> Profile </Link>
+                                                    <Link to={'/ad-groups/'} data-role='close'> Ad Groups </Link>
                                                     <div data-role="close"> Orders </div>
-                                                    <div data-role="close"> Bookmarks </div>
+                                                    <Link to={'/bookmarks/'} data-role="close"> Bookmarks </Link>
                                                     <Link to={'/settings/'} data-role="close"> Settings </Link>
                                                     <Link data-role="close" to={'/funds/'}> Funds <span data-role='funds'>{`(${user.funds}€)`}</span> </Link>
                                                     <div data-role="close"> Bids </div>
@@ -91,16 +108,7 @@ export default function AppHeader (): React.ReactNode {
             </div>
             <div className="header@app__section header@app__section--main">
                 <div className="header@app__content">
-                    <div className="header@app__search-widget">
-                        <div className="header@app__search-field">
-                            <div data-role="input">
-                                <input type="text" />
-                            </div>
-                        </div>
-                        <div className="header@app__search-button">
-                            <Icon name='search' size='small' ignoreHeight />
-                        </div>
-                    </div>
+                    <Search />
                     <Link to="/post-ad/">
                         <div className="header@app__post-ad">
                             <Icon name='new_label' size='small' ignoreHeight />

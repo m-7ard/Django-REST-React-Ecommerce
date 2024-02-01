@@ -22,7 +22,6 @@ export default function CreateBankAccount (): React.ReactNode {
         title='Add Bank Account'
         button={{ label: 'Add Account' }}
         hasCSRF
-        resettable
         fields={[
             {
                 name: 'owner',

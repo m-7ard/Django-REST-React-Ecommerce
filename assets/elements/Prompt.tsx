@@ -6,12 +6,13 @@ interface PromptProps {
     onClose: () => void
     body?: React.ReactNode
     footer?: React.ReactNode
+    extraClass?: string
 }
 
-export default function Prompt ({ title, onClose, body, footer }: PromptProps): React.ReactNode {
+export default function Prompt ({ title, onClose, body, footer, extraClass }: PromptProps): React.ReactNode {
     return (
         <div className="overlay">
-            <div className="prompt prop prop--vertical">
+            <div className={`prompt prop prop--vertical ${extraClass ?? ''}`}>
                 <div className="prop__header">
                     <div className="prop__title">
                         {title}

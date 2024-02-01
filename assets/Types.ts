@@ -28,9 +28,25 @@ export interface UnnormalizedData {
     parentKey?: string
 }
 
+export interface CartItem {
+    ad: BaseAd
+    amount: number
+    pk: number
+}
+
+export interface Cart {
+    items: CartItem[]
+}
+
 export interface User {
     is_authenticated: boolean
     [key: string]: any
+}
+
+export interface AdGroupAd {
+    title: string
+    specifications: Record<string, string>
+    pk: number
 }
 
 export interface BaseAd {
@@ -38,10 +54,23 @@ export interface BaseAd {
     images: string[]
     category: number
     created_by: User
+    title: string
     description: string
     price: number
     expiry_date: string
-    title: string
+    highlight: boolean
+    top: boolean
+    gallery: boolean
+    unlisted: boolean
+    available: number
+    shipping: number
+    condition?: 'new' | 'used' | 'almost_new' | 'damaged'
+    return_policy: '7_days' | '30_days' | 'warranty'
+    condition_display: string
+    return_policy_display: string
+    specifications_json: Record<string, string>
+    group: number
+    group_data?: AdGroup
     [key: string]: unknown
 }
 
@@ -83,4 +112,18 @@ export interface Transaction {
     signed_amount: number
     subkind: string
     date: string
+}
+
+export interface SearchAdsInputs {
+    q?: string
+    min_price?: number
+    max_price?: number
+    [key: string]: string | number | File | undefined
+}
+
+export interface AdGroup {
+    name: string
+    options: Record<string, string[]>
+    pk: number
+    ads: AdGroupAd[]
 }

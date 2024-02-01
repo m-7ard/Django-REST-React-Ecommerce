@@ -8,14 +8,14 @@ interface PlainModalSelectProps {
     name: string
     title: string
     normalizedData: NormalizedData
-    placeholder?: string
+    placeholder: string
     initial?: NormalizedDataValue
 }
 
 export default function PlainModalSelect ({ name, title, normalizedData, placeholder, initial }: PlainModalSelectProps): React.ReactNode {
     const [open, setOpen] = useState(false)
     const { stagedValue, confirmedValue, setStagedValue, setConfirmedValue } = usePicker(
-        initial == null
+        initial == null || initial === ''
             ? undefined
             : normalizedData.getChoice(initial)
     )
@@ -27,7 +27,7 @@ export default function PlainModalSelect ({ name, title, normalizedData, placeho
 
     return (
         <>
-            <input name={name} defaultValue={confirmedValue?.value} type='hidden' />
+            <input name={name} defaultValue={confirmedValue?.value ?? undefined} type='hidden' />
             <div className="select@form" onClick={() => {
                 setOpen(true)
             }}>
@@ -47,34 +47,44 @@ export default function PlainModalSelect ({ name, title, normalizedData, placeho
                         }}
                         body={
                             <div className='select@prompt'>
-                                {normalizedData.data.map((item, i) => {
-                                    const isSelected = currentlySelected?.value === item.value
-                                    return (
-                                        <div className={`select@prompt__option ${isSelected ? 'select@prompt__option--selected' : ''}`} key={i} onClick={() => {
-                                            setStagedValue(item)
-                                        }}>
-                                            {item.label}
-                                            {
-                                                isSelected && (
-                                                    <Icon name='check_circle' size='small' ignoreHeight />
-                                                )
-                                            }
-                                        </div>
-                                    )
-                                })}
+                                {
+                                    normalizedData.data.map((item, i) => {
+                                        const isSelected = currentlySelected?.value === item.value
+                                        return (
+                                            <div className={`select@prompt__option ${isSelected ? 'select@prompt__option--selected' : ''}`} key={i} onClick={() => {
+                                                setStagedValue(item)
+                                            }}>
+                                                {item.label}
+                                                {
+                                                    isSelected && (
+                                                        <Icon name='check_circle' size='small' ignoreHeight />
+                                                    )
+                                                }
+                                            </div>
+                                        )
+                                    })
+                                }
                             </div>
                         }
                         footer={
-                            <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
-                                if (currentlySelected == null) {
-                                    return
-                                }
+                            <>
+                                <div className='prompt__reset' onMouseUp={() => {
+                                    setConfirmedValue(undefined)
+                                    setStagedValue(undefined)
+                                }}>
+                                    Reset
+                                </div>
+                                <div className={`prompt__confirm ${currentlySelected == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
+                                    if (currentlySelected == null) {
+                                        return
+                                    }
 
-                                setConfirmedValue(currentlySelected)
-                                closeModal()
-                            }}>
-                                Confirm
-                            </div>
+                                    setConfirmedValue(currentlySelected)
+                                    closeModal()
+                                }}>
+                                    Confirm
+                                </div>
+                            </>
                         }
                     />
                 )

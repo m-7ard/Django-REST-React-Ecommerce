@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { UserContext, useUserContext } from './Context'
 import { type NormalizedDataValue, type NormalizedDataItem, type UnnormalizedData, type PickerValue, PickerControls } from './Types'
 
-export function useLoginRequired () {
-    const { user, setUser } = useContext(UserContext)
+export function useLoginRequired (): void {
+    const { user } = useUserContext()
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -106,7 +106,7 @@ export class NormalizedData {
         const choice = this.data.find((choice) => choice.value === value)
 
         if (choice == null) {
-            throw Error('Not a valid choice')
+            throw Error(`Not a valid choice. Caused by: ${value} (${typeof value})`)
         }
 
         return choice
@@ -944,4 +944,92 @@ export function usePicker <T> (initial?: T): {
         setStagedValue,
         setConfirmedValue
     }
+}
+
+export const AD_RETURN_POLICIES = [
+    {
+        value: '7_days',
+        label: '7 Days Return Policy'
+    },
+    {
+        value: '30_days',
+        label: '30 Days Return Policy'
+    },
+    {
+        value: 'warranty',
+        label: 'Warranty Period Policy'
+    }
+]
+
+export const AD_CONDITIONS = [
+    {
+        value: 'new',
+        label: 'New'
+    },
+    {
+        value: 'almost_new',
+        label: 'Almost New'
+    },
+    {
+        value: 'used',
+        label: 'Used'
+    },
+    {
+        value: 'damaged',
+        label: 'Damaged'
+    }
+]
+
+export function generatePageNumbers ({ currentPage, totalPages }: {
+    currentPage: number
+    totalPages: number
+}): number[] {
+    const maxVisiblePages = 10
+    const pages = []
+
+    // Ensure maxVisiblePages is an odd number for symmetric display
+    const halfMaxVisiblePages = Math.floor(maxVisiblePages / 2)
+
+    // Calculate the range of page numbers to display
+    let startPage = Math.max(currentPage - halfMaxVisiblePages, 1)
+    const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages)
+
+    // Adjust the startPage if the endPage is at the maximum limit
+    startPage = Math.max(endPage - maxVisiblePages + 1, 1)
+
+    for (let i = startPage; i <= endPage; i++) {
+        pages.push(i)
+    }
+
+    return pages
+}
+
+export const useNavigateToTop = (): ((to: string) => void) => {
+    const navigate = useNavigate()
+
+    const navigateAndReset = (to: string): void => {
+        navigate(to, { replace: true })
+        window.scrollTo(0, 0)
+    }
+
+    return navigateAndReset
+}
+
+export const LinkToTop = (props: {
+    children: React.ReactNode
+    className?: string
+    to: string
+}): React.ReactNode => {
+    const navigateToTop = useNavigateToTop()
+
+    const navigateAndReset: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
+        event.preventDefault()
+        navigateToTop(props.to)
+    }
+
+    return (
+        <Link className={props.className} onClick={navigateAndReset} to={props.to}>
+            {props.children}
+        </Link>
+    )
 }

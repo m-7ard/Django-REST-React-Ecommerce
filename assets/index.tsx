@@ -13,10 +13,10 @@ import Frontpage, { loader as frontpageLoader } from './blocks/Store/Frontpage'
 import Register from './blocks/Auth/Register'
 import Account, { loader as accountLoader } from './blocks/User/Account'
 import Login from './blocks/Auth/Login'
-import PostAd from './blocks/Ad/PostAd'
+import AdPost from './blocks/Ad/AdPost'
 import AdPostConfirmation from './blocks/Ad/AdPostConfirmation'
 import AdDetails, { loader as adDetailLoader } from './blocks/Ad/AdDetails'
-import AdEdit from './blocks/Ad/AdEdit'
+import AdEdit, { loader as adEditLoader } from './blocks/Ad/AdEdit'
 import AdEditConfirmation from './blocks/Ad/AdEditConfirmation'
 import { LoginRequired } from './Utils'
 import ManageFunds from './blocks/User/ManageFunds'
@@ -24,11 +24,15 @@ import Settings, { loader as settingsLoader } from './blocks/User/Settings'
 import ManageBankAccounts from './blocks/BankAccount/ManageBankAccounts'
 import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/BankAccount/CreateBankAccount'
 import ManageAddresses from './blocks/Address/ManageAddresses'
-import { getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
+import { getRequestUserAdGroups, getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
-import AddFunds from './blocks/User/AddFunds'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
+import SearchAds, { loader as searchAdsLoader } from './blocks/Store/SearchAds'
+import Cart from './blocks/Store/Cart'
+import AdGroups from './blocks/User/AdGroups'
+import Bookmarks, { loader as bookmarkLoader } from './blocks/User/Bookmarks'
+import Checkout, { loader as checkoutLoader } from './blocks/Store/Checkout'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -60,6 +64,11 @@ window.addEventListener('load', () => {
                         </LoginRequired>
                     }
                     loader={accountLoader}
+                />
+                <Route
+                    path='search/'
+                    element={<SearchAds />}
+                    loader={searchAdsLoader}
                 />
                 <Route
                     path='bank-accounts/'
@@ -106,7 +115,10 @@ window.addEventListener('load', () => {
                         return data
                     }}
                 />
-
+                <Route
+                    path='cart/'
+                    element={ <Cart /> }
+                />
                 <Route
                     path='settings/'
                     element={
@@ -115,6 +127,18 @@ window.addEventListener('load', () => {
                         </LoginRequired>
                     }
                     loader={settingsLoader}
+                />
+                <Route
+                    path='ad-groups/'
+                    element={
+                        <LoginRequired>
+                            <AdGroups />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const adGroups = await getRequestUserAdGroups()
+                        return adGroups
+                    }}
                 />
                 <Route
                     path="funds/"
@@ -126,18 +150,6 @@ window.addEventListener('load', () => {
                     loader={async () => {
                         const transactions = await getRequestUserTransactions()
                         return { transactions }
-                    }}
-                />
-                <Route
-                    path="funds/add/"
-                    element={
-                        <LoginRequired>
-                            <AddFunds />
-                        </LoginRequired>
-                    }
-                    loader={async () => {
-                        const bankAccounts = await getRequestUserBankAccounts()
-                        return bankAccounts
                     }}
                 />
                 <Route
@@ -153,13 +165,29 @@ window.addEventListener('load', () => {
                     }}
                 />
                 <Route
+                    path="bookmarks/"
+                    element={
+                        <LoginRequired>
+                            <Bookmarks />
+                        </LoginRequired>
+                    }
+                    loader={bookmarkLoader}
+                />
+                <Route
                     path="post-ad/"
                 >
-                    <Route index element={
-                        <LoginRequired>
-                            <PostAd />
-                        </LoginRequired>
-                    } />
+                    <Route
+                        index
+                        element={
+                            <LoginRequired>
+                                <AdPost />
+                            </LoginRequired>
+                        }
+                        loader={async () => {
+                            const adGroups = await getRequestUserAdGroups()
+                            return { adGroups }
+                        }}
+                    />
                     <Route
                         path="success/"
                         element={<AdPostConfirmation />}
@@ -176,7 +204,7 @@ window.addEventListener('load', () => {
                                 <AdEdit />
                             </LoginRequired>
                         }
-                        loader={adDetailLoader}
+                        loader={adEditLoader}
                     />
                     <Route
                         path="edit/success/"
@@ -189,8 +217,21 @@ window.addEventListener('load', () => {
                                 <AdBoost />
                             </LoginRequired>
                         }
+                        loader={async () => {
+                            const bankAccounts = await getRequestUserBankAccounts()
+                            return bankAccounts
+                        }}
                     />
                 </Route>
+                <Route
+                    path="checkout/"
+                    element={
+                        <LoginRequired>
+                            <Checkout />
+                        </LoginRequired>
+                    }
+                    loader={checkoutLoader}
+                />
             </Route>
         )
     )

@@ -29,7 +29,7 @@ export default function WithdrawFunds (): React.ReactNode {
                 },
                 {
                     name: 'action_bank_account',
-                    label: 'Bank Account to Deposit To',
+                    label: 'Bank Account to Transfer To',
                     widget: BankAccountModalSelectWidget({
                         bankAccountList: bankAccounts,
                         title: 'Select a Bank Account',
