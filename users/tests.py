@@ -36,7 +36,7 @@ class TestAddressesMixin(TestUsersMixin):
             country="AU",
         )
         self.other_user_address = Address.objects.create(
-            user=self.test_user,
+            user=self.other_user,
             name="Other User",
             street="Other Street",
             zip_code="22222",

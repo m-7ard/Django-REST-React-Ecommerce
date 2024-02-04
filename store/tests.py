@@ -4,7 +4,7 @@ import json
 import os
 
 from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
+from rest_framework.response import Response
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
@@ -14,7 +14,7 @@ from django.conf import settings
 from users.models import CustomUser, FeeTransaction
 from users.tests import TestUsersMixin, TestBankAccountsMixin
 from .models import Ad, Category, AdGroup
-from .serializers import AdModelSerializer
+from .serializers import AdModelSerializer, CartItemSerializer
 
 
 MEDIA_ROOT = settings.MEDIA_ROOT
@@ -76,10 +76,7 @@ class AdModelTest(APITestCase):
         }
 
     def test_create_valid_category_ad(self):
-        ad = Ad.objects.create(
-            **self.ad_data, 
-            category=self.leaf_category
-        )
+        ad = Ad.objects.create(**self.ad_data, category=self.leaf_category)
         self.assertEqual(ad.title, "Test Ad")
         self.assertEqual(ad.description, "This is a test ad.")
         self.assertEqual(ad.price, 100)
@@ -165,16 +162,13 @@ class AdViewSetTest(APITestCase, TestCategoryMixin, TestUsersMixin):
             "price": 100,
             "shipping": 1.99,
             "available": 1,
-            "return_policy": 'warranty',
+            "return_policy": "warranty",
             "images": json.dumps(["image1.jpg", "image2.jpg"]),
         }
 
     def test_api_valid_category_ad_create(self):
         response = self.client.post(
-            "/api/ads/", data={
-                **self.ad_data, 
-                "category": self.leaf_category.pk
-            }
+            "/api/ads/", data={**self.ad_data, "category": self.leaf_category.pk}
         )
         self.assertEqual(response.status_code, 201, "Failed to create ad.")
 
@@ -282,7 +276,9 @@ class AdImageFieldUploadViewTest(APITestCase):
             "Images over 12mb must not be allowed to be uploaded.",
         )
         self.assertFalse(
-            self.storage.exists(self.temp_files_route + os.path.basename(self.large_image.name))    
+            self.storage.exists(
+                self.temp_files_route + os.path.basename(self.large_image.name)
+            )
         )
 
     @override_settings(MEDIA_ROOT=(MEDIA_ROOT + "\\tests\\temp_files"))
@@ -296,7 +292,9 @@ class AdImageFieldUploadViewTest(APITestCase):
             "Invalid file formats must not be allowed to be uploaded.",
         )
         self.assertFalse(
-            self.storage.exists(self.temp_files_route + os.path.basename(self.inavlid_file.name))    
+            self.storage.exists(
+                self.temp_files_route + os.path.basename(self.inavlid_file.name)
+            )
         )
 
     def tearDown(self):
@@ -422,7 +420,7 @@ class AdSearchTest(APITestCase, TestUsersMixin):
             category=self.cooking_category,
             created_by=self.test_user,
             available=1,
-            images=['image.jpg']
+            images=["image.jpg"],
         )
         self.phone_ad = Ad.objects.create(
             title="Phone XI 0 Model",
@@ -431,7 +429,7 @@ class AdSearchTest(APITestCase, TestUsersMixin):
             category=self.electronics_category,
             created_by=self.test_user,
             available=1,
-            images=['image.jpg']
+            images=["image.jpg"],
         )
         self.model_building_book_ad = Ad.objects.create(
             title="Ship Model Building with Illustrated Examples. XI edition",
@@ -440,14 +438,14 @@ class AdSearchTest(APITestCase, TestUsersMixin):
             category=self.books_category,
             created_by=self.test_user,
             available=1,
-            images=['image.jpg']
+            images=["image.jpg"],
         )
 
     def test_empty_search(self):
         response = self.client.get("/api/ads/search/")
         self.assertEqual(response.status_code, 200, "Failed to search for ads.")
         self.assertEqual(
-            response.data['results'],
+            response.data["results"],
             AdModelSerializer(Ad.objects.all(), many=True).data,
             "Empty search must return all ads.",
         )
@@ -455,7 +453,7 @@ class AdSearchTest(APITestCase, TestUsersMixin):
     def test_title_search(self):
         response = self.client.get("/api/ads/search/?q=model")
         self.assertEqual(
-            len(response.data['results']),
+            len(response.data["results"]),
             2,
             "Check that there are 2 ads with 'model' in their titles",
         )
@@ -463,14 +461,14 @@ class AdSearchTest(APITestCase, TestUsersMixin):
     def test_price_search(self):
         response_1 = self.client.get("/api/ads/search/?min_price=0&max_price=50")
         self.assertEqual(
-            len(response_1.data['results']),
+            len(response_1.data["results"]),
             2,
             "Check that there are 2 ads with price equal or smaller than 50.",
         )
         response_2 = self.client.get("/api/ads/search/?min_price=50&max_price=0")
         self.assertEqual(
-            response_2.data['results'],
-            response_1.data['results'],
+            response_2.data["results"],
+            response_1.data["results"],
             "If min price is bigger than the max price, it should flip the values.",
         )
 
@@ -479,33 +477,198 @@ class CartTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
     def setUp(self):
         TestBankAccountsMixin.setUp(self)
         TestAdMixin.setUp(self)
-    
+
     def test_cart_exists(self):
         self.assertIsNotNone(self.test_user.cart)
 
     def test_unauthenticated_add_to_cart(self):
-        self.client.get(f'/api/user/')
-        response_1 = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
-        self.assertEqual(response_1.status_code, 201, "Failed to add to cart for unauthenticated user.")
-        response_2 = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
-        self.assertEqual(response_2.status_code, 200, "Adding ad to cart that is already in cart should just return 200 OK.")
+        self.client.get(f"/api/user/")
+        response_1 = self.client.get(
+            f"/api/ads/{self.test_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        self.assertEqual(
+            response_1.status_code,
+            201,
+            "Failed to add to cart for unauthenticated user.",
+        )
+        response_2 = self.client.get(
+            f"/api/ads/{self.test_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        self.assertEqual(
+            response_2.status_code,
+            200,
+            "Adding ad to cart that is already in cart should just return 200 OK.",
+        )
 
     def test_valid_authenticated_add_to_cart(self):
-        self.client.login(email='test_user@mail.com', password='userword')
-        response_1 = self.client.get(f'/api/ads/{self.other_user_ad.pk}/add_to_cart/', {'amount': 1})
-        self.assertEqual(response_1.status_code, 201, "Failed to add to cart for unauthenticated user.")
-        response_2 = self.client.get(f'/api/ads/{self.other_user_ad.pk}/add_to_cart/', {'amount': 1})
-        self.assertEqual(response_2.status_code, 200, "Adding ad to cart that is already in cart should just return 200 OK.")
+        self.client.login(email="test_user@mail.com", password="userword")
+        response_1 = self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        self.assertEqual(
+            response_1.status_code,
+            201,
+            "Failed to add to cart for unauthenticated user.",
+        )
+        response_2 = self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        self.assertEqual(
+            response_2.status_code,
+            200,
+            "Adding ad to cart that is already in cart should just return 200 OK.",
+        )
 
     def test_invalid_user_authenticated_add_to_cart(self):
-        self.client.login(email='test_user@mail.com', password='userword')
-        response = self.client.get(f'/api/ads/{self.test_user_ad.pk}/add_to_cart/', {'amount': 1})
-        self.assertEqual(response.status_code, 403, "Users must not be able to add their own ads to cart.")
+        self.client.login(email="test_user@mail.com", password="userword")
+        response = self.client.get(
+            f"/api/ads/{self.test_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        self.assertEqual(
+            response.status_code,
+            403,
+            "Users must not be able to add their own ads to cart.",
+        )
 
     def test_invalid_amount_authenticated_add_to_cart(self):
-        self.client.login(email='test_user@mail.com', password='userword')
-        response = self.client.get(f'/api/ads/{self.other_user.pk}/add_to_cart/', {'amount': 1000000000000000})
-        self.assertEqual(response.status_code, 400, "Users must not be able to add bigger amount than available.")
-        response = self.client.get(f'/api/ads/{self.other_user.pk}/add_to_cart/', {'amount': 0})
-        self.assertEqual(response.status_code, 400, "Users must not be able to add 0 amount.")
+        self.client.login(email="test_user@mail.com", password="userword")
+        response = self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/",
+            {"amount": 1000000000000000},
+        )
+        self.assertEqual(
+            response.status_code,
+            400,
+            "Users must not be able to add bigger amount than available.",
+        )
+        response = self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 0}
+        )
+        self.assertEqual(
+            response.status_code, 400, "Users must not be able to add 0 amount."
+        )
 
+
+class CheckoutTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
+    def setUp(self):
+        TestBankAccountsMixin.setUp(self)
+        TestAdMixin.setUp(self)
+        self.client.login(email="test_user@mail.com", password="userword")
+        self.other_user_ad.available = 100
+        self.other_user_ad.save()
+
+    def test_valid_order(self):
+        self.client.get(f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 5})
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.test_user_address.pk,
+                "bank_account": self.test_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201, "Failed to perform valid checkout.")
+        self.assertEqual(self.test_user.orders.all().count(), 1)
+        self.other_user_ad.refresh_from_db()
+        self.assertEqual(
+            self.other_user_ad.available,
+            95,
+            "A valid order must decrease available amount.",
+        )
+
+    def test_invalid_ad_order(self):
+        self.client.get(f"/api/ads/{self.test_user_ad.pk}/add_to_cart/", {"amount": 1})
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.test_user_address.pk,
+                "bank_account": self.test_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        self.assertEqual(
+            response.status_code,
+            400,
+            "User must not be able to create order of their own ad.",
+        )
+        self.assertEqual(self.test_user.orders.all().count(), 0)
+        self.test_user_ad.refresh_from_db()
+        self.assertEqual(
+            self.test_user_ad.available,
+            1,
+            "An invalid order mustn't decrease available amount.",
+        )
+
+    def test_invalid_amount_order(self):
+        self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 101}
+        )
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.test_user_address.pk,
+                "bank_account": self.test_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        self.assertEqual(
+            response.status_code,
+            400,
+            "User must not be able to create order with amount greater than available.",
+        )
+        self.assertEqual(self.test_user.orders.all().count(), 0)
+        self.other_user_ad.refresh_from_db()
+        self.assertEqual(
+            self.other_user_ad.available,
+            100,
+            "An invalid order mustn't decrease available amount.",
+        )
+
+    def test_invalid_shipping_address_order(self):
+        self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.other_user_address.pk,
+                "bank_account": self.test_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        self.assertEqual(
+            response.status_code, 400, "User must use their own addresses."
+        )
+        self.assertEqual(self.test_user.orders.all().count(), 0)
+
+    def test_invalid_bank_account_order(self):
+        self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.test_user_address.pk,
+                "bank_account": self.other_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        self.assertEqual(
+            response.status_code, 400, "User must use their own bank account."
+        )
+        self.assertEqual(self.test_user.orders.all().count(), 0)

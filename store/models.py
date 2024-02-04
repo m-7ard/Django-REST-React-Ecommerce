@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.query import Q
 from django.contrib.sessions.models import Session
 from django.core.validators import MinValueValidator
@@ -184,43 +184,36 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='+', null=True)
     bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, related_name='+', null=True)
     status = models.CharField(max_length=40, choices=STATUS)
-    archive = models.JSONField(default=dict)
+    ad = models.ForeignKey(Ad, on_delete=models.SET_NULL, related_name='+', null=True)
+    amount = models.PositiveIntegerField()
+    archive = models.JSONField(default=dict, editable=False)
 
     @property
     def total(self):
-        return sum([
-            item.amount * item.ad_archive['price'] + item.ad_archive['shipping']
-            for item in self.items.all()
-        ])
+        return self.archive['amount'] * self.archive['ad']['price'] + self.archive['ad']['shipping']
 
     def save(self, *args, **kwargs):
         creating = self._state.adding
 
         if creating:
+            if self.buyer != self.shipping_address.user:
+                raise IntegrityError("Buyer must be address user.")
+            if self.buyer != self.bank_account.user :
+                raise IntegrityError("Buyer must be bank account user.")
+            if self.buyer == self.ad.created_by:
+                raise IntegrityError("Buyer cannot be ad creator.")
+
             from users.serializers import BankAccountSerializer, AddressSerializer, PublicUserSerializer
+            from .serializers import PublicAdModelSerializer
             self.archive = {
+                'amount': self.amount,
                 'shipping_address': AddressSerializer(self.shipping_address).data,
                 'bank_account': BankAccountSerializer(self.bank_account).data,
-                'buyer': PublicUserSerializer(self.buyer).data
+                'buyer': PublicUserSerializer(self.buyer).data,
+                'ad': PublicAdModelSerializer(self.ad).data,
             }
-        
-        super().save()
-
-
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    ad = models.ForeignKey(Ad, on_delete=models.SET_NULL, related_name='+', null=True)
-    amount = models.PositiveIntegerField()
-    ad_archive = models.JSONField(default=dict)
-
-    def save(self, *args, **kwargs):
-        creating = self._state.adding
-
-        if creating:
-            from .serializers import ArchiveAdModelSerializer
-            self.ad_archive = ArchiveAdModelSerializer(self.ad).data
             self.ad.available -= self.amount
             self.ad.save()
         
-        super().save()
+        super().save(*args, **kwargs)
 

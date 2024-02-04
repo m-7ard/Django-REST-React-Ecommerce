@@ -12,6 +12,20 @@ interface LoaderData {
     bankAccounts: BankAccount[]
 }
 
+interface CartItemErrorsInterface {
+    amount: string[]
+    ad?: Record<string, string[]>
+}
+
+interface CheckoutErrorsInterface {
+    bank_account: string[]
+    shipping_address: string[]
+    items: {
+        non_field_errors: string[]
+        [pk: number]: CartItemErrorsInterface
+    }
+}
+
 export async function loader (): Promise<LoaderData> {
     const addresses = await getRequestUserAddresses()
     const bankAccounts = await getRequestUserBankAccounts()
@@ -24,6 +38,7 @@ export default function Checkout (): React.ReactNode {
     } }
     const { addresses, bankAccounts } = useLoaderData() as LoaderData
     const [items, setItems] = useState(state.items)
+    const [errors, setErrors] = useState()
     const checkoutFormRef = useRef<HTMLFormElement>(null)
     const shippingTotal = items.reduce((acc, { ad }) => acc + ad.shipping, 0)
     const itemTotal = items.reduce((acc, { ad, amount }) => acc + (ad.price * amount), 0)
