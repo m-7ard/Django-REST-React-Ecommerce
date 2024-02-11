@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 
-import { addDotsToNumber } from '../../Utils'
 import { getRequestUserAds } from '../../Fetchers'
 import { useCategoryContext, useUserContext } from '../../Context'
 import { type BaseAd } from '../../Types'
@@ -72,7 +71,7 @@ export default function Account (): React.ReactNode {
                                             {ad.title}
                                         </Link>
                                         <div className="prop__info">
-                                            {addDotsToNumber(ad.price)}
+                                            {ad.price}
                                             $
                                         </div>
                                         <div className="prop__detail">

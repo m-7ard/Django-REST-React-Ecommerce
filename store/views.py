@@ -13,6 +13,7 @@ from django.contrib.sessions.models import Session
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.generics import ListAPIView, GenericAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -31,9 +32,12 @@ from .serializers import (
     AdGroupSerializer,
     PublicAdModelSerializer,
     CheckoutSerializer,
+    OrderSerializer,
+    CheckoutItemSerializer,
 )
 from .paginators import AdPaginator
 from users.models import CustomUser, FeeTransaction
+from transactions.models import OrderPayment, OrderRefund
 from commons import paginate
 
 
@@ -192,18 +196,13 @@ class ListUserAds(APIView):
 
 class ListUserBookmarks(ListAPIView):
     permission_classes = [
-        IsAuthenticatedOrReadOnly,
+        IsAuthenticated,
     ]
     pagination_class = AdPaginator
     serializer_class = PublicAdModelSerializer
 
     def get_queryset(self):
-        pk = self.kwargs.get('pk')
-        if pk:
-            user = get_object_or_404(CustomUser, pk=pk)
-        else:
-            user = self.request.user
-
+        user = self.request.user
         return user.bookmarks.all()
     
         
@@ -272,34 +271,39 @@ class FrontpageApiView(APIView):
 
 
 class ConfirmCheckoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         items = json.loads(request.POST.get("items", "[]"))
         errors = defaultdict(list)
 
-        if request.user.is_authenticated:
-            cart = request.user.cart
-        else:
-            visitor_session = Session.objects.get(
-                session_key=request.session.session_key
-            )
-            cart = visitor_session.cart
+        if len(items) == 0:
+            errors["non_field_errors"].append("No items to perform checkout.")
 
+        cart = request.user.cart
         cart_items_pks = cart.items.values_list("pk", flat=True)
-        for i, item in enumerate(items):
-            if item['pk'] not in cart_items_pks:
-                errors['non_field_errors'].append(f'"{item["title"]}" is no longer in cart.')
-                items.pop(i)
+        valid_items = []
 
         for item in items:
-            item_form = ItemForm(item)
-            if not item_form.is_valid():
-                errors[item['pk']] = item_form.errors
+            if item["pk"] not in cart_items_pks:
+                errors["non_field_errors"].append(f'"{item["title"]}" is no longer in the cart.')
+            else:
+                valid_items.append(item)
+
+        for item in valid_items:
+            item_errors = {}
+            item_serializer = CheckoutItemSerializer(data=item, context={'request': request})
+            if not item_serializer.is_valid():
+                item_errors.update(item_serializer.errors)
+
+            if item_errors:
+                errors[item["pk"]] = item_errors
 
         if errors:
             return Response(
                 {
                     'errors': dict(errors),
-                    'items': CartItemSerializer(cart.items, many=True).data
+                    'items': CartItemSerializer(cart.items.all(), many=True).data
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -323,3 +327,85 @@ class AdGroupViewSet(viewsets.ModelViewSet):
 class CreateOrderAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CheckoutSerializer
+
+
+class ListUserOrders(ListAPIView):
+    permission_classes = [
+        IsAuthenticated,
+    ]
+    serializer_class = OrderSerializer
+    # TODO: add pagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.orders.all()
+    
+
+class ListUserSales(ListAPIView):
+    permission_classes = [
+        IsAuthenticated,
+    ]
+    serializer_class = OrderSerializer
+    # TODO: add pagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return user.sales.all()
+
+
+class OrderViewSet(viewsets.GenericViewSet, RetrieveModelMixin):
+    permission_classes = [IsAuthenticated]
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    @action(methods=["POST"], detail=True)
+    def cancel(self, request, pk):
+        order = self.get_object()
+        if request.user not in [order.buyer, order.seller]:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        if order.status != 'pending_payment':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        refund, created = OrderRefund.objects.get_or_create(order=order)
+
+        if created:
+            order.status = 'cancelled'
+            order.save()
+            return Response(status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=["POST"], detail=True)
+    def confirm_payment(self, request, pk):
+        order = self.get_object()
+        if request.user != order.buyer:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        if order.status != 'pending_payment':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        payment, created = OrderPayment.objects.get_or_create(order=order)
+
+        if created:
+            order.status = "pending_shipping"
+            order.save()
+            return Response(data=OrderSerializer(order).data , status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=["PATCH"], detail=True)
+    def confirm_shipping(self, request, pk):
+        order = self.get_object()
+        if request.user != order.seller:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        to_update = {
+            'tracking_number': request.data.get('tracking_number')    
+        }
+        serializer = OrderSerializer(order, data=to_update, partial=True)
+        if serializer.is_valid():
+            serializer.save(status='shipped')
+            return Response(status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

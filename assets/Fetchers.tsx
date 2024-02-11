@@ -1,4 +1,4 @@
-import { type CategoryData, type Category, type FrontPageData, type BaseAd, type Address, BankAccount, Transaction, AdGroup } from './Types'
+import { type CategoryData, type Category, type FrontPageData, type BaseAd, type Address, BankAccount, Transaction, AdGroup, Order } from './Types'
 
 export async function getCategoryData (): Promise<CategoryData> {
     const response = await fetch('/api/categories/')
@@ -58,8 +58,26 @@ export async function getRequestUserAdGroups (): Promise<AdGroup[]> {
     return data
 }
 
+export async function getRequestUserOrders (): Promise<Order[]> {
+    const response = await fetch('/api/list_user_orders/')
+    const data = await response.json()
+    return data
+}
+
+export async function getRequestUserSales (): Promise<Order[]> {
+    const response = await fetch('/api/list_user_sales/')
+    const data = await response.json()
+    return data
+}
+
 export async function getRequestUserTransactions (): Promise<Transaction[]> {
-    const response = await fetch('/api/transactions/')
+    const response = await fetch('/api/list_user_transactions/')
+    const data = await response.json()
+    return data
+}
+
+export async function getOrderData (pk: number): Promise<Order> {
+    const response = await fetch(`/api/orders/${pk}/`)
     const data = await response.json()
     return data
 }

@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 import shutil
 import json
 import os
+from itertools import chain
 
 from rest_framework.test import APITestCase
 from rest_framework.response import Response
@@ -13,9 +14,10 @@ from django.conf import settings
 
 from users.models import CustomUser, FeeTransaction
 from users.tests import TestUsersMixin, TestBankAccountsMixin
-from .models import Ad, Category, AdGroup
-from .serializers import AdModelSerializer, CartItemSerializer
-
+from users.serializers import BankAccountSerializer, AddressSerializer, PublicUserSerializer
+from .models import Ad, Category, AdGroup, Order
+from .serializers import AdModelSerializer, CartItemSerializer, ArchiveAdModelSerializer
+from transactions.models import OrderPayment, OrderRefund, LedgerEntry
 
 MEDIA_ROOT = settings.MEDIA_ROOT
 
@@ -50,6 +52,29 @@ class TestAdMixin(TestCategoryMixin):
             images=["image1.jpg", "image2.jpg"],
             category=self.leaf_category,
             available=1,
+        )
+
+
+class TestOrderMixin(TestAdMixin):
+    def setUp(self):
+        TestAdMixin.setUp(self)
+        self.test_user_order = Order.objects.create(
+            ad=self.other_user_ad,
+            status='pending_payment',
+            amount=1,
+            buyer=self.test_user,
+            seller=self.other_user,
+            shipping_address=self.test_user_address,
+            bank_account=self.test_user_bank,
+        )
+        self.other_user_order = Order.objects.create(
+            ad=self.test_user_ad,
+            status='pending_payment',
+            amount=1,
+            buyer=self.other_user,
+            seller=self.test_user,
+            shipping_address=self.other_user_address,
+            bank_account=self.other_user_bank,
         )
 
 
@@ -672,3 +697,60 @@ class CheckoutTest(APITestCase, TestBankAccountsMixin, TestAdMixin):
             response.status_code, 400, "User must use their own bank account."
         )
         self.assertEqual(self.test_user.orders.all().count(), 0)
+
+    def test_archive_ad_on_creation(self):
+        self.client.get(
+            f"/api/ads/{self.other_user_ad.pk}/add_to_cart/", {"amount": 1}
+        )
+        response = self.client.post(
+            "/api/perform_checkout/",
+            {
+                "shipping_address": self.test_user_address.pk,
+                "bank_account": self.test_user_bank.pk,
+                "items": CartItemSerializer(
+                    self.test_user.cart.items.all(), many=True
+                ).data,
+            },
+            format="json",
+        )
+        order = self.test_user.orders.first()
+        self.assertEqual(
+            order.archive,
+            {
+                "amount": 1,
+                'shipping_address': AddressSerializer(self.test_user_address).data,
+                'bank_account': BankAccountSerializer(self.test_user_bank).data,
+                'buyer': PublicUserSerializer(self.test_user).data,
+                'ad': ArchiveAdModelSerializer(self.other_user_ad).data,
+            },
+            "Unexpected archive created on order creation."
+        )
+
+
+class OrderViewSetTest(APITestCase, TestBankAccountsMixin, TestOrderMixin):
+    def setUp(self):
+        TestBankAccountsMixin.setUp(self)
+        TestOrderMixin.setUp(self)
+        self.client.login(email="test_user@mail.com", password="userword")
+
+    def test_valid_confirm_payment(self):
+        response = self.client.post(f"/api/orders/{self.test_user_order.pk}/confirm_payment/")
+        self.assertEqual(response.status_code, 200, "Failed to confirm order payment.")
+
+    def test_invalid_double_confirm_payment(self):
+        self.client.post(f"/api/orders/{self.test_user_order.pk}/confirm_payment/")
+        response = self.client.post(f"/api/orders/{self.test_user_order.pk}/confirm_payment/")
+        self.assertEqual(response.status_code, 400, "Cannot pay twice for order.")
+
+    def test_valid_cancel_order(self):
+        self.client.post(f"/api/orders/{self.test_user_order.pk}/confirm_payment/")
+        response = self.client.post(f"/api/orders/{self.test_user_order.pk}/cancel/")
+        self.assertEqual(response.status_code, 200, "Failed to cancel order.")
+
+    def test_invalid_double_cancel_order(self):
+        self.client.post(f"/api/orders/{self.test_user_order.pk}/confirm_payment/")
+        self.client.post(f"/api/orders/{self.test_user_order.pk}/cancel/")
+        response = self.client.post(f"/api/orders/{self.test_user_order.pk}/cancel/")
+        self.assertEqual(response.status_code, 400, "Cannot cancel order twice.")
+
+

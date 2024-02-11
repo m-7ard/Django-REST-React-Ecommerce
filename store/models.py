@@ -88,7 +88,7 @@ class Ad(models.Model):
         Category, on_delete=models.CASCADE, limit_choices_to=Q(subcategories=None)
     )
     created_by = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name="ads", null=True
+        CustomUser, on_delete=models.CASCADE, related_name="ads"
     )
     images = models.JSONField(default=list)
     
@@ -181,16 +181,27 @@ class Order(models.Model):
         ('canceled', 'Canceled'),
     )
     buyer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='orders', null=True)
+    seller = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='sales', null=True)
     shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, related_name='+', null=True)
     bank_account = models.ForeignKey(BankAccount, on_delete=models.SET_NULL, related_name='+', null=True)
-    status = models.CharField(max_length=40, choices=STATUS)
     ad = models.ForeignKey(Ad, on_delete=models.SET_NULL, related_name='+', null=True)
+    status = models.CharField(max_length=40, choices=STATUS)
     amount = models.PositiveIntegerField()
-    archive = models.JSONField(default=dict, editable=False)
+    archive = models.JSONField(default=dict)
+    date_created = models.DateTimeField(auto_now_add=True)
+    tracking_number = models.CharField(max_length=100, blank=True)
 
     @property
     def total(self):
-        return self.archive['amount'] * self.archive['ad']['price'] + self.archive['ad']['shipping']
+        return self.amount * self.archive['ad']['price'] + self.archive['ad']['shipping']
+
+    @property
+    def return_date_expiry(self):
+        return_policy = self.archive['ad']['return_policy']
+        if return_policy == '7_days':
+            return self.date_created + timedelta(days=7)
+        elif return_policy == '30_days':
+            return self.date_created + timedelta(days=30)
 
     def save(self, *args, **kwargs):
         creating = self._state.adding
@@ -204,13 +215,13 @@ class Order(models.Model):
                 raise IntegrityError("Buyer cannot be ad creator.")
 
             from users.serializers import BankAccountSerializer, AddressSerializer, PublicUserSerializer
-            from .serializers import PublicAdModelSerializer
+            from .serializers import ArchiveAdModelSerializer
             self.archive = {
-                'amount': self.amount,
                 'shipping_address': AddressSerializer(self.shipping_address).data,
                 'bank_account': BankAccountSerializer(self.bank_account).data,
                 'buyer': PublicUserSerializer(self.buyer).data,
-                'ad': PublicAdModelSerializer(self.ad).data,
+                'seller':  PublicUserSerializer(self.seller).data,
+                'ad': ArchiveAdModelSerializer(self.ad).data,
             }
             self.ad.available -= self.amount
             self.ad.save()

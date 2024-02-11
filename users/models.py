@@ -6,7 +6,6 @@ from django.apps import apps
 
 from commons import LIST_OF_COUNTRIES
 
-
 def perform_transfer(amount, sender=None, receiver=None):
     if sender:
         sender.funds -= amount
@@ -56,7 +55,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     display_name = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
     avatar = models.ImageField(default="default.png")
-    funds = models.FloatField(default=0)
+    seller_funds = models.FloatField(default=0)
     default_bank = models.OneToOneField(
         "BankAccount", on_delete=models.RESTRICT, null=True
     )
@@ -175,17 +174,15 @@ class WithdrawalTransaction(TransactionType):
 
 class PaymentTransaction(TransactionType):
     TRANSACTION_TYPE = "payment_transaction"
-    KINDS = (("payment", "Payment"), ("refund", "Refund"))
 
-    kind = models.CharField(max_length=30, choices=KINDS)
     sender_bank_account = models.ForeignKey(
         "BankAccount",
         related_name="sent_payments",
         on_delete=models.SET_NULL,
         null=True,
     )
-    receiver_bank_account = models.ForeignKey(
-        "BankAccount",
+    receiver = models.ForeignKey(
+        CustomUser,
         related_name="received_payments",
         on_delete=models.SET_NULL,
         null=True,
@@ -196,7 +193,18 @@ class PaymentTransaction(TransactionType):
         on_delete=models.SET_NULL,
         null=True,
     )
+    order = models.ForeignKey("store.Order", on_delete=models.RESTRICT, related_name='transations', null=True)
 
+    def check_and_perform_transfer(self):
+        # e.g. Request payment from the user bank
+        pass
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        if creating:
+            self.amount = self.order.total
+            
+        super().save(*args, **kwargs)
 
 class FeeTransaction(TransactionType):
     TRANSACTION_TYPE = "fee_transaction"
@@ -274,3 +282,4 @@ class BankAccount(models.Model):
         Address, related_name="attached_to", on_delete=models.RESTRICT
     )
     iban = models.CharField(max_length=32)
+

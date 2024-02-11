@@ -75,10 +75,12 @@ export default function AppHeader (): React.ReactNode {
                                                 <>
                                                     <Link to={'/account/'} data-role="close"> Profile </Link>
                                                     <Link to={'/ad-groups/'} data-role='close'> Ad Groups </Link>
-                                                    <div data-role="close"> Orders </div>
+                                                    <Link to={'/orders/'} data-role="close"> Orders </Link>
+                                                    <Link to={'/sales/'} data-role="close"> Sales </Link>
                                                     <Link to={'/bookmarks/'} data-role="close"> Bookmarks </Link>
                                                     <Link to={'/settings/'} data-role="close"> Settings </Link>
-                                                    <Link data-role="close" to={'/funds/'}> Funds <span data-role='funds'>{`(${user.funds}€)`}</span> </Link>
+                                                    <Link to={'/funds/'} data-role="close"> Funds <span data-role='funds'>{`(${user.seller_funds}€)`}</span> </Link>
+                                                    <Link to={'/transactions/'} data-role="close"> Transactions </Link>
                                                     <div data-role="close"> Bids </div>
                                                     <div data-role="close"
                                                         onClick={() => {

@@ -1033,3 +1033,10 @@ export const LinkToTop = (props: {
         </Link>
     )
 }
+
+export function splitNumber (number: number): [string, string] {
+    const numberString = number.toString()
+    const [wholePart, decimalPart] = numberString.split('.')
+    const decimal = decimalPart != null ? `.${decimalPart}` : ''
+    return [wholePart, decimal]
+}

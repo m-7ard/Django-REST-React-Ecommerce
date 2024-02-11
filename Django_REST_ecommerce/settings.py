@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'store',
     'users',
     'commons',
+    'transactions',
     'silk'
 ]
 

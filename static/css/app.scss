@@ -621,6 +621,8 @@
 }
 
 .prop {
+    overflow: hidden;
+
     &--horizontal {
         @include flex-row($space-large, $space-large);
     }
@@ -642,52 +644,60 @@
         @include flex-row(0, $space-large);
         align-items: center;
         justify-content: space-between;
+        overflow: hidden;
     }
 
     &__body {
         @include flex-column(0, $space-large);
         flex: 1;
-        overflow: auto;
+        overflow: hidden;
     }
 
     &__footer {
         @include flex-row(0, $space-large);
         align-items: center;
         justify-content: space-between;
+        overflow: hidden;
     }
 
     &__title {
         font-size: get-font-size(primary, large);
         font-weight: 700;
         color: map-get($black, dark);
+        overflow-wrap: break-word;
     }
 
     &__subtitle {
         font-size: get-font-size(secondary, small);
         font-weight: 400;
         color: map-get($black, light);
+        overflow-wrap: break-word;
     }
 
     &__info {
         font-size: get-font-size(primary, small);
         font-weight: 500;
         color: map-get($black, dark);
+        overflow-wrap: break-word;
     }
 
     &__detail {
         font-size: get-font-size(secondary, small);
         font-weight: 400;
         color: map-get($black, dark);
+        overflow-wrap: break-word;
     }
 
     &__label {
         font-size: get-font-size(secondary, medium);
         font-weight: 700;
         color: map-get($black, dark);
+        overflow-wrap: break-word;
     }
 
     &__pairing {
         @include flex-column(0, $space-small);
+        overflow: hidden;
     }
 
     &__row {
@@ -704,6 +714,7 @@
 
     &__column {
         @include flex-column(0, $space-large);
+        overflow: hidden;
     }
 
     &__button {
@@ -1164,35 +1175,6 @@
     }
 }
 
-.funds {
-    &__balance {
-        @include has-shadow;
-        border: 1px solid map-get($light, dark);
-        background-color: #ffffff;
-    }
-
-    &__transactions {
-        @include has-shadow;
-        border: 1px solid map-get($light, dark);
-        
-        > * {
-            @include flex-row($space-small $space-large, $space-large);
-            justify-content: space-between;
-            color: map-get($black, dark);
-            font-size: get-font-size(secondary, medium);
-            font-weight: 500;
-        }
-
-        > :nth-child(2n) {
-            background-color: map-get($light, neutral);
-        }
-
-        > :nth-child(2n + 1) {
-            background-color: map-get($light, light);
-        }
-    }
-}
-
 .is-link {
     color: #0E30D8 !important;
     cursor: pointer;
@@ -1475,16 +1457,6 @@
     }
 }
 
-.transaction {
-    justify-content: space-between;
-    align-items: center;
-    border-radius: $space-small;
-
-    &__title, &__info {
-        @include ellipsis;
-    }
-}
-
 .ad-boost-select\@form {
     @include base-button;
     display: grid;
@@ -1685,6 +1657,60 @@
         &__total {
             grid-column: 1 / -1;
             grid-row: 1 / 2;
+        }
+    }
+}
+
+.order {
+    @include flex-column(0, 0);
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+        background-color: map-get($light, light);
+    }
+
+    &__body {
+        padding: $space-large;
+        gap: $space-large;
+        display: grid;
+        grid-template-columns: 1fr 200px;
+    }
+
+    &__button {
+        @include has-shadow;
+        @include base-button;
+        @include medium-button;
+        justify-content: center;
+        font-weight: 500;
+
+        &--highlighted {
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        }
+
+        &--normal {
+            border: 1px solid map-get($light, dark);
+
+            &:hover {
+                background-color: map-get($light, neutral);
+            }
+        }
+    }
+
+    @media only screen and (max-width: 500px) {
+        &__header {
+            display: grid;
+            grid-template-columns: minmax(auto, 1fr) minmax(auto, 1fr);
+            grid-template-rows: auto;
+            align-items: center;
+            justify-content: space-between;
+            gap: $space-large;
+        }
+
+        &__body {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+
         }
     }
 }

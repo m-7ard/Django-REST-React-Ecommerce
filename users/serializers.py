@@ -89,7 +89,7 @@ class FullUserSerializer(serializers.ModelSerializer):
             "account_type",
             "avatar",
             "date_joined",
-            "funds",
+            "seller_funds",
             "default_bank",
             "default_address",
             "cart",

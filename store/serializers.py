@@ -50,8 +50,8 @@ class AdGroupSerializer(serializers.ModelSerializer):
 class ArchiveAdModelSerializer(serializers.ModelSerializer):
     pk = serializers.ReadOnlyField()
     created_by = PublicUserSerializer(allow_null=True)
-    condition = serializers.CharField(source="get_condition_display")
-    return_policy = serializers.CharField(source="get_return_policy_display")
+    condition_display = serializers.CharField(source="get_condition_display")
+    return_policy_display = serializers.CharField(source="get_return_policy_display")
     specifications = serializers.ListField()
     images = serializers.JSONField()
 
@@ -67,6 +67,8 @@ class ArchiveAdModelSerializer(serializers.ModelSerializer):
             "images",
             "specifications",
             "pk",
+            "condition_display",
+            "return_policy_display",
         ]
 
 
@@ -397,12 +399,6 @@ class CheckoutItemSerializer(serializers.Serializer):
             raise serializers.ValidationError(errors)
 
         return data
-    
-
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = '__all__'
 
 
 class CheckoutSerializer(serializers.Serializer):
@@ -474,9 +470,11 @@ class CheckoutSerializer(serializers.Serializer):
                 amount=amount,
                 ad=cart_item.ad,
                 buyer=user,
+                seller=cart_item.ad.created_by,
                 status='pending_payment',
             )
             orders.append(order)
+            cart_item.delete()
     
         return {
             'items': items,
@@ -490,3 +488,39 @@ class CheckoutSerializer(serializers.Serializer):
             "bank_account",
             "items",
         ]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    buyer = serializers.JSONField(source='archive.buyer')
+    seller = serializers.JSONField(source='archive.seller')
+    shipping_address = serializers.JSONField(source='archive.shipping_address')
+    bank_account = serializers.JSONField(source='archive.bank_account')
+    ad = serializers.JSONField(source='archive.ad')
+    total = serializers.FloatField()
+    date_created = serializers.DateTimeField(
+        format="%Y.%m.%d", read_only=True
+    )
+    return_date_expiry = serializers.DateTimeField(
+        format="%Y.%m.%d %H:%M:%S", read_only=True
+    )
+    status_display = serializers.CharField(source='get_status_display') 
+    tracking_number = serializers.CharField()
+
+    class Meta:
+        model = Order
+        fields = [
+            'pk',
+            'status',
+            'status_display',
+            'total',
+            'buyer',
+            'seller',
+            'shipping_address',
+            'bank_account',
+            'amount',
+            'ad',
+            'date_created',
+            'return_date_expiry',
+            'tracking_number',
+        ]
+

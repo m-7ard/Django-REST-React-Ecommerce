@@ -24,7 +24,7 @@ import Settings, { loader as settingsLoader } from './blocks/User/Settings'
 import ManageBankAccounts from './blocks/BankAccount/ManageBankAccounts'
 import CreateBankAccount, { loader as createBankAccountLoader } from './blocks/BankAccount/CreateBankAccount'
 import ManageAddresses from './blocks/Address/ManageAddresses'
-import { getRequestUserAdGroups, getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserTransactions } from './Fetchers'
+import { getOrderData, getRequestUserAdGroups, getRequestUserAddresses, getRequestUserBankAccounts, getRequestUserOrders, getRequestUserSales, getRequestUserTransactions } from './Fetchers'
 import CreateAddress from './blocks/Address/CreateAddress'
 import WithdrawFunds from './blocks/User/WithdrawFunds'
 import AdBoost from './blocks/Ad/AdBoost'
@@ -33,6 +33,10 @@ import Cart from './blocks/Store/Cart'
 import AdGroups from './blocks/User/AdGroups'
 import Bookmarks, { loader as bookmarkLoader } from './blocks/User/Bookmarks'
 import Checkout, { loader as checkoutLoader } from './blocks/Store/Checkout'
+import Orders from './blocks/User/Orders'
+import Transactions from './blocks/User/Transactions'
+import Sales from './blocks/User/Sales'
+import ConfirmShipping from './blocks/Order/ConfirmShipping'
 
 window.addEventListener('load', () => {
     const rootNode = document.getElementById('root')
@@ -153,6 +157,18 @@ window.addEventListener('load', () => {
                     }}
                 />
                 <Route
+                    path="transactions/"
+                    element={
+                        <LoginRequired>
+                            <Transactions />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const transactions = await getRequestUserTransactions()
+                        return { transactions }
+                    }}
+                />
+                <Route
                     path="funds/withdraw/"
                     element={
                         <LoginRequired>
@@ -224,6 +240,28 @@ window.addEventListener('load', () => {
                     />
                 </Route>
                 <Route
+                    path="order/:pk/"
+                >
+                    <Route
+                        path="confirm-shipping/"
+                        element={
+                            <LoginRequired>
+                                <ConfirmShipping />
+                            </LoginRequired>
+                        }
+                        loader={
+                            async ({ params }: {
+                                params: {
+                                    pk: number
+                                }
+                            }) => {
+                                const order = await getOrderData(params.pk)
+                                return { order }
+                            }
+                        }
+                    />
+                </Route>
+                <Route
                     path="checkout/"
                     element={
                         <LoginRequired>
@@ -231,6 +269,30 @@ window.addEventListener('load', () => {
                         </LoginRequired>
                     }
                     loader={checkoutLoader}
+                />
+                <Route
+                    path="orders/"
+                    element={
+                        <LoginRequired>
+                            <Orders />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const orders = await getRequestUserOrders()
+                        return { orders }
+                    }}
+                />
+                <Route
+                    path="sales/"
+                    element={
+                        <LoginRequired>
+                            <Sales />
+                        </LoginRequired>
+                    }
+                    loader={async () => {
+                        const sales = await getRequestUserSales()
+                        return { sales }
+                    }}
                 />
             </Route>
         )

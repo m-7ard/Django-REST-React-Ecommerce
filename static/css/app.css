@@ -978,6 +978,9 @@
   }
 }
 
+.prop {
+  overflow: hidden;
+}
 .prop--horizontal {
   display: flex;
   flex-direction: row;
@@ -1004,6 +1007,7 @@
   gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
+  overflow: hidden;
 }
 .prop__body {
   display: flex;
@@ -1011,7 +1015,7 @@
   padding: 0;
   gap: 0.75rem;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
 }
 .prop__footer {
   display: flex;
@@ -1020,37 +1024,44 @@
   gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
+  overflow: hidden;
 }
 .prop__title {
   font-size: 1.125rem;
   font-weight: 700;
   color: #0A0908;
+  overflow-wrap: break-word;
 }
 .prop__subtitle {
   font-size: 0.75rem;
   font-weight: 400;
   color: #423D36;
+  overflow-wrap: break-word;
 }
 .prop__info {
   font-size: 0.9375rem;
   font-weight: 500;
   color: #0A0908;
+  overflow-wrap: break-word;
 }
 .prop__detail {
   font-size: 0.75rem;
   font-weight: 400;
   color: #0A0908;
+  overflow-wrap: break-word;
 }
 .prop__label {
   font-size: 0.8125rem;
   font-weight: 700;
   color: #0A0908;
+  overflow-wrap: break-word;
 }
 .prop__pairing {
   display: flex;
   flex-direction: column;
   padding: 0;
   gap: 0.25rem;
+  overflow: hidden;
 }
 .prop__row {
   display: flex;
@@ -1069,6 +1080,7 @@
   flex-direction: column;
   padding: 0;
   gap: 0.75rem;
+  overflow: hidden;
 }
 .prop__button {
   white-space: nowrap;
@@ -1634,32 +1646,6 @@
   }
 }
 
-.funds__balance {
-  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
-  border: 1px solid #D6DDD9;
-  background-color: #ffffff;
-}
-.funds__transactions {
-  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
-  border: 1px solid #D6DDD9;
-}
-.funds__transactions > * {
-  display: flex;
-  flex-direction: row;
-  padding: 0.25rem 0.75rem;
-  gap: 0.75rem;
-  justify-content: space-between;
-  color: #0A0908;
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-.funds__transactions > :nth-child(2n) {
-  background-color: #E4E9E6;
-}
-.funds__transactions > :nth-child(2n+1) {
-  background-color: #F2F4F3;
-}
-
 .is-link {
   color: #0E30D8 !important;
   cursor: pointer;
@@ -1999,17 +1985,6 @@
   background-color: white;
 }
 
-.transaction {
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 0.25rem;
-}
-.transaction__title, .transaction__info {
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow-x: clip;
-}
-
 .ad-boost-select\@form {
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -2263,5 +2238,75 @@
   .checkout__total {
     grid-column: 1/-1;
     grid-row: 1/2;
+  }
+}
+
+.order {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  gap: 0;
+}
+.order__header {
+  display: flex;
+  flex-direction: row;
+  padding: 0.75rem;
+  gap: 0.75rem;
+  justify-content: space-between;
+  background-color: #F2F4F3;
+}
+.order__body {
+  padding: 0.75rem;
+  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 200px;
+}
+.order__button {
+  box-shadow: 0 2px 6px 0px rgba(214, 221, 217, 0.5);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow-x: clip;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  flex-shrink: 0;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: row;
+  padding: 0.5rem 0.75rem;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  border-radius: 2px;
+  justify-content: center;
+  font-weight: 500;
+}
+.order__button--highlighted {
+  color: #0A0908;
+  background-color: #AFF128;
+}
+.order__button--highlighted:hover {
+  color: #0A0908;
+  background-color: #F1CF28;
+}
+.order__button--normal {
+  border: 1px solid #D6DDD9;
+}
+.order__button--normal:hover {
+  background-color: #E4E9E6;
+}
+@media only screen and (max-width: 500px) {
+  .order__header {
+    display: grid;
+    grid-template-columns: minmax(auto, 1fr) minmax(auto, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .order__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 }/*# sourceMappingURL=app.css.map */

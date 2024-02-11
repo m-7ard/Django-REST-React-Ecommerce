@@ -127,3 +127,18 @@ export interface AdGroup {
     pk: number
     ads: AdGroupAd[]
 }
+
+export interface Order {
+    pk: number
+    amount: number
+    ad: BaseAd
+    total: number
+    shipping_address: Address
+    bank_account: BankAccount
+    buyer: User
+    seller: User
+    date_created: string
+    status: string
+    status_display: string
+    return_date_expiry: string
+}

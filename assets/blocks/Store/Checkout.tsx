@@ -1,9 +1,8 @@
 import React, { useRef, useState } from 'react'
-import { Link, useLoaderData, useLocation } from 'react-router-dom'
+import { Link, useLoaderData, useLocation, useNavigate } from 'react-router-dom'
 import AddressModalSelect, { AddressModalSelectWidget } from '../../widgets/ModalSelects/AddressModalSelect'
 import { getRequestUserAddresses, getRequestUserBankAccounts } from '../../Fetchers'
 import { type Address, type BankAccount, type CartItem } from '../../Types'
-import FormField from '../../elements/FormField'
 import BankAccountModalSelect, { BankAccountModalSelectWidget } from '../../widgets/ModalSelects/BankAccountModalSelect'
 import { getCookie } from '../../Utils'
 
@@ -33,9 +32,12 @@ export async function loader (): Promise<LoaderData> {
 }
 
 export default function Checkout (): React.ReactNode {
-    const { state } = useLocation() as { state: {
-        items: CartItem[]
-    } }
+    const { state } = useLocation() as {
+        state: {
+            items: CartItem[]
+        }
+    }
+    const navigate = useNavigate()
     const { addresses, bankAccounts } = useLoaderData() as LoaderData
     const [items, setItems] = useState(state.items)
     const [errors, setErrors] = useState()
@@ -45,8 +47,8 @@ export default function Checkout (): React.ReactNode {
     const cartTotal = shippingTotal + itemTotal
     const confirmCheckout = async (): Promise<void> => {
         const formData = new FormData(checkoutFormRef.current as HTMLFormElement)
-        formData.append('items', JSON.stringify(items))
         const headers: HeadersInit = {}
+        headers['Content-Type'] = 'application/json'
         const csrfToken = getCookie('csrftoken')
         if (csrfToken != null) {
             headers['X-CSRFToken'] = csrfToken
@@ -54,12 +56,16 @@ export default function Checkout (): React.ReactNode {
 
         const response = await fetch('/api/perform_checkout/', {
             method: 'POST',
-            body: formData,
+            body: JSON.stringify({ items, ...Object.fromEntries(formData) }),
             headers
         })
 
         if (!response.ok) {
-            console.log(await response.json())
+            const checkoutErrors = await response.json()
+            setErrors(checkoutErrors)
+        }
+        else {
+            navigate('/orders/')
         }
     }
 
