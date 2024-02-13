@@ -39,7 +39,7 @@ export default function Transactions (): React.ReactNode {
                                         {transactionData.order.bank_account.iban}
                                     </div>
                                     <div className='prop__info'>
-                                        {transactionData.order.total}€
+                                        {transaction.signed_amount}€
                                     </div>
                                 </div>
                             </div>

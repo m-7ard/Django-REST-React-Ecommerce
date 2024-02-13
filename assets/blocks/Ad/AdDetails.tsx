@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { Link, useLoaderData, useNavigate } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { Link, useLoaderData, useLocation, useNavigate } from 'react-router-dom'
 import { getAdData } from '../../Fetchers'
 import { useCartContext, useCategoryContext, useUserContext } from '../../Context'
 import { NormalizedData, getCookie } from '../../Utils'
@@ -77,9 +77,9 @@ function SpecificationsSelect ({ groupData, initial }: {
     groupData: AdGroup
     initial: Record<string, string>
 }): React.ReactNode {
-    const navigate = useNavigate()
     const normalizedInitial = Object.entries(initial).map(([fieldName, fieldValue]) => ({ fieldName, fieldValue }))
     const [selected, setSelected] = useState(normalizedInitial)
+    const navigate = useNavigate()
 
     // Ads that contain at least all the selected fields
     const subsetAds = groupData.ads.filter(({ specifications }) => {
@@ -139,99 +139,95 @@ function SpecificationsSelect ({ groupData, initial }: {
             }}>
                 Configure Specifications
             </div>
-            {
-                open && (
-                    <Prompt
-                        title='Select Options'
-                        extraClass='prompt--small ad-specification-select'
-                        onClose={() => {
-                            setOpen(false)
-                        }}
-                        body={
-                            <div className='prop__column'>
-                                {
-                                    Object.entries(groupData.options).map(([fieldName, fieldValues], i) => {
-                                        return (
-                                            <div key={i}>
-                                                <div className='prop__label'>
-                                                    {fieldName}
-                                                </div>
-                                                <select
-                                                    defaultValue={
-                                                        selected.find((option) => {
-                                                            return option.fieldName === fieldName
-                                                        })?.fieldValue ?? undefined
+            {open && (
+                <Prompt
+                    title='Select Options'
+                    extraClass='prompt--small ad-specification-select'
+                    onClose={() => {
+                        setOpen(false)
+                    }}
+                    body={
+                        <div className='prop__column'>
+                            {Object.entries(groupData.options).map(([fieldName, fieldValues], i) => {
+                                return (
+                                    <div key={i}>
+                                        <div className='prop__label'>
+                                            {fieldName}
+                                        </div>
+                                        <select
+                                            defaultValue={
+                                                selected.find((option) => {
+                                                    return option.fieldName === fieldName
+                                                })?.fieldValue ?? undefined
+                                            }
+                                            onChange={(event) => {
+                                                setSelected((previous) => {
+                                                    if (event.target.value === '') {
+                                                        return previous.filter((option) => {
+                                                            return fieldName !== option.fieldName
+                                                        })
                                                     }
-                                                    onChange={(event) => {
-                                                        setSelected((previous) => {
-                                                            if (event.target.value === '') {
-                                                                return previous.filter((option) => {
-                                                                    return fieldName !== option.fieldName
-                                                                })
-                                                            }
 
-                                                            const previousValue = previous.find((option) => {
-                                                                return option.fieldName === fieldName
-                                                            })
-                                                            const newValue = { fieldName, fieldValue: event.target.value }
-                                                            if (previousValue == null) {
-                                                                return [...previous, newValue]
-                                                            }
-                                                            return previous.map((option) => {
-                                                                return option.fieldName === fieldName
-                                                                    ? newValue
-                                                                    : option
-                                                            })
-                                                        })
-                                                    }}
-                                                >
-                                                    <option key={0} value={''}>
-                                                        --
-                                                    </option>
-                                                    {
-                                                        fieldValues.map((fieldValue, j) => {
-                                                            const disabled = selectableOptions[fieldName] == null || !selectableOptions[fieldName].has(fieldValue)
-                                                            return (
-                                                                <option
-                                                                    key={j + 1}
-                                                                    defaultValue={fieldValue}
-                                                                    selected={selected.find((option) => option.fieldName === fieldName && option.fieldValue === fieldValue) != null}
-                                                                    disabled={disabled}
-                                                                >
-                                                                    {fieldValue}
-                                                                </option>
-                                                            )
-                                                        })
+                                                    const previousValue = previous.find((option) => {
+                                                        return option.fieldName === fieldName
+                                                    })
+                                                    const newValue = { fieldName, fieldValue: event.target.value }
+                                                    if (previousValue == null) {
+                                                        return [...previous, newValue]
                                                     }
-                                                </select>
-                                            </div>
-                                        )
-                                    })
-                                }
+                                                    return previous.map((option) => {
+                                                        return option.fieldName === fieldName
+                                                            ? newValue
+                                                            : option
+                                                    })
+                                                })
+                                            }}
+                                        >
+                                            <option key={0} value={''}>
+                                                --
+                                            </option>
+                                            {
+                                                fieldValues.map((fieldValue, j) => {
+                                                    const disabled = selectableOptions[fieldName] == null || !selectableOptions[fieldName].has(fieldValue)
+                                                    return (
+                                                        <option
+                                                            key={j + 1}
+                                                            defaultValue={fieldValue}
+                                                            selected={selected.find((option) => option.fieldName === fieldName && option.fieldValue === fieldValue) != null}
+                                                            disabled={disabled}
+                                                        >
+                                                            {fieldValue}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </select>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
+                    footer={
+                        <>
+                            <div className='prompt__reset' onMouseUp={() => {
+                                setSelected(normalizedInitial)
+                            }}>
+                                Reset
                             </div>
-                        }
-                        footer={
-                            <>
-                                <div className='prompt__reset' onMouseUp={() => {
-                                    setSelected(normalizedInitial)
-                                }}>
-                                    Reset
-                                </div>
-                                <div className={`prompt__confirm ${selectableAd == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
-                                    if (selectableAd == null) {
-                                        return
-                                    }
+                            <div className={`prompt__confirm ${selectableAd == null ? 'prompt__confirm--disabled' : ''}`} onClick={() => {
+                                if (selectableAd == null) {
+                                    return
+                                }
 
-                                    setOpen(false)
-                                    navigate(`/ad/${selectableAd.pk}/`)
-                                }}>
-                                    Confirm
-                                </div>
-                            </>
-                        }
-                    />
-                )
-            }
+                                setOpen(false)
+                                navigate(`/ad/${selectableAd.pk}/`)
+                            }}>
+                                Confirm
+                            </div>
+                        </>
+                    }
+                />
+            )}
         </>
 
     )
@@ -239,7 +235,7 @@ function SpecificationsSelect ({ groupData, initial }: {
 
 function ImageDisplay ({ ad }: { ad: BaseAd }): React.ReactNode {
     const [current, setCurrent] = useState(ad.images[0])
-
+ 
     return (
         <div className='img-display@ad-details'>
             <div className='img-display@ad-details__picker'>
@@ -293,7 +289,7 @@ export default function AdDetails (): React.ReactNode {
     }
 
     return (
-        <div className="ad-details prop">
+        <div className="ad-details prop" key={ad.pk}>
             <div className="ad-details__header">
                 <div className="ad-details__category">
                     {categoryPkRoute.map((pk, index) => (
@@ -340,80 +336,76 @@ export default function AdDetails (): React.ReactNode {
                         </div>
                     </div>
                 </div>
-                {
-                    ad.group_data == null
-                        ? Object.entries(ad.specifications_json).length !== 0 && (
+                {ad.group_data == null
+                    ? Object.entries(ad.specifications_json).length !== 0 && (
+                        <div className='prop prop--vertical prop--highlighted'>
+                            <div className='prop__header' >
+                                <div className='prop__label'>
+                                    Specifications
+                                </div>
+                            </div>
+                            <hr className='app__divider' />
+                            <div className='prop__pairing'>
+                                {Object.entries(ad.specifications_json).map(([fieldName, fieldValue], i) => {
+                                    return (
+                                        <div key={i} className='prop__row prop__row--baselined'>
+                                            <div className='prop__label'>
+                                                {fieldName}
+                                            </div>
+                                            <div className='prop__detail'>
+                                                {fieldValue}
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                                }
+                            </div>
+                        </div>
+                    )
+                    : (
+                        <>
                             <div className='prop prop--vertical prop--highlighted'>
                                 <div className='prop__header' >
                                     <div className='prop__label'>
                                         Specifications
                                     </div>
+                                    <SpecificationsSelect groupData={ad.group_data} initial={ad.specifications_json} />
                                 </div>
                                 <hr className='app__divider' />
                                 <div className='prop__pairing'>
-                                    {
-                                        Object.entries(ad.specifications_json).map(([fieldName, fieldValue], i) => {
-                                            return (
-                                                <div key={i} className='prop__row prop__row--baselined'>
-                                                    <div className='prop__label'>
-                                                        {fieldName}
-                                                    </div>
-                                                    <div className='prop__detail'>
-                                                        {fieldValue}
-                                                    </div>
+                                    {Object.entries(ad.specifications_json).map(([fieldName, fieldValue], i) => {
+                                        return (
+                                            <div key={i} className='prop__row prop__row--baselined'>
+                                                <div className='prop__label'>
+                                                    {fieldName}
                                                 </div>
-                                            )
-                                        })
+                                                <div className='prop__detail'>
+                                                    {fieldValue}
+                                                </div>
+                                            </div>
+                                        )
+                                    })
                                     }
                                 </div>
                             </div>
-                        )
-                        : (
-                            <>
-                                <div className='prop prop--vertical prop--highlighted'>
-                                    <div className='prop__header' >
-                                        <div className='prop__label'>
-                                            Specifications
-                                        </div>
-                                        <SpecificationsSelect groupData={ad.group_data} initial={ad.specifications_json} />
-                                    </div>
-                                    <hr className='app__divider' />
-                                    <div className='prop__pairing'>
-                                        {
-                                            Object.entries(ad.specifications_json).map(([fieldName, fieldValue], i) => {
-                                                return (
-                                                    <div key={i} className='prop__row prop__row--baselined'>
-                                                        <div className='prop__label'>
-                                                            {fieldName}
-                                                        </div>
-                                                        <div className='prop__detail'>
-                                                            {fieldValue}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })
-                                        }
-                                    </div>
-                                </div>
-                            </>
-                        )
+                        </>
+                    )
                 }
                 <hr className="app__divider" />
                 <AdPurchaseControl ad={ad} cart={cart} setCart={setCart} />
-                {
-                    (user.bookmarks as number[])?.includes(ad.pk)
-                        ? (
-                            <Link to={'/bookmarks/'} className="ad-details__button ad-details__button--bookmark">
-                                See In Bookmarks
-                            </Link>
-                        )
-                        : (
-                            <div className="ad-details__button ad-details__button--bookmark" onMouseUp={() => {
-                                void addToBookmarks()
-                            }}>
-                                Add To Bookmarks
-                            </div>
-                        )
+                {(user.bookmarks as number[])?.includes(ad.pk)
+                    ? (
+                        <Link to={'/bookmarks/'} className="ad-details__button ad-details__button--bookmark">
+                            See In Bookmarks
+                        </Link>
+                    )
+                    : (
+                        <div className="ad-details__button ad-details__button--bookmark" onMouseUp={() => {
+                            void addToBookmarks()
+                        }}>
+                            Add To Bookmarks
+                        </div>
+                    )
                 }
             </div>
             <div className="ad-details__footer">

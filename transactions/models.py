@@ -27,6 +27,9 @@ class LedgerEntry(models.Model):
         self.user_archive = PublicUserSerializer(self.user).data
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['-date_created']
+
 
 class OrderTransaction(models.Model):
     sender = models.ForeignKey(
@@ -121,5 +124,13 @@ class OrderRefund(OrderTransaction):
             raise IntegrityError("Cannot refund unpaid order.")
 
     def _perform_payment(self):
-        self.receiver.seller_funds -= self.amount
-        self.receiver.save()
+        self.sender.seller_funds -= self.amount
+        self.sender.save()
+
+
+class AdBoostTransaction(models.Model):
+    sender = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, related_name="+", null=True
+    )
+
+

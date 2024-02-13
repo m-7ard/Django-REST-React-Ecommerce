@@ -17,4 +17,5 @@ class LedgerEntrySerializer(serializers.ModelSerializer):
             "user_archive",
             "transaction_data",
             "date_created",
+            "signed_amount"
         ]

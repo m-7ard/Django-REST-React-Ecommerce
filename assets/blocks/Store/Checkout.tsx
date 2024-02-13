@@ -12,7 +12,7 @@ interface LoaderData {
 }
 
 interface CartItemErrorsInterface {
-    amount: string[]
+    amount?: string[]
     ad?: Record<string, string[]>
 }
 
@@ -40,7 +40,7 @@ export default function Checkout (): React.ReactNode {
     const navigate = useNavigate()
     const { addresses, bankAccounts } = useLoaderData() as LoaderData
     const [items, setItems] = useState(state.items)
-    const [errors, setErrors] = useState()
+    const [errors, setErrors] = useState<CheckoutErrorsInterface | undefined>()
     const checkoutFormRef = useRef<HTMLFormElement>(null)
     const shippingTotal = items.reduce((acc, { ad }) => acc + ad.shipping, 0)
     const itemTotal = items.reduce((acc, { ad, amount }) => acc + (ad.price * amount), 0)
@@ -62,6 +62,7 @@ export default function Checkout (): React.ReactNode {
 
         if (!response.ok) {
             const checkoutErrors = await response.json()
+            console.log(checkoutErrors)
             setErrors(checkoutErrors)
         }
         else {
@@ -126,6 +127,11 @@ export default function Checkout (): React.ReactNode {
                             placeholder='Select Shipping Address'
                             addressList={addresses}
                         />
+                        {errors?.shipping_address?.map((msg, i) => (
+                            <div className='prop__detail' key={i}>
+                                {msg}
+                            </div>
+                        ))}
                     </div>
                     <hr className='app__divider' />
                     <div className='prop__pairing'>
@@ -138,59 +144,96 @@ export default function Checkout (): React.ReactNode {
                             placeholder='Select Bank Account'
                             bankAccountList={bankAccounts}
                         />
+                        {errors?.bank_account?.map((msg, i) => (
+                            <div className='prop__detail' key={i}>
+                                {msg}
+                            </div>
+                        ))}
                     </div>
                     <hr className='app__divider' />
                     <div className='prop__pairing'>
                         <div className='prop__label'>
                             Review Items
                         </div>
-                        {items.map(({ pk, ad, amount }, i) => (
-                            <div key={i} className='prop prop--vertical prop--highlighted'>
-                                <div className='prop__row'>
-                                    <Link to={`/ad/${ad.pk}/`} className="avatar avatar--large prop prop--highlighted">
-                                        <img src={`/media/${ad.images[0]}`} />
-                                    </Link>
-                                    <div className="prop__column ad@cart__body">
-                                        <div className='prop__pairing'>
-                                            <div>
-                                                <Link to={`/ad/${ad.pk}/`} className="prop__info is-link ad@cart__title">
-                                                    {ad.title}
-                                                </Link>
-                                                {
-                                                    ad.condition_display != null && (
-                                                        <div className='prop__detail'>
-                                                            {ad.condition_display}
-                                                        </div>
-                                                    )
-                                                }
+                        {errors?.items?.non_field_errors?.map((msg, i) => (
+                            <div className='prop__detail' key={i}>
+                                {msg}
+                            </div>
+                        ))}
+                        {items.map(({ pk, ad, amount }, i) => {
+                            const itemErrors = errors?.items?.[pk]
 
-                                            </div>
-                                            <div className='prop__row prop__row--centered'>
+                            return (
+                                <div key={i} className='prop prop--vertical prop--highlighted'>
+                                    <div className='prop__row'>
+                                        <Link to={`/ad/${ad.pk}/`} className="avatar avatar--large prop prop--highlighted">
+                                            <img src={`/media/${ad.images[0]}`} />
+                                        </Link>
+                                        <div className="prop__column ad@cart__body">
+                                            <div className='prop__pairing'>
+                                                <div>
+                                                    <Link to={`/ad/${ad.pk}/`} className="prop__info is-link ad@cart__title">
+                                                        {ad.title}
+                                                    </Link>
+                                                    {
+                                                        ad.condition_display != null && (
+                                                            <div className='prop__detail'>
+                                                                {ad.condition_display}
+                                                            </div>
+                                                        )
+                                                    }
+
+                                                </div>
+                                                <div className='prop__row prop__row--centered'>
+                                                    <div className='prop__detail'>
+                                                        Price
+                                                    </div>
+                                                    <div className='prop__label'>
+                                                        {ad.price}€
+                                                    </div>
+                                                </div>
                                                 <div className='prop__detail'>
-                                                    Price
+                                                    {ad.shipping === 0 ? 'Free Shipping' : `+${ad.shipping}€ Shipping`}
                                                 </div>
-                                                <div className='prop__label'>
-                                                    {ad.price}€
-                                                </div>
-                                            </div>
-                                            <div className='prop__detail'>
-                                                {ad.shipping === 0 ? 'Free Shipping' : `+${ad.shipping}€ Shipping`}
-                                            </div>
-                                            <div className='prop__row prop__row--baselined'>
-                                                <div className='prop__detail'>
-                                                    Amount:
-                                                </div>
-                                                <div className='prop__label'>
-                                                    {amount}
+                                                <div className='prop__row prop__row--baselined'>
+                                                    <div className='prop__detail'>
+                                                        Amount:
+                                                    </div>
+                                                    <div className='prop__label'>
+                                                        {amount}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    {itemErrors?.amount != null && (
+                                        <div>
+                                            {itemErrors?.amount.map((msg) => (
+                                                <div className='prop__detail' key={i}>
+                                                    {msg}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {itemErrors?.ad != null && Object.entries(itemErrors.ad).map(([fieldName, fieldErrors], i) => (
+                                        <div key={i}>
+                                            {fieldErrors.map((msg, j) => (
+                                                <div className='prop__detail' key={j}>
+                                                    {msg}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                     <hr className="app__divider" />
+                    {errors?.items != null && (
+                        <div className='prop__title is-error'>
+                            Invalid Item Data. Please go back to cart and retry checkout.
+                        </div>
+                    )}
                     <div className='checkout__button' onClick={() => {
                         void confirmCheckout()
                     }}>

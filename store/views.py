@@ -34,6 +34,7 @@ from .serializers import (
     CheckoutSerializer,
     OrderSerializer,
     CheckoutItemSerializer,
+    OrderCancellationModelSerializer,
 )
 from .paginators import AdPaginator
 from users.models import CustomUser, FeeTransaction
@@ -376,7 +377,7 @@ class OrderViewSet(viewsets.GenericViewSet, RetrieveModelMixin):
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=["POST"], detail=True)
+    @action(methods=["PATCH"], detail=True)
     def confirm_payment(self, request, pk):
         order = self.get_object()
         if request.user != order.buyer:
@@ -409,3 +410,44 @@ class OrderViewSet(viewsets.GenericViewSet, RetrieveModelMixin):
             return Response(status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(methods=["PATCH"], detail=True)
+    def confirm_arrival(self, request, pk):
+        order = self.get_object()
+        if request.user != order.buyer:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        if order.status != 'shipped':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        order.status = 'arrived'
+        order.save()
+        return Response(data=OrderSerializer(order).data, status=status.HTTP_200_OK)
+        
+    @action(methods=["PATCH"], detail=True)
+    def cancel(self, request, pk):
+        order = self.get_object()
+        if request.user not in [order.seller, order.buyer]:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+        if request.user == order.buyer and order.status not in ['pending_payment']:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if request.user == order.seller and order.status not in ['pending_payment', 'pending_shipping']:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        to_validate = {'reason': request.data.get('reason')}
+        serializer = OrderCancellationModelSerializer(data=to_validate, partial=True)
+
+        if serializer.is_valid():
+            serializer.save(order=order, user=request.user)
+            order.status = 'cancelled'
+            order.save()
+            payment = OrderPayment.objects.filter(order=order)
+            if payment.exists():
+                refund, created = OrderRefund.objects.get_or_create(order=order)
+                
+            return Response(data=OrderSerializer(order).data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        

@@ -1,16 +1,12 @@
 import React, { type FormEvent, useState } from 'react'
-import FormField from './FormField'
+import FormField, { type FormFieldInterface } from './FormField'
 import { getCookie } from '../Utils'
 import Icon from './Icon'
 
 interface GenericFormPromptInteface {
     action: string
     title: string
-    fields: Array<{
-        name: string
-        label: string
-        widget: ({ name }: { name: string }) => React.ReactNode
-    }>
+    fields: FormFieldInterface[]
     button: {
         label: string
     }
@@ -78,27 +74,31 @@ export default function GenericFormPrompt ({
                     </div>
                 </div>
                 <hr className="app__divider" />
-                <div className="prop__body">
-                    {
-                        (errors?.non_field_errors != null) && (
-                            <div className="form__field">
-                                {
-                                    errors.non_field_errors?.map((message: string, i: number) => (
-                                        <div className="form__error" key={i}>
-                                            {message}
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        )
-                    }
-                    {
-                        fields.map(({ widget, name, label }, i) => (
-                            <FormField widget={widget} name={name} label={label} errors={errors} key={i}/>
-                        ))
-                    }
-                </div>
-                <hr className="app__divider" />
+                {fields.length !== 0 && (
+                    <>
+                        <div className="prop__body">
+                            {
+                                (errors?.non_field_errors != null) && (
+                                    <div className="form__field">
+                                        {
+                                            errors.non_field_errors?.map((message: string, i: number) => (
+                                                <div className="form__error" key={i}>
+                                                    {message}
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+                                )
+                            }
+                            {
+                                fields.map(({ widget, name, label }, i) => (
+                                    <FormField widget={widget} name={name} label={label} errors={errors} key={i}/>
+                                ))
+                            }
+                        </div>
+                        <hr className="app__divider" />
+                    </>
+                ) }
                 <div className="prop__footer">
                     <button type="submit" className="form__submit">
                         {button.label}

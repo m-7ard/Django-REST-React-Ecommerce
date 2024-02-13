@@ -78,8 +78,8 @@ class Ad(models.Model):
     )
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=4096, blank=True)
-    price = models.FloatField(validators=[MinValueValidator(0)])
-    shipping = models.FloatField(validators=[MinValueValidator(0)])
+    price = models.DecimalField(max_digits=20, decimal_places=2)
+    shipping = models.DecimalField(max_digits=20, decimal_places=2)
     return_policy = models.CharField(max_length=30, choices=RETURN_POLICIES)
     condition = models.CharField(max_length=30, choices=CONDITIONS, blank=True)
     available = models.PositiveIntegerField()
@@ -178,7 +178,7 @@ class Order(models.Model):
         ('completed', 'Completed'),
         ('pending_return', 'Pending Return'),
         ('returned', 'Returned'),
-        ('canceled', 'Canceled'),
+        ('cancelled', 'Cancelled'),
     )
     buyer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='orders', null=True)
     seller = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='sales', null=True)
@@ -228,3 +228,25 @@ class Order(models.Model):
         
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['-date_created']
+
+
+class OrderCancellation(models.Model):
+    order = models.OneToOneField(Order, related_name='cancellation', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, related_name='+', on_delete=models.SET_NULL, null=True)
+    user_archive = models.JSONField()
+    reason = models.CharField(max_length=1028)
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+        if not creating:
+            raise IntegrityError("Cannot edit cancellations.")
+
+        if self.user not in [self.order.seller, self.order.buyer]:
+            raise IntegrityError("Order must be cancelled by order buyer or seller.")
+        
+        from users.serializers import PublicUserSerializer
+        self.user_archive = PublicUserSerializer(self.user).data
+
+        super().save(*args, **kwargs)

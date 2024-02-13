@@ -6,6 +6,7 @@ from .models import (
     Cart,
     CartItem,
     Order,
+    OrderCancellation
 )
 
 
@@ -20,3 +21,4 @@ admin.site.register(Ad, AdAdmin)
 admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order)
+admin.site.register(OrderCancellation)

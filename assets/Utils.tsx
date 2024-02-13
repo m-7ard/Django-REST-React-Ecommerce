@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { Link, Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { UserContext, useUserContext } from './Context'
-import { type NormalizedDataValue, type NormalizedDataItem, type UnnormalizedData, type PickerValue, PickerControls } from './Types'
+import { type NormalizedDataValue, type NormalizedDataItem, type UnnormalizedData, type PickerValue, PickerControls, type Order } from './Types'
+import GenericFormPrompt from './elements/GenericFormPrompt'
+import { type FormFieldInterface } from './elements/FormField'
 
 export function useLoginRequired (): void {
     const { user } = useUserContext()
@@ -1039,4 +1041,61 @@ export function splitNumber (number: number): [string, string] {
     const [wholePart, decimalPart] = numberString.split('.')
     const decimal = decimalPart != null ? `.${decimalPart}` : ''
     return [wholePart, decimal]
+}
+
+export const useOrderComponentControl = (initial: Order): {
+    OrderAction: ({ label, endpoint, method, fields }: {
+        label: string
+        endpoint: string
+        method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+        fields: FormFieldInterface[]
+    }) => React.ReactNode
+    order: Order
+    setOrder: React.Dispatch<React.SetStateAction<Order>>
+} => {
+    const [order, setOrder] = useState(initial)
+
+    function OrderAction ({ label, endpoint, method, fields }: {
+        label: string
+        endpoint: string
+        method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+        fields: FormFieldInterface[]
+    }): React.ReactNode {
+        const [open, setOpen] = useState(false)
+
+        return (
+            <>
+                <div className={`order__button ${label.toLowerCase() === 'cancel order' ? 'order__button--normal' : 'order__button--highlighted'}`} onClick={() => {
+                    setOpen(true)
+                }}>
+                    {label}
+                </div>
+                {open && (
+                    <GenericFormPrompt
+                        action={`/api/orders/${order.pk}${endpoint}`}
+                        method={method}
+                        hasCSRF
+                        extraClass='pamphlet'
+                        title={label}
+                        fields={fields}
+                        button={{ label }}
+                        onSuccess={async (response) => {
+                            const updatedOrder = await response.json()
+                            setOrder(updatedOrder)
+                            setOpen(false)
+                        }}
+                        onClose={() => {
+                            setOpen(false)
+                        }}
+                    />
+                )}
+            </>
+        )
+    };
+
+    return {
+        OrderAction,
+        order,
+        setOrder
+    }
 }

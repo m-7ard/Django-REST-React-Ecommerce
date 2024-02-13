@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
-from .models import Category, Ad, Cart, CartItem, AdGroup, Order
+from .models import Category, Ad, Cart, CartItem, AdGroup, Order, OrderCancellation
 from users.models import FeeTransaction, CustomUser, Address, BankAccount
 from users.serializers import FullUserSerializer, PublicUserSerializer
 
@@ -54,6 +54,8 @@ class ArchiveAdModelSerializer(serializers.ModelSerializer):
     return_policy_display = serializers.CharField(source="get_return_policy_display")
     specifications = serializers.ListField()
     images = serializers.JSONField()
+    price = serializers.FloatField()
+    shipping = serializers.FloatField()
 
     class Meta:
         model = Ad
@@ -88,6 +90,8 @@ class PublicAdModelSerializer(serializers.ModelSerializer):
     images = serializers.JSONField()
     specifications = serializers.ListField()
     group_data = AdGroupSerializer(source="group")
+    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
 
     def create(self, validated_data):
         raise ValidationError("Read-only serializer")
@@ -158,6 +162,8 @@ class AdModelSerializer(serializers.ModelSerializer):
     return_policy_display = serializers.CharField(
         source="get_return_policy_display", read_only=True
     )
+    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
 
     def validate_specifications(self, value):
         specifications = {}
@@ -312,6 +318,8 @@ class CartAdSerializer(serializers.ModelSerializer):
     created_by = PublicUserSerializer(read_only=True)
     condition_display = serializers.CharField(source="get_condition_display")
     return_policy_display = serializers.CharField(source="get_return_policy_display")
+    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
 
     class Meta:
         model = Ad
@@ -349,11 +357,11 @@ class CartSerializer(serializers.ModelSerializer):
 
 class CheckoutCartAdSerializer(serializers.Serializer):
     pk = serializers.IntegerField(write_only=True)
-    price = serializers.FloatField(min_value=0)
     title = serializers.CharField(min_length=1)
     unlisted = serializers.BooleanField(required=False)
-    shipping = serializers.FloatField(min_value=0)
     condition = serializers.ChoiceField(choices=Ad.CONDITIONS, allow_blank=True)
+    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
 
     def validate_unlisted(self, value):
         if value:
@@ -367,7 +375,7 @@ class CheckoutCartAdSerializer(serializers.Serializer):
         for field, value in data.items():
             db_value = getattr(ad, field)
             if db_value != value:
-                errors[field] = f'{field} changed from {value} to {db_value}'
+                errors[field] = f'{field} changed from "{value}" to "{db_value}"'
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -524,3 +532,8 @@ class OrderSerializer(serializers.ModelSerializer):
             'tracking_number',
         ]
 
+
+class OrderCancellationModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderCancellation
+        fields = '__all__'

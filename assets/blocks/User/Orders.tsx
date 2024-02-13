@@ -1,31 +1,11 @@
-import React, { useState } from 'react'
-import { useLoaderData } from 'react-router-dom'
+import React from 'react'
+import { Link, useLoaderData } from 'react-router-dom'
 import { type Order } from '../../Types'
-import { getCookie } from '../../Utils'
+import { useOrderComponentControl } from '../../Utils'
+import { CharTextAreaWidget } from '../../widgets/CharTextArea'
 
 function OrderComponent ({ initial }: { initial: Order }): React.ReactNode {
-    const [order, setOrder] = useState(initial)
-
-    const confirmPayment = async (): Promise<void> => {
-        const headers: HeadersInit = {}
-        headers['Content-Type'] = 'application/json'
-        const csrfToken = getCookie('csrftoken')
-        if (csrfToken != null) {
-            headers['X-CSRFToken'] = csrfToken
-        }
-
-        const response = await fetch(`/api/orders/${order.pk}/confirm_payment/`, {
-            method: 'POST',
-            headers
-        })
-
-        if (!response.ok) {
-            return
-        }
-
-        const updatedOrder = await response.json()
-        setOrder(updatedOrder)
-    }
+    const { OrderAction, order, setOrder } = useOrderComponentControl(initial)
 
     return (
         <div className='prop prop--highlighted order'>
@@ -70,13 +50,13 @@ function OrderComponent ({ initial }: { initial: Order }): React.ReactNode {
                         Order Status: {order.status_display}
                     </div>
                     <div className='prop__row'>
-                        <div className='avatar avatar--large'>
+                        <Link className='avatar avatar--large' to={`/ad/${order.ad.pk}/`}>
                             <img src={`/media/${order.ad.images[0]}`} />
-                        </div>
+                        </Link>
                         <div className='prop__pairing'>
-                            <div className='prop__info is-link'>
+                            <Link className='prop__info is-link' to={`/ad/${order.ad.pk}/`}>
                                 {order.ad.title}
-                            </div>
+                            </Link>
                             <div className='prop__row prop__row--baselined'>
                                 <div className='prop__label'>
                                     Seller:
@@ -99,21 +79,18 @@ function OrderComponent ({ initial }: { initial: Order }): React.ReactNode {
                 <div className='prop__pairing'>
                     {order.status === 'pending_payment'
                         ? (
-                            <div className='order__button order__button--highlighted' onClick={() => {
-                                void confirmPayment()
-                            }}>
-                                Confirm Payment
-                            </div>
+                            <OrderAction label="Confirm Payment" endpoint="/confirm_payment/" method="PATCH" fields={[]} />
                         )
                         : (
                             <div className='order__button order__button--highlighted'>
                                 Track Order
                             </div>
                         )}
-                    {['pending_payment', 'pending_shipping'].includes(order.status) && (
-                        <div className='order__button order__button--normal'>
-                            Cancel Order
-                        </div>
+                    {['pending_payment'].includes(order.status) && (
+                        <OrderAction label="Cancel Order" endpoint="/cancel/" method="PATCH" fields={[{ name: 'reason', label: 'Reason', widget: CharTextAreaWidget({ maxLength: 1028 }) }]} />
+                    )}
+                    {order.status === 'shipped' && (
+                        <OrderAction label="Confirm Arrival" endpoint="/confirm_arrival/" method="PATCH" fields={[]} />
                     )}
                     {order.status === 'completed' && (
                         <div className='order__button order__button--highlighted'>
@@ -131,6 +108,9 @@ function OrderComponent ({ initial }: { initial: Order }): React.ReactNode {
                                 View or Edit Order
                             </div>
                         )}
+                    <div className='order__button order__button--normal'>
+                        Problem with Order
+                    </div>
                 </div>
             </div>
         </div>

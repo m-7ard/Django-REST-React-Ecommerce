@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, useLoaderData } from 'react-router-dom'
 import { type Order } from '../../Types'
-import { getCookie } from '../../Utils'
+import { useOrderComponentControl } from '../../Utils'
+import { CharTextAreaWidget } from '../../widgets/CharTextArea'
 
 function SaleComponent ({ initial }: { initial: Order }): React.ReactNode {
-    const [order, setOrder] = useState(initial)
+    const { OrderAction, order, setOrder } = useOrderComponentControl(initial)
 
     return (
         <div className='prop prop--highlighted order'>
@@ -49,13 +50,13 @@ function SaleComponent ({ initial }: { initial: Order }): React.ReactNode {
                         Order Status: {order.status_display}
                     </div>
                     <div className='prop__row'>
-                        <div className='avatar avatar--large'>
+                        <Link className='avatar avatar--large' to={`/ad/${order.ad.pk}/`}>
                             <img src={`/media/${order.ad.images[0]}`} />
-                        </div>
+                        </Link>
                         <div className='prop__pairing'>
-                            <div className='prop__info is-link'>
+                            <Link className='prop__info is-link' to={`/ad/${order.ad.pk}/`}>
                                 {order.ad.title}
-                            </div>
+                            </Link>
                             <div className='prop__detail'>
                                 Returnable Until {order.ad.return_policy === 'warranty' ? 'Warranty Period' : order.return_date_expiry}
                             </div>
@@ -79,9 +80,7 @@ function SaleComponent ({ initial }: { initial: Order }): React.ReactNode {
                         </Link>
                     )}
                     {['pending_payment', 'pending_shipping'].includes(order.status) && (
-                        <div className='order__button order__button--normal'>
-                            Cancel Order
-                        </div>
+                        <OrderAction label="Cancel Order" endpoint="/cancel/" method="PATCH" fields={[{ name: 'reason', label: 'Reason', widget: CharTextAreaWidget({ maxLength: 1028 }) }]} />
                     )}
                     <div className='order__button order__button--normal'>
                         Problem with Order
