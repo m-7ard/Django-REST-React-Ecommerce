@@ -27,7 +27,6 @@ from .models import Category, Ad, CartItem, Order
 from .serializers import (
     CategorySerializer,
     AdModelSerializer,
-    AdBoostSerializer,
     CartItemSerializer,
     AdGroupSerializer,
     PublicAdModelSerializer,
@@ -35,6 +34,7 @@ from .serializers import (
     OrderSerializer,
     CheckoutItemSerializer,
     OrderCancellationModelSerializer,
+    AdBoostValidationSerializer,
 )
 from .paginators import AdPaginator
 from users.models import CustomUser, FeeTransaction
@@ -62,37 +62,20 @@ class AdViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], detail=True)
     def boost(self, request, pk=None):
-        ad = get_object_or_404(request.user.ads.all(), pk=pk)
-        payer_bank_account = get_object_or_404(
-            request.user.bank_accounts.all(), pk=request.data.get("payer_bank_account")
-        )
-        serializer = AdBoostSerializer(
-            data=dict(self.request.data),
+        ad = self.get_object()
+        serializer = AdBoostValidationSerializer(
+            data=request.data,
             context={
-                "request": self.request,
-                "ad": ad,
-                "payer_bank_account": payer_bank_account,
-            },
+                'request': request,
+                'ad': ad
+            }
         )
-        serializer.is_valid(raise_exception=True)
-        boosts = serializer.data["boosts"]
-        for boost in boosts:
-            if boost == "highlight_ad":
-                ad.apply_highlight_boost()
-            elif boost == "top_ad":
-                ad.apply_top_boost()
-            elif boost == "gallery_ad":
-                ad.apply_gallery_boost()
-            elif boost == "push_ad":
-                ad.apply_push_boost()
 
-            FeeTransaction.objects.create(
-                kind=boost,
-                payer_bank_account=payer_bank_account,
-            )
-
-        ad.save()
-        return Response(status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            serializer.save(ad=ad, user=request.user)
+            return Response(status=status.HTTP_201_CREATED)
+        
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @paginate
     @action(methods=["GET"], detail=False)

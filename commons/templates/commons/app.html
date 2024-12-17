@@ -6,5 +6,8 @@
 {% endblock %}
 
 {% block content %}
+    <script>
+        window.csrfToken = '{{ csrf_token }}';
+    </script>
     <div id="root"></div>
 {% endblock %}

@@ -9,6 +9,7 @@ from store.serializers import OrderSerializer
 class LedgerEntry(models.Model):
     KINDS = (
         ("order_transaction", "Order Transaction"),
+        ("ad_boost_transaction", "Ad Boost Transaction"),
     )
     kind = models.CharField(max_length=30, choices=KINDS)
     signed_amount = models.DecimalField(max_digits=20, decimal_places=2)
@@ -127,10 +128,5 @@ class OrderRefund(OrderTransaction):
         self.sender.seller_funds -= self.amount
         self.sender.save()
 
-
-class AdBoostTransaction(models.Model):
-    sender = models.ForeignKey(
-        CustomUser, on_delete=models.SET_NULL, related_name="+", null=True
-    )
 
 

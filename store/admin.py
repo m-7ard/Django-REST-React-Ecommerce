@@ -6,7 +6,8 @@ from .models import (
     Cart,
     CartItem,
     Order,
-    OrderCancellation
+    OrderCancellation,
+    AdBoost
 )
 
 
@@ -22,3 +23,4 @@ admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order)
 admin.site.register(OrderCancellation)
+admin.site.register(AdBoost)

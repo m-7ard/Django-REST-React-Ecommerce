@@ -38,10 +38,10 @@ export default function AdBoostSelect ({ name }: AdBoostSelectProps): React.Reac
 
     return (
         <div className='prop prop--vertical'>
-            <Option value="push_ad" label="Renew Ad" price={2.95} description="Pushes the ad to the top of the search's 1st page anew together with the new ads." />
-            <Option value="highlight_ad" label="Highlight Ad" price={3.95} description="Pins the ad to the top of the search of whatever page the ad is on." />
-            <Option value="top_ad" label="Top Ad" price={15.95} description="Pins the ad to the top of the search of any page, will rotate with other Top Ads." />
-            <Option value="gallery_ad" label="Gallery Ad" price={25.95} description="Highlights the ad on the frontpage gallery, will rotate with other Gallery Ads." />
+            <Option value="push" label="Renew Ad" price={2.95} description="Pushes the ad to the top of the search's 1st page anew together with the new ads." />
+            <Option value="highlight" label="Highlight Ad" price={3.95} description="Pins the ad to the top of the search of whatever page the ad is on." />
+            <Option value="top" label="Top Ad" price={15.95} description="Pins the ad to the top of the search of any page, will rotate with other Top Ads." />
+            <Option value="gallery" label="Gallery Ad" price={25.95} description="Highlights the ad on the frontpage gallery, will rotate with other Gallery Ads." />
         </div>
     )
 }

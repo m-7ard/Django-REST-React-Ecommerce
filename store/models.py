@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 from collections import defaultdict
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import models, IntegrityError
 from django.db.models.query import Q
 from django.contrib.sessions.models import Session
-from django.core.validators import MinValueValidator
 
 from users.models import CustomUser, Address, BankAccount
 from .validators import BasicJsonValidator
@@ -106,6 +105,10 @@ class Ad(models.Model):
     top_expiry = models.DateTimeField(default=datetime.now)
     gallery_expiry = models.DateTimeField(default=datetime.now)
 
+    @property
+    def push_expiry(self):
+        return self.latest_push_date + timedelta(days=1)
+
     def is_highlight(self):
         return self.highlight_expiry > datetime.now()
 
@@ -115,19 +118,31 @@ class Ad(models.Model):
     def is_gallery(self):
         return self.gallery_expiry > datetime.now()
     
-    def apply_highlight_boost(self):
+    def can_highlight(self):
+        return self.highlight_expiry < datetime.now()
+
+    def can_top(self):
+        return self.top_expiry < datetime.now()
+    
+    def can_gallery(self):
+        return self.gallery_expiry < datetime.now()
+    
+    def can_push(self):
+        return self.push_expiry < datetime.now()
+    
+    def apply_highlight(self):
         self.highlight_expiry = datetime.now() + timedelta(days=14)
         self.save()
 
-    def apply_gallery_boost(self):
+    def apply_gallery(self):
         self.gallery_expiry = datetime.now() + timedelta(days=14)
         self.save()
 
-    def apply_top_boost(self):
+    def apply_top(self):
         self.top_expiry = datetime.now() + timedelta(days=14)
         self.save()
         
-    def apply_push_boost(self):
+    def apply_push(self):
         self.latest_push_date = datetime.now()
         self.save()
 
@@ -144,6 +159,68 @@ class Ad(models.Model):
 
     class Meta:
         ordering = ['-date_created']
+
+
+class AdBoost(models.Model):
+    KINDS = (
+        ('gallery', 'Gallery Boost'),
+        ('top', 'Top Boost'),
+        ('highlight', 'Highlight Boost'),
+        ('push', 'Push')
+    )
+
+    AMOUNTS = {
+        'push': 2.95,
+        'highlight': 3.95,
+        'top': 15.95,
+        'gallery': 25.95
+    }
+
+    kind = models.CharField(max_length=50, choices=KINDS)
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="+", null=True)
+    ad = models.ForeignKey(Ad, related_name='boosts', on_delete=models.SET_NULL, null=True)
+    bank_account = models.ForeignKey(BankAccount, related_name='+', on_delete=models.SET_NULL, null=True)
+    amount = models.FloatField()
+    archive = models.JSONField(default=dict)
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding
+
+        if not creating:
+            raise IntegrityError("Cannot edit ad boost.")
+        
+        if self.bank_account.user != self.ad.created_by:
+            raise PermissionDenied("Bank account must belong to ad creator.")
+        
+        if self.user != self.ad.created_by:
+            raise PermissionDenied("Ad booster must be ad creator.")
+
+        self.amount = self.AMOUNTS[self.kind]
+        from users.serializers import BankAccountSerializer, AddressSerializer, PublicUserSerializer
+        from .serializers import ArchiveAdModelSerializer
+    
+        self.archive = {
+            'bank_account': BankAccountSerializer(self.bank_account).data,
+            'user': PublicUserSerializer(self.user).data,
+            'ad': ArchiveAdModelSerializer(self.ad).data,
+        }
+
+        super().save(*args, **kwargs)
+        boost_method = getattr(self.ad, f"apply_{self.kind}")
+        boost_method()
+
+        from transactions.models import LedgerEntry
+
+        LedgerEntry.objects.create(
+            kind="ad_boost_transaction",
+            signed_amount=self.amount,
+            user=self.user,
+            transaction_data={
+                "subkind": self.kind,
+                "pk": self.pk,
+                **self.archive
+            },
+        )
 
 
 class Cart(models.Model):

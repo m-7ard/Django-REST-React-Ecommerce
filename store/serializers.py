@@ -7,7 +7,16 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from Django_REST_ecommerce.settings import MEDIA_ROOT
-from .models import Category, Ad, Cart, CartItem, AdGroup, Order, OrderCancellation
+from .models import (
+    Category,
+    Ad,
+    Cart,
+    CartItem,
+    AdGroup,
+    Order,
+    OrderCancellation,
+    AdBoost,
+)
 from users.models import FeeTransaction, CustomUser, Address, BankAccount
 from users.serializers import FullUserSerializer, PublicUserSerializer
 
@@ -90,8 +99,12 @@ class PublicAdModelSerializer(serializers.ModelSerializer):
     images = serializers.JSONField()
     specifications = serializers.ListField()
     group_data = AdGroupSerializer(source="group")
-    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
-    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    price = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
+    shipping = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
 
     def create(self, validated_data):
         raise ValidationError("Read-only serializer")
@@ -162,8 +175,12 @@ class AdModelSerializer(serializers.ModelSerializer):
     return_policy_display = serializers.CharField(
         source="get_return_policy_display", read_only=True
     )
-    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
-    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    price = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
+    shipping = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
 
     def validate_specifications(self, value):
         specifications = {}
@@ -273,53 +290,83 @@ class AdModelSerializer(serializers.ModelSerializer):
         return bool(pattern.match(input_string))
 
 
-class AdBoostSerializer(serializers.Serializer):
-    boosts = serializers.MultipleChoiceField(
-        choices=[
-            ("push_ad", "Push Ad"),
-            ("highlight_ad", "Highlight Ad"),
-            ("top_ad", "Top Ad"),
-            ("gallery_ad", "Gallery Ad"),
+class AdBoostModelSerializer(serializers.ModelSerializer):
+    kind = serializers.ChoiceField(choices=AdBoost.KINDS)
+
+    class Meta:
+        model = AdBoost
+        fields = [
+            "kind",
         ]
+
+
+class AdBoostValidationSerializer(serializers.Serializer):
+    boosts = serializers.MultipleChoiceField(choices=AdBoost.KINDS)
+    bank_account = serializers.PrimaryKeyRelatedField(
+        queryset=BankAccount.objects.all()
     )
 
     class Meta:
-        fields = ["boosts"]
+        fields = ['boosts', 'bank_account']
 
     def validate_boosts(self, value):
-        ad = self.context.get("ad")
-        for boost in value:
-            if boost == "highlight_ad" and ad.is_highlight():
-                raise ValidationError(
-                    f"Cannot use highlight boost until {ad.highlight_expiry.strftime('%d.%m.%Y %H:%M:%S')}."
-                )
-            elif boost == "top_ad" and ad.is_top():
-                raise ValidationError(
-                    f"Cannot use top boost until {ad.top_expiry.strftime('%d.%m.%Y %H:%M:%S')}."
-                )
-            elif boost == "gallery_ad" and ad.is_gallery():
-                raise ValidationError(
-                    f"Cannot use gallery boost until {ad.gallery_expiry.strftime('%d.%m.%Y %H:%M:%S')}."
-                )
-
-        if self.context.get("request").user != ad.created_by:
-            raise ValidationError("Ad can only be boosted by the ad owner.")
-
-        if self.context.get("payer_bank_account").user != ad.created_by:
-            raise ValidationError("Bank account must be owner by the ad owner.")
-
-        boost_cost = sum([FeeTransaction.AMOUNT_MAP[boost] for boost in value])
-        # validate that bank can cover the cost (?)
+        if len(value) == 0:
+            raise ValidationError("Select at least 1 boost.")
 
         return value
+
+    def validate(self, data):
+        boosts = data.get("boosts")
+        ad = self.context.get("ad")
+        errors = defaultdict(list)
+
+        if not ad:
+            raise ValidationError(
+                "Ad must be passed to AdBoostValidationSerializer context."
+            )
+
+        for boost in boosts:
+            try:
+                can_boost = getattr(ad, f"can_{boost}")
+                if not can_boost():
+                    expiry_date = getattr(ad, f"{boost}_expiry")
+                    boost_display = next(
+                        (kind[1] for kind in AdBoost.KINDS if kind[0] == boost), None
+                    )
+                    errors["boosts"].append(
+                        f'Cannot perform "{boost_display}" until {expiry_date.strftime("%d.%m.%Y %H:%M:%S")}.'
+                    )
+            except AttributeError:
+                raise ValidationError("Something went wrong, please try again later.")
+            
+        if errors:
+            raise ValidationError(errors)
+        
+        return data
+    
+    def create(self, validated_data):
+        boosts = validated_data.pop('boosts')
+        ad_boost_objects = []
+        for kind in boosts:
+            boost = AdBoost.objects.create(
+                kind=kind,
+                **validated_data
+            )
+            ad_boost_objects.append(boost)
+
+        return AdBoostModelSerializer(ad_boost_objects, many=True).data
 
 
 class CartAdSerializer(serializers.ModelSerializer):
     created_by = PublicUserSerializer(read_only=True)
     condition_display = serializers.CharField(source="get_condition_display")
     return_policy_display = serializers.CharField(source="get_return_policy_display")
-    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
-    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    price = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
+    shipping = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
 
     class Meta:
         model = Ad
@@ -360,8 +407,12 @@ class CheckoutCartAdSerializer(serializers.Serializer):
     title = serializers.CharField(min_length=1)
     unlisted = serializers.BooleanField(required=False)
     condition = serializers.ChoiceField(choices=Ad.CONDITIONS, allow_blank=True)
-    price = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
-    shipping = serializers.DecimalField(max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01)
+    price = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
+    shipping = serializers.DecimalField(
+        max_digits=50, decimal_places=2, coerce_to_string=False, min_value=0.01
+    )
 
     def validate_unlisted(self, value):
         if value:
@@ -369,7 +420,7 @@ class CheckoutCartAdSerializer(serializers.Serializer):
         return value
 
     def validate(self, data):
-        ad = Ad.objects.get(pk=data['pk'])
+        ad = Ad.objects.get(pk=data["pk"])
         errors = {}
 
         for field, value in data.items():
@@ -389,19 +440,19 @@ class CheckoutItemSerializer(serializers.Serializer):
     ad = CheckoutCartAdSerializer()
 
     def validate(self, data):
-        amount = data.get('amount')
+        amount = data.get("amount")
         errors = defaultdict(list)
         request = self.context.get("request")
 
         if not request:
             raise ValidationError("Request context is missing.")
 
-        item = CartItem.objects.get(pk=data['pk'])
+        item = CartItem.objects.get(pk=data["pk"])
         if amount and amount > item.ad.available:
-            errors['amount'].append('Amount cannot be larger than available.')
+            errors["amount"].append("Amount cannot be larger than available.")
 
         if item.ad.created_by == request.user:
-            errors['buyer'].append('Buyer cannot be the ad creator.')
+            errors["buyer"].append("Buyer cannot be the ad creator.")
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -410,31 +461,35 @@ class CheckoutItemSerializer(serializers.Serializer):
 
 
 class CheckoutSerializer(serializers.Serializer):
-    shipping_address = serializers.PrimaryKeyRelatedField(queryset=Address.objects.all())
-    bank_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all())
+    shipping_address = serializers.PrimaryKeyRelatedField(
+        queryset=Address.objects.all()
+    )
+    bank_account = serializers.PrimaryKeyRelatedField(
+        queryset=BankAccount.objects.all()
+    )
     items = serializers.ListField()
 
     def validate_shipping_address(self, value):
         request = self.context.get("request")
-        
+
         if value.user != request.user:
             raise ValidationError("Buyer must be shipping address owner.")
-        
+
         return value
-    
+
     def validate_bank_account(self, value):
         request = self.context.get("request")
-        
+
         if value.user != request.user:
             raise ValidationError("Buyer must be bank account owner.")
-        
+
         return value
 
     def validate_items(self, value):
         items = value.copy()
         errors = defaultdict(list)
         request = self.context.get("request")
-        
+
         if len(items) == 0:
             errors["non_field_errors"].append("No items to perform checkout.")
 
@@ -444,7 +499,9 @@ class CheckoutSerializer(serializers.Serializer):
 
         for item in items:
             if item["pk"] not in cart_items_pks:
-                errors["non_field_errors"].append(f'"{item["title"]}" is no longer in the cart.')
+                errors["non_field_errors"].append(
+                    f'"{item["title"]}" is no longer in the cart.'
+                )
             else:
                 valid_items.append(item)
 
@@ -459,35 +516,35 @@ class CheckoutSerializer(serializers.Serializer):
 
         if errors:
             raise ValidationError(dict(errors))
-        
+
         return valid_items
-    
+
     def create(self, validated_data):
-        items = validated_data['items']
-        bank_account = validated_data['bank_account']
-        shipping_address = validated_data['shipping_address']
-        user = self.context['request'].user
+        items = validated_data["items"]
+        bank_account = validated_data["bank_account"]
+        shipping_address = validated_data["shipping_address"]
+        user = self.context["request"].user
         orders = []
 
         for item in items:
-            cart_item = CartItem.objects.get(pk=item['pk'])
-            amount = item['amount']
+            cart_item = CartItem.objects.get(pk=item["pk"])
+            amount = item["amount"]
             order = Order.objects.create(
-                bank_account=bank_account, 
+                bank_account=bank_account,
                 shipping_address=shipping_address,
                 amount=amount,
                 ad=cart_item.ad,
                 buyer=user,
                 seller=cart_item.ad.created_by,
-                status='pending_payment',
+                status="pending_payment",
             )
             orders.append(order)
             cart_item.delete()
-    
+
         return {
-            'items': items,
-            'bank_account': bank_account,
-            'shipping_address': shipping_address,
+            "items": items,
+            "bank_account": bank_account,
+            "shipping_address": shipping_address,
         }
 
     class Meta:
@@ -499,41 +556,39 @@ class CheckoutSerializer(serializers.Serializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    buyer = serializers.JSONField(source='archive.buyer')
-    seller = serializers.JSONField(source='archive.seller')
-    shipping_address = serializers.JSONField(source='archive.shipping_address')
-    bank_account = serializers.JSONField(source='archive.bank_account')
-    ad = serializers.JSONField(source='archive.ad')
+    buyer = serializers.JSONField(source="archive.buyer")
+    seller = serializers.JSONField(source="archive.seller")
+    shipping_address = serializers.JSONField(source="archive.shipping_address")
+    bank_account = serializers.JSONField(source="archive.bank_account")
+    ad = serializers.JSONField(source="archive.ad")
     total = serializers.FloatField()
-    date_created = serializers.DateTimeField(
-        format="%Y.%m.%d", read_only=True
-    )
+    date_created = serializers.DateTimeField(format="%Y.%m.%d", read_only=True)
     return_date_expiry = serializers.DateTimeField(
         format="%Y.%m.%d %H:%M:%S", read_only=True
     )
-    status_display = serializers.CharField(source='get_status_display') 
+    status_display = serializers.CharField(source="get_status_display")
     tracking_number = serializers.CharField()
 
     class Meta:
         model = Order
         fields = [
-            'pk',
-            'status',
-            'status_display',
-            'total',
-            'buyer',
-            'seller',
-            'shipping_address',
-            'bank_account',
-            'amount',
-            'ad',
-            'date_created',
-            'return_date_expiry',
-            'tracking_number',
+            "pk",
+            "status",
+            "status_display",
+            "total",
+            "buyer",
+            "seller",
+            "shipping_address",
+            "bank_account",
+            "amount",
+            "ad",
+            "date_created",
+            "return_date_expiry",
+            "tracking_number",
         ]
 
 
 class OrderCancellationModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderCancellation
-        fields = '__all__'
+        fields = "__all__"

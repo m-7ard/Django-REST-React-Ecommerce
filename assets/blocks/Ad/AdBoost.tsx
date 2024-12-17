@@ -25,7 +25,7 @@ export default function AdBoost (): React.ReactNode {
                     widget: AdBoostSelectWidget({})
                 },
                 {
-                    name: 'payer_bank_account',
+                    name: 'bank_account',
                     label: 'Bank Account to Pay With',
                     widget: BankAccountModalSelectWidget({
                         bankAccountList: bankAccounts,

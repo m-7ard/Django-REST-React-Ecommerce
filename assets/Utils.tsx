@@ -1,1073 +1,1107 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
-import { Link, Navigate, createSearchParams, useLocation, useNavigate } from 'react-router-dom'
-import { UserContext, useUserContext } from './Context'
-import { type NormalizedDataValue, type NormalizedDataItem, type UnnormalizedData, type PickerValue, PickerControls, type Order } from './Types'
-import GenericFormPrompt from './elements/GenericFormPrompt'
-import { type FormFieldInterface } from './elements/FormField'
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import {
+    Link,
+    Navigate,
+    createSearchParams,
+    useLocation,
+    useNavigate,
+} from "react-router-dom";
+import { UserContext, useUserContext } from "./Context";
+import {
+    type NormalizedDataValue,
+    type NormalizedDataItem,
+    type UnnormalizedData,
+    type PickerValue,
+    PickerControls,
+    type Order,
+} from "./Types";
+import GenericFormPrompt from "./elements/GenericFormPrompt";
+import { type FormFieldInterface } from "./elements/FormField";
 
-export function useLoginRequired (): void {
-    const { user } = useUserContext()
-    const location = useLocation()
-    const navigate = useNavigate()
+export function useLoginRequired(): void {
+    const { user } = useUserContext();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     useLayoutEffect(() => {
         if (!user.is_authenticated) {
             navigate({
-                pathname: '/login/',
+                pathname: "/login/",
                 search: createSearchParams({
-                    next: location.pathname
-                }).toString()
-            })
+                    next: location.pathname,
+                }).toString(),
+            });
         }
-    }, [])
+    }, []);
 }
 
-export function getCookie (name: string): string | null | undefined {
-    let cookieValue = null
-    if ((document.cookie != null) && document.cookie !== '') {
-        const cookies = document.cookie.split(';')
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim()
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (`${name}=`)) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
-                break
-            }
-        }
-    }
-    return cookieValue
+export function getCookie(name: string): string | null | undefined {
+    return (window as any).csrfToken;
 }
 
-export function CSRFToken () {
+export function CSRFToken() {
     return (
-        <input type="hidden" name="csrfmiddlewaretoken" value={getCookie('csrftoken')} />
-    )
+        <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value={getCookie("csrftoken")}
+        />
+    );
 }
 
-export function normalizeData ({
-    data, valueKey, labelKey, parentKey
-}) {
+export function normalizeData({ data, valueKey, labelKey, parentKey }) {
     return data.map((item) => ({
         value: item[valueKey],
         label: item[labelKey],
-        parent: item[parentKey]
-    }))
+        parent: item[parentKey],
+    }));
 }
 
-export async function fileListToBase64 (fileList) {
-    async function getBase64 (file) {
-        const reader = new FileReader()
+export async function fileListToBase64(fileList) {
+    async function getBase64(file) {
+        const reader = new FileReader();
         return await new Promise((resolve) => {
             reader.onload = (ev) => {
-                resolve(ev.target.result)
-            }
-            reader.readAsDataURL(file)
-        })
+                resolve(ev.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
     }
-    const promises = []
+    const promises = [];
 
     for (let i = 0; i < fileList.length; i++) {
-        promises.push(getBase64(fileList[i]))
+        promises.push(getBase64(fileList[i]));
     }
 
-    return await Promise.all(promises)
+    return await Promise.all(promises);
 }
 
 export class NormalizedData {
-    data: NormalizedDataItem[]
+    data: NormalizedDataItem[];
 
-    constructor ({ data, valueKey, labelKey, parentKey }: UnnormalizedData) {
-        this.data = this.normalizeData({ data, valueKey, labelKey, parentKey })
+    constructor({ data, valueKey, labelKey, parentKey }: UnnormalizedData) {
+        this.data = this.normalizeData({ data, valueKey, labelKey, parentKey });
     }
 
-    normalizeData ({ data, valueKey, labelKey, parentKey }: UnnormalizedData): NormalizedDataItem[] {
+    normalizeData({
+        data,
+        valueKey,
+        labelKey,
+        parentKey,
+    }: UnnormalizedData): NormalizedDataItem[] {
         return data.map((item) => ({
             value: item[valueKey],
             label: item[labelKey],
-            parent: parentKey == null ? null : item[parentKey]
-        }))
+            parent: parentKey == null ? null : item[parentKey],
+        }));
     }
 
-    getRoute (value: NormalizedDataValue): NormalizedDataValue[] {
-        const choice = this.getChoice(value)
-        const parent = choice?.parent
+    getRoute(value: NormalizedDataValue): NormalizedDataValue[] {
+        const choice = this.getChoice(value);
+        const parent = choice?.parent;
 
         if (parent == null) {
-            return [value]
-        }
-        else {
-            return [...this.getRoute(parent), value]
+            return [value];
+        } else {
+            return [...this.getRoute(parent), value];
         }
     }
 
-    getSubChoices (value: NormalizedDataValue): NormalizedDataItem[] {
-        return this.data.filter((choice) => choice.parent === value)
+    getSubChoices(value: NormalizedDataValue): NormalizedDataItem[] {
+        return this.data.filter((choice) => choice.parent === value);
     }
 
-    getChoice (value: NormalizedDataValue): NormalizedDataItem {
-        const choice = this.data.find((choice) => choice.value === value)
+    getChoice(value: NormalizedDataValue): NormalizedDataItem {
+        const choice = this.data.find((choice) => choice.value === value);
 
         if (choice == null) {
-            throw Error(`Not a valid choice. Caused by: ${value} (${typeof value})`)
+            throw Error(
+                `Not a valid choice. Caused by: ${value} (${typeof value})`,
+            );
         }
 
-        return choice
+        return choice;
     }
 
-    getRouteString (value: NormalizedDataValue): string {
-        const choice = this.getChoice(value)
+    getRouteString(value: NormalizedDataValue): string {
+        const choice = this.getChoice(value);
 
-        const parent = choice.parent
+        const parent = choice.parent;
         if (parent == null) {
-            return choice.label
-        }
-        else {
-            return `${this.getRouteString(parent)} > ${choice.label}`
+            return choice.label;
+        } else {
+            return `${this.getRouteString(parent)} > ${choice.label}`;
         }
     }
 }
 
-export function addDotsToNumber (number) {
-    let numStr = number.toString()
-    const groups = []
+export function addDotsToNumber(number) {
+    let numStr = number.toString();
+    const groups = [];
     while (numStr.length > 0) {
-        groups.unshift(numStr.slice(-3))
-        numStr = numStr.slice(0, -3)
+        groups.unshift(numStr.slice(-3));
+        numStr = numStr.slice(0, -3);
     }
 
-    return groups.join('.')
+    return groups.join(".");
 }
 
-export function LoginRequired ({ children }: React.PropsWithChildren): null | React.ReactNode {
-    const { user } = useUserContext()
-    const location = useLocation()
+export function LoginRequired({
+    children,
+}: React.PropsWithChildren): null | React.ReactNode {
+    const { user } = useUserContext();
+    const location = useLocation();
 
     if (!user.is_authenticated) {
         const next = createSearchParams({
-            next: location.pathname
-        }).toString()
-        return <Navigate to={`/login?${next}`} />
+            next: location.pathname,
+        }).toString();
+        return <Navigate to={`/login?${next}`} />;
     }
 
-    return children
+    return children;
 }
 
 export const listOfCountries = [
     {
-        code: 'AF',
-        name: 'Afghanistan'
+        code: "AF",
+        name: "Afghanistan",
     },
     {
-        code: 'AL',
-        name: 'Albania'
+        code: "AL",
+        name: "Albania",
     },
     {
-        code: 'DZ',
-        name: 'Algeria'
+        code: "DZ",
+        name: "Algeria",
     },
     {
-        code: 'AD',
-        name: 'Andorra'
+        code: "AD",
+        name: "Andorra",
     },
     {
-        code: 'AO',
-        name: 'Angola'
+        code: "AO",
+        name: "Angola",
     },
     {
-        code: 'AG',
-        name: 'Antigua and Barbuda'
+        code: "AG",
+        name: "Antigua and Barbuda",
     },
     {
-        code: 'AR',
-        name: 'Argentina'
+        code: "AR",
+        name: "Argentina",
     },
     {
-        code: 'AM',
-        name: 'Armenia'
+        code: "AM",
+        name: "Armenia",
     },
     {
-        code: 'AU',
-        name: 'Australia'
+        code: "AU",
+        name: "Australia",
     },
     {
-        code: 'AT',
-        name: 'Austria'
+        code: "AT",
+        name: "Austria",
     },
     {
-        code: 'AZ',
-        name: 'Azerbaijan'
+        code: "AZ",
+        name: "Azerbaijan",
     },
     {
-        code: 'BS',
-        name: 'Bahamas'
+        code: "BS",
+        name: "Bahamas",
     },
     {
-        code: 'BH',
-        name: 'Bahrain'
+        code: "BH",
+        name: "Bahrain",
     },
     {
-        code: 'BD',
-        name: 'Bangladesh'
+        code: "BD",
+        name: "Bangladesh",
     },
     {
-        code: 'BB',
-        name: 'Barbados'
+        code: "BB",
+        name: "Barbados",
     },
     {
-        code: 'BY',
-        name: 'Belarus'
+        code: "BY",
+        name: "Belarus",
     },
     {
-        code: 'BE',
-        name: 'Belgium'
+        code: "BE",
+        name: "Belgium",
     },
     {
-        code: 'BZ',
-        name: 'Belize'
+        code: "BZ",
+        name: "Belize",
     },
     {
-        code: 'BJ',
-        name: 'Benin'
+        code: "BJ",
+        name: "Benin",
     },
     {
-        code: 'BT',
-        name: 'Bhutan'
+        code: "BT",
+        name: "Bhutan",
     },
     {
-        code: 'BO',
-        name: 'Bolivia'
+        code: "BO",
+        name: "Bolivia",
     },
     {
-        code: 'BA',
-        name: 'Bosnia and Herzegovina'
+        code: "BA",
+        name: "Bosnia and Herzegovina",
     },
     {
-        code: 'BW',
-        name: 'Botswana'
+        code: "BW",
+        name: "Botswana",
     },
     {
-        code: 'BR',
-        name: 'Brazil'
+        code: "BR",
+        name: "Brazil",
     },
     {
-        code: 'BN',
-        name: 'Brunei'
+        code: "BN",
+        name: "Brunei",
     },
     {
-        code: 'BG',
-        name: 'Bulgaria'
+        code: "BG",
+        name: "Bulgaria",
     },
     {
-        code: 'BF',
-        name: 'Burkina Faso'
+        code: "BF",
+        name: "Burkina Faso",
     },
     {
-        code: 'BI',
-        name: 'Burundi'
+        code: "BI",
+        name: "Burundi",
     },
     {
-        code: 'CV',
-        name: 'Cabo Verde'
+        code: "CV",
+        name: "Cabo Verde",
     },
     {
-        code: 'KH',
-        name: 'Cambodia'
+        code: "KH",
+        name: "Cambodia",
     },
     {
-        code: 'CM',
-        name: 'Cameroon'
+        code: "CM",
+        name: "Cameroon",
     },
     {
-        code: 'CA',
-        name: 'Canada'
+        code: "CA",
+        name: "Canada",
     },
     {
-        code: 'CF',
-        name: 'Central African Republic'
+        code: "CF",
+        name: "Central African Republic",
     },
     {
-        code: 'TD',
-        name: 'Chad'
+        code: "TD",
+        name: "Chad",
     },
     {
-        code: 'CL',
-        name: 'Chile'
+        code: "CL",
+        name: "Chile",
     },
     {
-        code: 'CN',
-        name: 'China'
+        code: "CN",
+        name: "China",
     },
     {
-        code: 'CO',
-        name: 'Colombia'
+        code: "CO",
+        name: "Colombia",
     },
     {
-        code: 'KM',
-        name: 'Comoros'
+        code: "KM",
+        name: "Comoros",
     },
     {
-        code: 'CG',
-        name: 'Congo'
+        code: "CG",
+        name: "Congo",
     },
     {
-        code: 'CR',
-        name: 'Costa Rica'
+        code: "CR",
+        name: "Costa Rica",
     },
     {
-        code: 'HR',
-        name: 'Croatia'
+        code: "HR",
+        name: "Croatia",
     },
     {
-        code: 'CU',
-        name: 'Cuba'
+        code: "CU",
+        name: "Cuba",
     },
     {
-        code: 'CY',
-        name: 'Cyprus'
+        code: "CY",
+        name: "Cyprus",
     },
     {
-        code: 'CZ',
-        name: 'Czech Republic'
+        code: "CZ",
+        name: "Czech Republic",
     },
     {
-        code: 'DK',
-        name: 'Denmark'
+        code: "DK",
+        name: "Denmark",
     },
     {
-        code: 'DJ',
-        name: 'Djibouti'
+        code: "DJ",
+        name: "Djibouti",
     },
     {
-        code: 'DM',
-        name: 'Dominica'
+        code: "DM",
+        name: "Dominica",
     },
     {
-        code: 'DO',
-        name: 'Dominican Republic'
+        code: "DO",
+        name: "Dominican Republic",
     },
     {
-        code: 'TL',
-        name: 'East Timor (Timor-Leste)'
+        code: "TL",
+        name: "East Timor (Timor-Leste)",
     },
     {
-        code: 'EC',
-        name: 'Ecuador'
+        code: "EC",
+        name: "Ecuador",
     },
     {
-        code: 'EG',
-        name: 'Egypt'
+        code: "EG",
+        name: "Egypt",
     },
     {
-        code: 'SV',
-        name: 'El Salvador'
+        code: "SV",
+        name: "El Salvador",
     },
     {
-        code: 'GQ',
-        name: 'Equatorial Guinea'
+        code: "GQ",
+        name: "Equatorial Guinea",
     },
     {
-        code: 'ER',
-        name: 'Eritrea'
+        code: "ER",
+        name: "Eritrea",
     },
     {
-        code: 'EE',
-        name: 'Estonia'
+        code: "EE",
+        name: "Estonia",
     },
     {
-        code: 'ET',
-        name: 'Ethiopia'
+        code: "ET",
+        name: "Ethiopia",
     },
     {
-        code: 'FJ',
-        name: 'Fiji'
+        code: "FJ",
+        name: "Fiji",
     },
     {
-        code: 'FI',
-        name: 'Finland'
+        code: "FI",
+        name: "Finland",
     },
     {
-        code: 'FR',
-        name: 'France'
+        code: "FR",
+        name: "France",
     },
     {
-        code: 'GA',
-        name: 'Gabon'
+        code: "GA",
+        name: "Gabon",
     },
     {
-        code: 'GM',
-        name: 'Gambia'
+        code: "GM",
+        name: "Gambia",
     },
     {
-        code: 'GE',
-        name: 'Georgia'
+        code: "GE",
+        name: "Georgia",
     },
     {
-        code: 'DE',
-        name: 'Germany'
+        code: "DE",
+        name: "Germany",
     },
     {
-        code: 'GH',
-        name: 'Ghana'
+        code: "GH",
+        name: "Ghana",
     },
     {
-        code: 'GR',
-        name: 'Greece'
+        code: "GR",
+        name: "Greece",
     },
     {
-        code: 'GD',
-        name: 'Grenada'
+        code: "GD",
+        name: "Grenada",
     },
     {
-        code: 'GT',
-        name: 'Guatemala'
+        code: "GT",
+        name: "Guatemala",
     },
     {
-        code: 'GN',
-        name: 'Guinea'
+        code: "GN",
+        name: "Guinea",
     },
     {
-        code: 'GW',
-        name: 'Guinea-Bissau'
+        code: "GW",
+        name: "Guinea-Bissau",
     },
     {
-        code: 'GY',
-        name: 'Guyana'
+        code: "GY",
+        name: "Guyana",
     },
     {
-        code: 'HT',
-        name: 'Haiti'
+        code: "HT",
+        name: "Haiti",
     },
     {
-        code: 'HN',
-        name: 'Honduras'
+        code: "HN",
+        name: "Honduras",
     },
     {
-        code: 'HU',
-        name: 'Hungary'
+        code: "HU",
+        name: "Hungary",
     },
     {
-        code: 'IS',
-        name: 'Iceland'
+        code: "IS",
+        name: "Iceland",
     },
     {
-        code: 'IN',
-        name: 'India'
+        code: "IN",
+        name: "India",
     },
     {
-        code: 'ID',
-        name: 'Indonesia'
+        code: "ID",
+        name: "Indonesia",
     },
     {
-        code: 'IR',
-        name: 'Iran'
+        code: "IR",
+        name: "Iran",
     },
     {
-        code: 'IQ',
-        name: 'Iraq'
+        code: "IQ",
+        name: "Iraq",
     },
     {
-        code: 'IE',
-        name: 'Ireland'
+        code: "IE",
+        name: "Ireland",
     },
     {
-        code: 'IL',
-        name: 'Israel'
+        code: "IL",
+        name: "Israel",
     },
     {
-        code: 'IT',
-        name: 'Italy'
+        code: "IT",
+        name: "Italy",
     },
     {
-        code: 'CI',
-        name: 'Ivory Coast'
+        code: "CI",
+        name: "Ivory Coast",
     },
     {
-        code: 'JM',
-        name: 'Jamaica'
+        code: "JM",
+        name: "Jamaica",
     },
     {
-        code: 'JP',
-        name: 'Japan'
+        code: "JP",
+        name: "Japan",
     },
     {
-        code: 'JO',
-        name: 'Jordan'
+        code: "JO",
+        name: "Jordan",
     },
     {
-        code: 'KZ',
-        name: 'Kazakhstan'
+        code: "KZ",
+        name: "Kazakhstan",
     },
     {
-        code: 'KE',
-        name: 'Kenya'
+        code: "KE",
+        name: "Kenya",
     },
     {
-        code: 'KI',
-        name: 'Kiribati'
+        code: "KI",
+        name: "Kiribati",
     },
     {
-        code: 'KP',
-        name: 'North Korea'
+        code: "KP",
+        name: "North Korea",
     },
     {
-        code: 'KR',
-        name: 'South Korea'
+        code: "KR",
+        name: "South Korea",
     },
     {
-        code: 'KW',
-        name: 'Kuwait'
+        code: "KW",
+        name: "Kuwait",
     },
     {
-        code: 'KG',
-        name: 'Kyrgyzstan'
+        code: "KG",
+        name: "Kyrgyzstan",
     },
     {
-        code: 'LA',
-        name: 'Laos'
+        code: "LA",
+        name: "Laos",
     },
     {
-        code: 'LV',
-        name: 'Latvia'
+        code: "LV",
+        name: "Latvia",
     },
     {
-        code: 'LB',
-        name: 'Lebanon'
+        code: "LB",
+        name: "Lebanon",
     },
     {
-        code: 'LS',
-        name: 'Lesotho'
+        code: "LS",
+        name: "Lesotho",
     },
     {
-        code: 'LR',
-        name: 'Liberia'
+        code: "LR",
+        name: "Liberia",
     },
     {
-        code: 'LY',
-        name: 'Libya'
+        code: "LY",
+        name: "Libya",
     },
     {
-        code: 'LI',
-        name: 'Liechtenstein'
+        code: "LI",
+        name: "Liechtenstein",
     },
     {
-        code: 'LT',
-        name: 'Lithuania'
+        code: "LT",
+        name: "Lithuania",
     },
     {
-        code: 'LU',
-        name: 'Luxembourg'
+        code: "LU",
+        name: "Luxembourg",
     },
     {
-        code: 'MK',
-        name: 'North Macedonia'
+        code: "MK",
+        name: "North Macedonia",
     },
     {
-        code: 'MG',
-        name: 'Madagascar'
+        code: "MG",
+        name: "Madagascar",
     },
     {
-        code: 'MW',
-        name: 'Malawi'
+        code: "MW",
+        name: "Malawi",
     },
     {
-        code: 'MY',
-        name: 'Malaysia'
+        code: "MY",
+        name: "Malaysia",
     },
     {
-        code: 'MV',
-        name: 'Maldives'
+        code: "MV",
+        name: "Maldives",
     },
     {
-        code: 'ML',
-        name: 'Mali'
+        code: "ML",
+        name: "Mali",
     },
     {
-        code: 'MT',
-        name: 'Malta'
+        code: "MT",
+        name: "Malta",
     },
     {
-        code: 'MH',
-        name: 'Marshall Islands'
+        code: "MH",
+        name: "Marshall Islands",
     },
     {
-        code: 'MR',
-        name: 'Mauritania'
+        code: "MR",
+        name: "Mauritania",
     },
     {
-        code: 'MU',
-        name: 'Mauritius'
+        code: "MU",
+        name: "Mauritius",
     },
     {
-        code: 'MX',
-        name: 'Mexico'
+        code: "MX",
+        name: "Mexico",
     },
     {
-        code: 'FM',
-        name: 'Micronesia'
+        code: "FM",
+        name: "Micronesia",
     },
     {
-        code: 'MD',
-        name: 'Moldova'
+        code: "MD",
+        name: "Moldova",
     },
     {
-        code: 'MC',
-        name: 'Monaco'
+        code: "MC",
+        name: "Monaco",
     },
     {
-        code: 'MN',
-        name: 'Mongolia'
+        code: "MN",
+        name: "Mongolia",
     },
     {
-        code: 'ME',
-        name: 'Montenegro'
+        code: "ME",
+        name: "Montenegro",
     },
     {
-        code: 'MA',
-        name: 'Morocco'
+        code: "MA",
+        name: "Morocco",
     },
     {
-        code: 'MZ',
-        name: 'Mozambique'
+        code: "MZ",
+        name: "Mozambique",
     },
     {
-        code: 'MM',
-        name: 'Myanmar (Burma)'
+        code: "MM",
+        name: "Myanmar (Burma)",
     },
     {
-        code: 'NA',
-        name: 'Namibia'
+        code: "NA",
+        name: "Namibia",
     },
     {
-        code: 'NR',
-        name: 'Nauru'
+        code: "NR",
+        name: "Nauru",
     },
     {
-        code: 'NP',
-        name: 'Nepal'
+        code: "NP",
+        name: "Nepal",
     },
     {
-        code: 'NL',
-        name: 'Netherlands'
+        code: "NL",
+        name: "Netherlands",
     },
     {
-        code: 'NZ',
-        name: 'New Zealand'
+        code: "NZ",
+        name: "New Zealand",
     },
     {
-        code: 'NI',
-        name: 'Nicaragua'
+        code: "NI",
+        name: "Nicaragua",
     },
     {
-        code: 'NE',
-        name: 'Niger'
+        code: "NE",
+        name: "Niger",
     },
     {
-        code: 'NG',
-        name: 'Nigeria'
+        code: "NG",
+        name: "Nigeria",
     },
     {
-        code: 'NO',
-        name: 'Norway'
+        code: "NO",
+        name: "Norway",
     },
     {
-        code: 'OM',
-        name: 'Oman'
+        code: "OM",
+        name: "Oman",
     },
     {
-        code: 'PK',
-        name: 'Pakistan'
+        code: "PK",
+        name: "Pakistan",
     },
     {
-        code: 'PW',
-        name: 'Palau'
+        code: "PW",
+        name: "Palau",
     },
     {
-        code: 'PA',
-        name: 'Panama'
+        code: "PA",
+        name: "Panama",
     },
     {
-        code: 'PG',
-        name: 'Papua New Guinea'
+        code: "PG",
+        name: "Papua New Guinea",
     },
     {
-        code: 'PY',
-        name: 'Paraguay'
+        code: "PY",
+        name: "Paraguay",
     },
     {
-        code: 'PE',
-        name: 'Peru'
+        code: "PE",
+        name: "Peru",
     },
     {
-        code: 'PH',
-        name: 'Philippines'
+        code: "PH",
+        name: "Philippines",
     },
     {
-        code: 'PL',
-        name: 'Poland'
+        code: "PL",
+        name: "Poland",
     },
     {
-        code: 'PT',
-        name: 'Portugal'
+        code: "PT",
+        name: "Portugal",
     },
     {
-        code: 'QA',
-        name: 'Qatar'
+        code: "QA",
+        name: "Qatar",
     },
     {
-        code: 'RO',
-        name: 'Romania'
+        code: "RO",
+        name: "Romania",
     },
     {
-        code: 'RU',
-        name: 'Russia'
+        code: "RU",
+        name: "Russia",
     },
     {
-        code: 'RW',
-        name: 'Rwanda'
+        code: "RW",
+        name: "Rwanda",
     },
     {
-        code: 'KN',
-        name: 'Saint Kitts and Nevis'
+        code: "KN",
+        name: "Saint Kitts and Nevis",
     },
     {
-        code: 'LC',
-        name: 'Saint Lucia'
+        code: "LC",
+        name: "Saint Lucia",
     },
     {
-        code: 'VC',
-        name: 'Saint Vincent and the Grenadines'
+        code: "VC",
+        name: "Saint Vincent and the Grenadines",
     },
     {
-        code: 'WS',
-        name: 'Samoa'
+        code: "WS",
+        name: "Samoa",
     },
     {
-        code: 'SM',
-        name: 'San Marino'
+        code: "SM",
+        name: "San Marino",
     },
     {
-        code: 'ST',
-        name: 'Sao Tome and Principe'
+        code: "ST",
+        name: "Sao Tome and Principe",
     },
     {
-        code: 'SA',
-        name: 'Saudi Arabia'
+        code: "SA",
+        name: "Saudi Arabia",
     },
     {
-        code: 'SN',
-        name: 'Senegal'
+        code: "SN",
+        name: "Senegal",
     },
     {
-        code: 'RS',
-        name: 'Serbia'
+        code: "RS",
+        name: "Serbia",
     },
     {
-        code: 'SC',
-        name: 'Seychelles'
+        code: "SC",
+        name: "Seychelles",
     },
     {
-        code: 'SL',
-        name: 'Sierra Leone'
+        code: "SL",
+        name: "Sierra Leone",
     },
     {
-        code: 'SG',
-        name: 'Singapore'
+        code: "SG",
+        name: "Singapore",
     },
     {
-        code: 'SK',
-        name: 'Slovakia'
+        code: "SK",
+        name: "Slovakia",
     },
     {
-        code: 'SI',
-        name: 'Slovenia'
+        code: "SI",
+        name: "Slovenia",
     },
     {
-        code: 'SB',
-        name: 'Solomon Islands'
+        code: "SB",
+        name: "Solomon Islands",
     },
     {
-        code: 'SO',
-        name: 'Somalia'
+        code: "SO",
+        name: "Somalia",
     },
     {
-        code: 'ZA',
-        name: 'South Africa'
+        code: "ZA",
+        name: "South Africa",
     },
     {
-        code: 'SS',
-        name: 'South Sudan'
+        code: "SS",
+        name: "South Sudan",
     },
     {
-        code: 'ES',
-        name: 'Spain'
+        code: "ES",
+        name: "Spain",
     },
     {
-        code: 'LK',
-        name: 'Sri Lanka'
+        code: "LK",
+        name: "Sri Lanka",
     },
     {
-        code: 'SD',
-        name: 'Sudan'
+        code: "SD",
+        name: "Sudan",
     },
     {
-        code: 'SR',
-        name: 'Suriname'
+        code: "SR",
+        name: "Suriname",
     },
     {
-        code: 'SZ',
-        name: 'Eswatini'
+        code: "SZ",
+        name: "Eswatini",
     },
     {
-        code: 'SE',
-        name: 'Sweden'
+        code: "SE",
+        name: "Sweden",
     },
     {
-        code: 'CH',
-        name: 'Switzerland'
+        code: "CH",
+        name: "Switzerland",
     },
     {
-        code: 'SY',
-        name: 'Syria'
+        code: "SY",
+        name: "Syria",
     },
     {
-        code: 'TW',
-        name: 'Taiwan'
+        code: "TW",
+        name: "Taiwan",
     },
     {
-        code: 'TJ',
-        name: 'Tajikistan'
+        code: "TJ",
+        name: "Tajikistan",
     },
     {
-        code: 'TZ',
-        name: 'Tanzania'
+        code: "TZ",
+        name: "Tanzania",
     },
     {
-        code: 'TH',
-        name: 'Thailand'
+        code: "TH",
+        name: "Thailand",
     },
     {
-        code: 'TG',
-        name: 'Togo'
+        code: "TG",
+        name: "Togo",
     },
     {
-        code: 'TO',
-        name: 'Tonga'
+        code: "TO",
+        name: "Tonga",
     },
     {
-        code: 'TT',
-        name: 'Trinidad and Tobago'
+        code: "TT",
+        name: "Trinidad and Tobago",
     },
     {
-        code: 'TN',
-        name: 'Tunisia'
+        code: "TN",
+        name: "Tunisia",
     },
     {
-        code: 'TR',
-        name: 'Turkey'
+        code: "TR",
+        name: "Turkey",
     },
     {
-        code: 'TM',
-        name: 'Turkmenistan'
+        code: "TM",
+        name: "Turkmenistan",
     },
     {
-        code: 'TV',
-        name: 'Tuvalu'
+        code: "TV",
+        name: "Tuvalu",
     },
     {
-        code: 'UG',
-        name: 'Uganda'
+        code: "UG",
+        name: "Uganda",
     },
     {
-        code: 'UA',
-        name: 'Ukraine'
+        code: "UA",
+        name: "Ukraine",
     },
     {
-        code: 'AE',
-        name: 'United Arab Emirates'
+        code: "AE",
+        name: "United Arab Emirates",
     },
     {
-        code: 'GB',
-        name: 'United Kingdom'
+        code: "GB",
+        name: "United Kingdom",
     },
     {
-        code: 'US',
-        name: 'United States'
+        code: "US",
+        name: "United States",
     },
     {
-        code: 'UY',
-        name: 'Uruguay'
+        code: "UY",
+        name: "Uruguay",
     },
     {
-        code: 'UZ',
-        name: 'Uzbekistan'
+        code: "UZ",
+        name: "Uzbekistan",
     },
     {
-        code: 'VU',
-        name: 'Vanuatu'
+        code: "VU",
+        name: "Vanuatu",
     },
     {
-        code: 'VA',
-        name: 'Vatican City'
+        code: "VA",
+        name: "Vatican City",
     },
     {
-        code: 'VE',
-        name: 'Venezuela'
+        code: "VE",
+        name: "Venezuela",
     },
     {
-        code: 'VN',
-        name: 'Vietnam'
+        code: "VN",
+        name: "Vietnam",
     },
     {
-        code: 'YE',
-        name: 'Yemen'
+        code: "YE",
+        name: "Yemen",
     },
     {
-        code: 'ZM',
-        name: 'Zambia'
+        code: "ZM",
+        name: "Zambia",
     },
     {
-        code: 'ZW',
-        name: 'Zimbabwe'
-    }
-]
+        code: "ZW",
+        name: "Zimbabwe",
+    },
+];
 
-export function usePicker <T> (initial?: T): {
-    stagedValue?: T
-    confirmedValue?: T
-    setStagedValue: (arg0?: T) => void
-    setConfirmedValue: (arg0?: T) => void
+export function usePicker<T>(initial?: T): {
+    stagedValue?: T;
+    confirmedValue?: T;
+    setStagedValue: (arg0?: T) => void;
+    setConfirmedValue: (arg0?: T) => void;
 } {
-    const [stagedValue, setStagedValue] = useState(initial)
-    const [confirmedValue, setConfirmedValue] = useState(initial)
+    const [stagedValue, setStagedValue] = useState(initial);
+    const [confirmedValue, setConfirmedValue] = useState(initial);
 
     return {
         stagedValue,
         confirmedValue,
         setStagedValue,
-        setConfirmedValue
-    }
+        setConfirmedValue,
+    };
 }
 
 export const AD_RETURN_POLICIES = [
     {
-        value: '7_days',
-        label: '7 Days Return Policy'
+        value: "7_days",
+        label: "7 Days Return Policy",
     },
     {
-        value: '30_days',
-        label: '30 Days Return Policy'
+        value: "30_days",
+        label: "30 Days Return Policy",
     },
     {
-        value: 'warranty',
-        label: 'Warranty Period Policy'
-    }
-]
+        value: "warranty",
+        label: "Warranty Period Policy",
+    },
+];
 
 export const AD_CONDITIONS = [
     {
-        value: 'new',
-        label: 'New'
+        value: "new",
+        label: "New",
     },
     {
-        value: 'almost_new',
-        label: 'Almost New'
+        value: "almost_new",
+        label: "Almost New",
     },
     {
-        value: 'used',
-        label: 'Used'
+        value: "used",
+        label: "Used",
     },
     {
-        value: 'damaged',
-        label: 'Damaged'
-    }
-]
+        value: "damaged",
+        label: "Damaged",
+    },
+];
 
-export function generatePageNumbers ({ currentPage, totalPages }: {
-    currentPage: number
-    totalPages: number
+export function generatePageNumbers({
+    currentPage,
+    totalPages,
+}: {
+    currentPage: number;
+    totalPages: number;
 }): number[] {
-    const maxVisiblePages = 10
-    const pages = []
+    const maxVisiblePages = 10;
+    const pages = [];
 
     // Ensure maxVisiblePages is an odd number for symmetric display
-    const halfMaxVisiblePages = Math.floor(maxVisiblePages / 2)
+    const halfMaxVisiblePages = Math.floor(maxVisiblePages / 2);
 
     // Calculate the range of page numbers to display
-    let startPage = Math.max(currentPage - halfMaxVisiblePages, 1)
-    const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages)
+    let startPage = Math.max(currentPage - halfMaxVisiblePages, 1);
+    const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
 
     // Adjust the startPage if the endPage is at the maximum limit
-    startPage = Math.max(endPage - maxVisiblePages + 1, 1)
+    startPage = Math.max(endPage - maxVisiblePages + 1, 1);
 
     for (let i = startPage; i <= endPage; i++) {
-        pages.push(i)
+        pages.push(i);
     }
 
-    return pages
+    return pages;
 }
 
 export const useNavigateToTop = (): ((to: string) => void) => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const navigateAndReset = (to: string): void => {
-        navigate(to, { replace: true })
-        window.scrollTo(0, 0)
-    }
+        navigate(to, { replace: true });
+        window.scrollTo(0, 0);
+    };
 
-    return navigateAndReset
-}
+    return navigateAndReset;
+};
 
 export const LinkToTop = (props: {
-    children: React.ReactNode
-    className?: string
-    to: string
+    children: React.ReactNode;
+    className?: string;
+    to: string;
 }): React.ReactNode => {
-    const navigateToTop = useNavigateToTop()
+    const navigateToTop = useNavigateToTop();
 
-    const navigateAndReset: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
-        event.preventDefault()
-        navigateToTop(props.to)
-    }
+    const navigateAndReset: React.MouseEventHandler<HTMLAnchorElement> = (
+        event,
+    ) => {
+        event.preventDefault();
+        navigateToTop(props.to);
+    };
 
     return (
-        <Link className={props.className} onClick={navigateAndReset} to={props.to}>
+        <Link
+            className={props.className}
+            onClick={navigateAndReset}
+            to={props.to}
+        >
             {props.children}
         </Link>
-    )
+    );
+};
+
+export function splitNumber(number: number): [string, string] {
+    const numberString = number.toString();
+    const [wholePart, decimalPart] = numberString.split(".");
+    const decimal = decimalPart != null ? `.${decimalPart}` : "";
+    return [wholePart, decimal];
 }
 
-export function splitNumber (number: number): [string, string] {
-    const numberString = number.toString()
-    const [wholePart, decimalPart] = numberString.split('.')
-    const decimal = decimalPart != null ? `.${decimalPart}` : ''
-    return [wholePart, decimal]
-}
-
-export const useOrderComponentControl = (initial: Order): {
-    OrderAction: ({ label, endpoint, method, fields }: {
-        label: string
-        endpoint: string
-        method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-        fields: FormFieldInterface[]
-    }) => React.ReactNode
-    order: Order
-    setOrder: React.Dispatch<React.SetStateAction<Order>>
+export const useOrderComponentControl = (
+    initial: Order,
+): {
+    OrderAction: ({
+        label,
+        endpoint,
+        method,
+        fields,
+    }: {
+        label: string;
+        endpoint: string;
+        method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+        fields: FormFieldInterface[];
+    }) => React.ReactNode;
+    order: Order;
+    setOrder: React.Dispatch<React.SetStateAction<Order>>;
 } => {
-    const [order, setOrder] = useState(initial)
+    const [order, setOrder] = useState(initial);
 
-    function OrderAction ({ label, endpoint, method, fields }: {
-        label: string
-        endpoint: string
-        method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-        fields: FormFieldInterface[]
+    function OrderAction({
+        label,
+        endpoint,
+        method,
+        fields,
+    }: {
+        label: string;
+        endpoint: string;
+        method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+        fields: FormFieldInterface[];
     }): React.ReactNode {
-        const [open, setOpen] = useState(false)
+        const [open, setOpen] = useState(false);
 
         return (
             <>
-                <div className={`order__button ${label.toLowerCase() === 'cancel order' ? 'order__button--normal' : 'order__button--highlighted'}`} onClick={() => {
-                    setOpen(true)
-                }}>
+                <div
+                    className={`order__button ${label.toLowerCase() === "cancel order" ? "order__button--normal" : "order__button--highlighted"}`}
+                    onClick={() => {
+                        setOpen(true);
+                    }}
+                >
                     {label}
                 </div>
                 {open && (
@@ -1075,27 +1109,27 @@ export const useOrderComponentControl = (initial: Order): {
                         action={`/api/orders/${order.pk}${endpoint}`}
                         method={method}
                         hasCSRF
-                        extraClass='pamphlet'
+                        extraClass="pamphlet"
                         title={label}
                         fields={fields}
                         button={{ label }}
                         onSuccess={async (response) => {
-                            const updatedOrder = await response.json()
-                            setOrder(updatedOrder)
-                            setOpen(false)
+                            const updatedOrder = await response.json();
+                            setOrder(updatedOrder);
+                            setOpen(false);
                         }}
                         onClose={() => {
-                            setOpen(false)
+                            setOpen(false);
                         }}
                     />
                 )}
             </>
-        )
-    };
+        );
+    }
 
     return {
         OrderAction,
         order,
-        setOrder
-    }
-}
+        setOrder,
+    };
+};
