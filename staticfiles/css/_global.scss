@@ -1,0 +1,250 @@
+@function get-key-or-null($_map, $_key) {
+    @if map-has-key($_map, $_key) {
+        @return map-get($_map, $_key);
+    }
+    @else {
+        @return null;
+    }
+};
+
+@function get_theme_attr($theme, $key1, $key2) {
+    $result: map-get($theme, $key1);
+    @if ($key2) {
+        $result: map-get($result, $key2);
+    };
+    @return $result;
+}
+
+@mixin input-replacement {
+    position: relative;
+    cursor: pointer;
+
+    input {
+        &::-webkit-file-upload-button {
+            position: absolute;
+            inset: 0;
+            cursor: pointer;
+        }
+
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+}
+
+@mixin has-shadow {
+    box-shadow: 0 2px 6px 0px rgba(map-get($light, dark), 0.5);
+}
+
+@mixin absolute-box($height, $width) {
+	position: absolute;
+	height: $height;
+	width: $width;
+}
+
+@mixin absolute-boundary($top, $right, $bottom, $left) {
+    position: absolute;
+    top: $top;
+    left: $left;
+    right: $right;
+    bottom: $bottom;
+}
+
+@mixin flex-row($padding, $gap) {
+	display: flex;
+    padding: $padding;
+    gap: $gap;
+}
+
+@mixin flex-column($padding, $gap) {
+	display: flex;
+	flex-direction: column;
+    padding: $padding;
+    gap: $gap;
+}
+
+@mixin ellipsis {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: clip;
+}
+
+@mixin break-long-words {
+    word-break: keep-all;
+    word-wrap: break-word;
+}
+
+@function get-font-size($category, $size) {
+    @if map-has-key($font-sizes, $category) {
+        $category_sizes: map-get($font-sizes, $category);
+        
+        @if map-has-key($category_sizes, $size) {
+            @return map-get($category_sizes, $size);
+        } 
+        @else {
+            @error "Invalid font size: #{$size}. Available sizes are small, medium, and large.";
+        }
+    } 
+    @else {
+        @error "Invalid font category: #{$category}. Available categories are primary, secondary, and special.";
+    }
+};
+
+@mixin colors-from-theme($theme, $initial: null, $hover: null, $checked: null) {
+    @if $initial {
+        $initial_colors: map-get($theme, $initial);
+        color: get-key-or-null($initial_colors, fg);
+        background-color: get-key-or-null($initial_colors, bg);
+        border-color: get-key-or-null($initial_colors, bc);
+    }
+
+    @if $hover {
+        $hover_colors: map-get($theme, $hover);
+        &:hover {
+            color: get-key-or-null($hover_colors, fg);
+            background-color: get-key-or-null($hover_colors, bg);
+            border-color: get-key-or-null($hover_colors, bc);
+        }
+    }
+
+    @if $checked {
+        $checked_colors: map-get($theme, $checked);
+
+        &:has(:checked) {
+            color: get-key-or-null($checked_colors, fg);
+            background-color: get-key-or-null($checked_colors, bg);
+            border-color: get-key-or-null($checked_colors, bc);
+        }
+    }
+};
+
+@mixin base-button {
+    @include ellipsis;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+@mixin default-color-transition {
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+@mixin small-button {
+    @include default-color-transition;
+    @include flex-row($space-small $space-large, $space-medium);
+    font-size: get-font-size(secondary, small); 
+    border-radius: $radius-small;
+}
+
+@mixin medium-button {
+    @include default-color-transition;
+    @include flex-row($space-medium-large $space-large, $space-medium);
+    font-size: get-font-size(secondary, medium);
+    border-radius: $radius-small;
+}
+
+@mixin large-button {
+    @include default-color-transition;
+    @include flex-row($space-large, $space-large);
+    font-size: get-font-size(primary, medium);
+    border-radius: $radius-medium;
+}
+
+@mixin ignore-height {
+    height: 0px !important;
+    align-items: center !important;
+    display: inline-flex !important;
+    overflow: visible !important;
+}
+
+$font-weights: (400, 500, 700);
+
+$font-sizes: (
+    secondary: (
+        small: 0.75rem,
+        medium: 0.8125rem,
+        large: 0.875rem,
+    ),
+    primary: (
+        small: 0.9375rem,
+        medium: 1rem,
+        large: 1.125rem,
+    ),
+    special: (
+        small: 1.25rem,
+        medium: 1.75rem,
+        large: 2rem,
+    ),
+);
+
+$light: (
+    light: #F2F4F3,
+    neutral: #E4E9E6,
+    dark: #D6DDD9,
+);
+
+$black: (
+    dark: #0A0908,
+    neutral: #26231f,
+    light: #423D36
+);
+
+$gunmetal_theme: (
+    active: (
+        bg: #1C2B31,
+        fg: map-get($light, light),
+    ),
+    neutral: (
+        bg: #22333B,
+        fg: map-get($light, light),
+    ),
+    inactive: (
+        bg: #2B414B,
+        fg: map-get($light, dark),
+    ),
+);
+
+$orange: #D8B60E;
+$red: #D8510E;
+
+$yellow_theme: (
+    active: (
+        fg: map-get($black, dark),
+        bg: #F1CF28,
+    ),
+    neutral: (
+        fg: map-get($black, dark),
+        bg: #AFF128,
+    ),
+    inactive: (
+        fg: map-get($black, dark),
+        bg: #F16A28,
+    ),
+);
+
+$space-small: 0.25rem;
+$space-medium: 0.35rem;
+$space-medium-large: 0.5rem;
+$space-large: 0.75rem;
+
+$radius-small: 2px;
+$radius-medium: 4px;
+$radius-large: 9999px;
+
+
+@mixin font-class($weight, $size) {
+    font-weight: $weight;
+    font-size: $size;
+}
+
+@each $weight in $font-weights {
+    @each $category, $sizes in $font-sizes {
+        @each $size, $value in $sizes {
+            .#{$category}-#{$size}-#{$weight} {
+                @include font-class($weight, $value);
+            }
+        }
+    }
+}

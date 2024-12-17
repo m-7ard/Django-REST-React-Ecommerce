@@ -1,28 +1,13 @@
 @use './global' as *;
 
+
 html { 
-	position: fixed;
-    top:0; 
-	bottom:0; 
-	right:0; 
-	left:0; 
-	padding: 0;
-	margin: 0;
 	font-family: "Inter", monospace;
-    overflow: hidden;
 }
 
 body {
-	position:absolute; 
-	top:0; 
-	bottom:0; 
-	right:0; 
-	left:0; 
-	padding: 0;
 	margin: 0;
-	max-width: 100%;
     background-color: #e5e5e5;
-	overflow: auto;
 }
 
 a {
@@ -42,7 +27,6 @@ ul, li {
 
 button {
 	all: unset;
-	cursor: pointer;
 }
 
 fieldset {
@@ -50,6 +34,10 @@ fieldset {
 }
 
 textarea {
+    all: unset;
+}
+
+hr {
     all: unset;
 }
 
@@ -70,6 +58,10 @@ textarea {
     &--hoverable {
         @include default-color-transition;
         cursor: pointer;
+    }
+
+    &--ignore-height {
+        @include ignore-height;
     }
 
 	&--tiny {
@@ -97,6 +89,36 @@ textarea {
 	}
 }
 
-hr {
-    all: unset;
+.avatar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	user-select: none;
+
+	&--small {
+		width: 2rem; 
+		height: 2rem;
+	}
+
+	&--medium {
+		width: 2.5rem; 
+		height: 2.5rem;
+	}
+
+	&--large {
+		width: 6rem;
+		height: 6rem;
+	}
+
+	img {
+		max-height: 100%;
+		max-width: 100%;
+	}
 }
+
+.bottom { margin-top: auto !important; }
+.top { margin-bottom: auto !important; }
+.left { margin-right: auto !important; }
+.right { margin-left: auto !important; }

@@ -34,8 +34,7 @@
 }
 
 @mixin has-shadow {
-    box-shadow: 0 2px 6px 0 rgba(0,0,0,.5);
-    //box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 6px 0px rgba(map-get($light, dark), 0.5);
 }
 
 @mixin absolute-box($height, $width) {
@@ -54,6 +53,7 @@
 
 @mixin flex-row($padding, $gap) {
 	display: flex;
+	flex-direction: row;
     padding: $padding;
     gap: $gap;
 }
@@ -92,11 +92,13 @@
     }
 };
 
-@mixin colors-from-theme($theme, $initial, $hover: null, $checked: null) {
-    $initial_colors: map-get($theme, $initial);
-    color: get-key-or-null($initial_colors, fg);
-    background-color: get-key-or-null($initial_colors, bg);
-    border-color: get-key-or-null($initial_colors, bc);
+@mixin colors-from-theme($theme, $initial: null, $hover: null, $checked: null) {
+    @if $initial {
+        $initial_colors: map-get($theme, $initial);
+        color: get-key-or-null($initial_colors, fg);
+        background-color: get-key-or-null($initial_colors, bg);
+        border-color: get-key-or-null($initial_colors, bc);
+    }
 
     @if $hover {
         $hover_colors: map-get($theme, $hover);
@@ -134,22 +136,31 @@
     @include default-color-transition;
     @include flex-row($space-small $space-large, $space-medium);
     font-size: get-font-size(secondary, small); 
-    border-radius: $space-small;
+    border-radius: $radius-small;
 }
 
 @mixin medium-button {
     @include default-color-transition;
-    @include flex-row($space-medium $space-large, $space-medium);
+    @include flex-row($space-medium-large $space-large, $space-medium);
     font-size: get-font-size(secondary, medium);
-    border-radius: $radius-medium;
+    border-radius: $radius-small;
 }
 
 @mixin large-button {
     @include default-color-transition;
-    @include flex-row($space-medium-large $space-large, $space-large);
+    @include flex-row($space-large, $space-large);
     font-size: get-font-size(primary, medium);
     border-radius: $radius-medium;
 }
+
+@mixin ignore-height {
+    height: 0px !important;
+    align-items: center !important;
+    display: inline-flex !important;
+    overflow: visible !important;
+}
+
+$font-weights: (400, 500, 700);
 
 $font-sizes: (
     secondary: (
@@ -171,6 +182,7 @@ $font-sizes: (
 
 $light: (
     light: #F2F4F3,
+    neutral: #E4E9E6,
     dark: #D6DDD9,
 );
 
@@ -223,3 +235,17 @@ $radius-medium: 4px;
 $radius-large: 9999px;
 
 
+@mixin font-class($weight, $size) {
+    font-weight: $weight;
+    font-size: $size;
+}
+
+@each $weight in $font-weights {
+    @each $category, $sizes in $font-sizes {
+        @each $size, $value in $sizes {
+            .#{$category}-#{$size}-#{$weight} {
+                @include font-class($weight, $value);
+            }
+        }
+    }
+}

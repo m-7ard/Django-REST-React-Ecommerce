@@ -19,9 +19,21 @@ Use this to list all urls and resolvers
 """
 
 urlpatterns = [
+    path("api/validate_image/", views.AdImageFieldUploadView.as_view()),
+    path("api/frontpage_data/", views.FrontpageApiView.as_view()),
+    path("api/list_user_ads/<int:pk>/", views.ListUserAds.as_view()),
+    path("api/list_user_ads/", views.ListUserAds.as_view(), kwargs={"pk": None}),
+    path("api/confirm_checkout/", views.ConfirmCheckoutAPIView.as_view()),
+    path("api/list_user_bookmarks/", views.ListUserBookmarks.as_view()),
+    path("api/perform_checkout/", views.CreateOrderAPIView.as_view()),
+    path("api/list_user_orders/", views.ListUserOrders.as_view()),
+    path("api/list_user_sales/", views.ListUserSales.as_view()),
 ]
 
 router = routers.DefaultRouter()
-router.register('api/categories', views.CategoryViewSet, basename='category')
+router.register("api/ads", views.AdViewSet, basename="ad")
+router.register("api/categories", views.CategoryViewSet, basename="category")
+router.register("api/ad-groups", views.AdGroupViewSet, basename="ad-group")
+router.register("api/orders", views.OrderViewSet, basename="order")
 
 urlpatterns += router.urls

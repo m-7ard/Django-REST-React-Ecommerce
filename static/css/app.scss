@@ -1,169 +1,29 @@
 @use './global' as *;
 
-#root {
-    overflow: hidden;
+.content-grid {
+    display: grid;
+    grid-template-columns: [full-width-start] 1fr [pamphlet-start] minmax(0, 49rem) [pamphlet-end] 1fr [full-width-end];
+
+    > :not(.pamphlet) {
+        grid-column: full-width;
+    }
+
+    > .pamphlet {
+        grid-column: pamphlet;
+    }
 }
+
 
 .app {
     @include flex-column(0, 0);
     @include absolute-boundary(0, 0, 0, 0);
     margin: 0 auto;
     color: #0A0908;
+    background-color: #FAFCFC;
 
     &__divider {
         border-top: 1px solid map-get($light, dark);
         height: 0px;
-    }
-
-    &__header {
-        @include flex-column(0, 0);
-    }
-
-    &__go-to {
-        @include base-button;
-        @include flex-column(0, 0);
-        align-items: center;
-        font-size: get-font-size(secondary, small);
-        color: map-get($black, dark);
-        font-weight: 500;
-    }
-
-    &__post-ad {
-        @include base-button;
-        @include medium-button;
-        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
-        
-        @media only screen and (max-width: 500px) {
-            padding: $space-medium;
-
-            [data-role="text"] {
-                display: none;
-            }
-        }
-    }
-
-    &__header-section {
-        @include flex-row($space-medium $space-large, $space-large);
-        align-items: center;
-
-        &--top {
-            background-color: #ffffff;
-            justify-content: flex-end;;
-        }
-
-        &--bottom {
-            border-bottom: 1px solid map-get($light, dark);
-            background-color: #ffffff;
-        }
-
-        &--main {
-            background-color: $orange;
-            justify-content: center;
-        }
-    }
-
-    &__header-group {
-        @include flex-row(0, $space-large);
-        align-items: center
-    }
-
-    &__header-link {
-        @include base-button;
-        font-size: get-font-size(secondary, medium);
-        
-        &:hover {
-            text-decoration: underline;
-        }
-    }
-
-    &__header-search-bar {
-        display: flex;
-        max-width: 49rem;
-        gap: inherit;
-        flex: 1;
-    }
-
-    &__header-search-widget {
-        @include flex-row(0, 0);
-        overflow: hidden;
-        flex-grow: 1;
-        height: 100%;
-    }
-
-    &__header-search-field {
-        @include flex-row(0, 0);
-        border-radius: $radius-medium 0 0 $radius-medium;
-        overflow: hidden;
-        flex-grow: 1;
-        border: 1px solid map-get($light, dark);
-        box-sizing: border-box;
-        background-color: map-get($light, light);
-
-        [data-role="input"] {
-            @include medium-button;
-            border-radius: 0;
-            position: relative;
-            background-color: transparent;
-            flex-grow: 1;
-
-            input {
-                @include absolute-boundary(0, 0, 0, 0);
-                @include ellipsis;
-                padding: $space-small;
-            }
-        }
-    }
-
-    &__header-search-button {
-        @include base-button;
-        @include medium-button;
-        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
-        border-radius: 0 $radius-medium $radius-medium 0;
-    }
-
-    &__header-category-select {
-        @media only screen and (max-width: 500px) {
-            display: none;
-        }
-
-        $theme: $gunmetal_theme;
-        
-        &[data-state="open"] [data-role="root"] {
-            border-radius: $radius-medium $radius-medium 0 0;
-        }
-
-        [data-role="root"] {
-            @include base-button;
-            @include medium-button;
-            @include colors-from-theme($theme, neutral, $hover: active);
-            width: 9rem;        
-            box-sizing: border-box;
-        }
-
-        [data-role="option-list"] {
-            min-width: 9rem;          
-            overflow: hidden;
-            border-radius: 0 0 $radius-small;  
-            box-sizing: border-box;
-        }
-
-        [data-role="option"] {
-            @include base-button;
-            @include medium-button;
-            @include colors-from-theme($theme, neutral, $hover: active, $checked: active);
-            border-radius: 0px;
-            
-            border: 1px solid transparent;
-            box-sizing: border-box;
-            &:has(:checked) {
-                border: 1px solid get_theme_attr($theme, inactive, bg);
-            }
-        }
-    }
-
-    &__logo {
-        @include base-button;
-        color: map-get($light, light);
     }
 
     &__icon {
@@ -171,28 +31,66 @@
     }
 
     &__body {
+        @include has-shadow;
+        gap: $space-large 0;
+        background-color: #FAFCFC;
+        flex-grow: 1;
+        position: relative;
+        border-bottom: 1px solid map-get($light, dark);
+    }
+
+    &__footer {
         @include flex-row($space-large, $space-large);
-        flex-grow: 1;
-        background-color: #ffffff;
+        align-items: center;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        color: map-get($light, dark);
+        background-color: map-get($light, light);
+    }
+}
+
+.confirmation {
+    @include flex-column($space-large, $space-large);
+    align-items: center;
+
+    &__icon {
+		width: 10rem;
+		height: 10rem;
+		font-size: 10rem;
+        color: get_theme_attr($gunmetal_theme, neutral, bg);
     }
 
-    &__auth-wrapper {
-        @include flex-column(0, $space-large);
-        flex-grow: 1;
+    &__title {
+        font-size: get-font-size(special, large);
+        font-weight: bold;
+        color: map-get($black, dark);
+        justify-content: center;
+        text-align: center;
     }
 
-    &__link {
-        font-size: get-font-size(secondary, small);
-        color: blue;
+    &__section {
+        @include flex-row($space-large, $space-large);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-        &:hover {
-            text-decoration: underline;
+    &__button {
+        @include base-button;
+        @include large-button;
+
+        &--ad {
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        }
+
+        &--new {
+            @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
         }
     }
 }
 
 .frontpage {
-    @include flex-column(0, $space-large);
+    @include flex-column($space-large, $space-large);
     flex-grow: 1;
     overflow: hidden;
 
@@ -226,170 +124,13 @@
         @include flex-column(0, $space-large);
     }
 
-    &__gallery {
-        @include flex-column($space-large, $space-large);
-        background-color: #ffffff;
-        border: 1px solid map-get($light, dark);
-        width: 100%;
-        box-sizing: border-box;
 
-        &-title {
-            font-size: get-font-size(primary, medium);
-            font-weight: bold;
-            color: map-get($black, dark);
-        }
-
-        &-divider {
-            border-top: 1px solid map-get($light, dark);
-            height: 0px;
-        }
-
-        &-header {
-            display: grid;
-            grid-template: auto / 1fr auto auto;
-            gap: $space-medium;
-            align-items: center;
-        }
-
-        &-content {
-            @include flex-row($space-small, $space-large);
-            border-right: $space-small solid transparent;
-            overflow: auto;
-
-            &::-webkit-scrollbar {
-                background-color: transparent;
-                height: 0px;
-            }    
-        }
-
-        &-control {
-            @include base-button;
-            border: 1px solid map-get($light, dark);
-            border-radius: $radius-medium;
-        }
-    }
 
     &__highlight {
+        @include has-shadow;
         @include flex-row(0, $space-large);
         flex-wrap: wrap;
         justify-content: center;
-
-        &-box {
-            @include flex-column($space-large, $space-large);
-            background-color: #ffffff;
-            border: 1px solid map-get($light, dark); 
-            flex: 1 0 0;
-            overflow: hidden;
-            min-width: 15rem;
-        }
-
-        &-header {
-            @include flex-row(0, 0);
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        &-item {
-            display: grid;
-            grid-template: repeat(4, auto) / 4rem 1fr;
-            gap: 0 $space-large;
-            overflow: hidden;
-        }
-
-        &-image {
-            background-color: #ffffff;
-            aspect-ratio: 1 / 1;
-            grid-row: 1 / -1;
-            border: 1px solid map-get($light, dark); 
-        }
-
-        &-title {
-            font-size: get-font-size(primary, small);
-            font-weight: 700;
-            color: map-get($black, dark);
-        }
-
-        &-label {
-            @include ellipsis;
-            overflow: hidden;
-            font-size: get-font-size(secondary, small);
-            font-weight: 500;
-            color: map-get($black, dark);
-
-            &--main {
-                font-weight: 700;
-            }
-        }
-
-        &-price {
-            font-size: get-font-size(secondary, medium);
-            font-weight: 700;
-            color: $red;
-        }
-
-        &-divider {
-            border-top: 1px solid map-get($light, dark);
-            height: 0px;
-        }
-    }
-
-    &__ad {
-        @include flex-column($space-large $space-large $space-large $space-large, $space-large);
-        @include has-shadow;
-        background-color: $orange;
-        position: relative;
-        flex-shrink: 0;
-
-        &--featured {
-            width: 7rem;
-        }
-
-        &--normal {
-            @media only screen and (min-width: 500px) {
-                width: 5rem;
-            }
-
-            @media only screen and (min-width: 600px) {
-                width: 6rem;
-            }
-        }
-
-        &-image {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            border: 1px solid map-get($light, dark);
-            background-color: #ffffff;
-        }
-
-        &-title {
-            @include ellipsis;
-            font-size: get-font-size(secondary, large);
-            color: map-get($black, dark);
-            font-weight: 700;
-        }
-
-        &-price {
-            @include ellipsis;
-            font-size: get-font-size(secondary, medium);
-            color: map-get($black, light);
-            font-weight: 500;
-        }
-
-        &-pricetag {
-            @include has-shadow;
-            @include base-button;
-            @include small-button;
-            background-color: $red;
-            color: #ffffff;
-            font-size: get-font-size(secondary, medium);
-            font-weight: 700;
-            position: absolute;
-            top: $space-small;
-            right: $space-small;
-            user-select: none;
-        }
-
-        
     }
 }
 
@@ -430,37 +171,6 @@
 }
 
 .form {
-    @include flex-column($space-large, $space-large);
-    flex: 1;
-    border: 1px solid map-get($light, dark);
-    max-width: 49rem;
-    margin: 0 auto;
-    height: fit-content;
-
-    &__body {
-        @include flex-column($space-large, $space-large);
-    }
-
-    &__header {
-        @include flex-row($space-large, $space-large);
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
-    &__footer {
-        @include flex-row($space-large, $space-large);
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
-    &__title {
-        font-size: get-font-size(special, small);
-        font-weight: 700;
-        color: map-get($black, dark);
-    }
-
     &__field {
         @include flex-column(0, $space-small);
     }
@@ -490,16 +200,23 @@
         padding: $space-medium-large;
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
     }
     
     &__char-textarea {
         @include medium-button;
-        @include ellipsis;
         width: 100%;
         box-sizing: border-box;
         padding: $space-medium-large;
         border: 1px solid map-get($light, dark);
         background-color: map-get($light, light);
+        
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
     }
 
     &__pill-select-widget {
@@ -534,19 +251,1468 @@
         @include medium-button;
         @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
         font-weight: 500;
-        padding: $space-medium-large;
-        width: 33%;
         justify-content: center;
-        margin-left: auto;
+    }
 
-        @media only screen and (max-width: 500px) {
-            width: 100%;
+    &__reset {
+        all: unset;
+        font-weight: 400;
+        font-size: get-font-size(secondary, medium);
+        color: map-get($black, light);
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline
+        }
+    }
+
+    &__drawer {
+        @include flex-column(0, 0);
+        background-color: map-get($light, dark);
+        border-top: 1px solid map-get($light, dark);
+        border-right: 1px solid map-get($light, dark);
+        
+        [data-role="choices"] {
+            @include flex-column(0, 0);
+
+            & {
+                padding-left: $space-large;
+            }
+        }
+
+        [data-role="check"] {
+            visibility: hidden;
+        }
+
+        [data-role="branch"] {
+            @include flex-column(0, 0);
+            border-left: 1px solid map-get($light, dark);
+
+            &[data-active="true"] {
+                > [data-role="root"] {
+                    background-color: map-get($light, neutral);
+    
+                    [data-role="marker"] {
+                        transform: rotate(90deg);
+                    }
+                }
+            }
+        }
+
+        [data-role="leaf"], [data-role="root"] {
+            @include input-replacement;
+            @include base-button;
+            @include medium-button;
+            border-radius: 0px;
+            background-color: white;
+            font-weight: 500;
+            justify-content: space-between;
+            box-sizing: border-box;
+            border-bottom: 1px solid map-get($light, dark);
+
+            &:hover {
+                background-color: map-get($light, light);
+            }
+
+            &:has(:checked) {
+                background-color: map-get($light, neutral);
+
+                [data-role="check"] {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+
+    &__action {
+        @include base-button;
+        @include small-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        width: fit-content;
+        font-size: get-font-size(secondary, small);
+        font-weight: 500;
+        color: map-get($black, dark);
+    }
+
+    &__helper-text {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: map-get($black, dark);
+    }
+}
+
+.overlay {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.34);
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: $space-large;
+}
+
+.prompt {
+    background-color: white;
+    max-width: 49rem;
+    max-height: 30rem;
+    flex: 1;
+    height: fit-content;
+    overflow: auto;
+    border: 1px solid map-get($light, dark);
+    border-radius: $radius-medium;
+
+    &--small {
+        max-width: 20rem;
+    }
+
+    &__confirm {
+        @include base-button;
+        @include medium-button;
+        @include has-shadow;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        font-weight: 500;
+
+        &--disabled {
+            cursor: no-drop;
+            filter: saturate(0);
         }
     }
 
     &__reset {
-        font-weight: 400;
-        font-size: get-font-size(secondary, medium);
+        @include base-button;
+        @include medium-button;
+        @include has-shadow;
+        @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+        font-weight: 500;
+    }
+
+    &__close {
         color: map-get($black, light);
+    }
+}
+
+
+.ad-details {
+    gap: $space-large;
+    padding: $space-large;
+    height: fit-content;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+
+    &__header {
+        grid-column: 1 / -1;
+    }
+
+    &__category {
+        font-size: get-font-size(secondary, medium);
+        font-weight: 500;
+        color: map-get($black, light);
+    }
+    
+    &__imagebox {
+        grid-column: 1 / 9;
+    }
+
+    &__main {
+        grid-column: 9 / -1;
+        @include flex-column(0, $space-large);
+
+        &-header {
+            @include flex-column(0, $space-small);
+        }
+    }
+
+    &__footer {
+        @include flex-column($space-large, $space-large);
+        border: 1px solid map-get($light, dark);
+        grid-column: 1 / -1;
+    }
+
+    &__title {
+        font-size: get-font-size(special, small);
+        color: map-get($black, dark);
+        font-weight: 500;
+    }
+
+    &__label {
+        font-size: get-font-size(secondary, large);
+        color: map-get($black, dark);
+        font-weight: 700;
+    }
+
+    &__description {
+        font-size: get-font-size(secondary, large);
+        color: map-get($black, dark);
+        font-weight: 400;
+        white-space: pre;
+    }
+
+    &__price {
+        font-size: get-font-size(primary, large);
+        color: map-get($black, dark);
+        font-weight: 700;
+    }
+
+    &__seller {
+        @include flex-row($space-large, $space-large);
+        border: 1px solid map-get($light, dark);
+        align-items: center;
+
+        &-title {        
+            font-size: get-font-size(secondary, medium);
+            font-weight: 700;
+            color: map-get($black, dark);
+        }
+
+        &-label {        
+            font-size: get-font-size(secondary, medium);
+            font-weight: 500;
+            color: map-get($black, dark);
+        }
+
+        &-link {
+            font-size: get-font-size(secondary, medium);
+            font-weight: 500;
+            color: map-get($black, dark);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        &-body {
+            @include flex-column(0, 0);
+            flex: 1;
+        }
+
+        &-footer {
+            @include flex-row(0, 0 $space-large);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    }
+
+    &__button {
+        @include base-button;
+        justify-content: center;
+
+        &--specifications {
+            @include small-button;
+            font-weight: 500;
+            background-color: map-get($light, light);
+            border: 1px solid map-get($light, dark);
+
+            &:hover {
+                background-color: map-get($light, neutral);
+            }
+        }
+
+        &--purchase {
+            @include large-button;
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+            color: get_theme_attr($gunmetal_theme, neutral, bg);
+            font-weight: 700;
+
+            &.is-disabled {
+                @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+            }
+        }
+
+        &--bookmark {
+            @include large-button;
+            @include colors-from-theme($gunmetal_theme, $initial: neutral, $hover: active);
+            font-weight: 700;
+        }
+    }
+
+    &__amount {
+        @include small-button;
+        width: 4rem;
+        box-sizing: border-box;
+        padding: $space-small;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
+    }
+
+    @media only screen and (max-width: 980px) {
+        &__imagebox {
+            grid-column: 1 / 8;
+        }
+
+        &__main {
+            grid-column: 8 / -1;
+            @include flex-column(0, $space-large);
+        }
+    }
+
+    @media only screen and (max-width: 720px) {
+        > * {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+.img-display\@ad-details {
+    @include flex-column(0, $space-large);
+    overflow: hidden;
+    max-height: 460px;
+
+    &__picker {
+        @include flex-row(0, $space-large);
+        overflow: auto;
+        order: 2;
+        flex-shrink: 0;
+    }
+
+    &__pickable {
+        @include base-button;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        width: 6rem;
+        height: 6rem;
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
+    }
+
+    &__current {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        user-select: none;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        box-sizing: border-box;
+        overflow: hidden;
+        max-height: 100%;
+        aspect-ratio: 1 / 1;
+
+        img {
+            max-height: 100%;
+            max-width: 100%;
+        }
+    }
+
+    @media only screen and (min-width: 500px) {
+        @include flex-row(0, $space-large);
+        overflow: hidden;
+        height: 460px;
+
+        &__picker {
+            @include flex-column(0, $space-large);
+            order: 0;
+        }
+
+        &__current {
+            flex: 1;
+            height: 100%;
+        }
+    }
+}
+
+.prop {
+    overflow: hidden;
+
+    &--horizontal {
+        @include flex-row($space-large, $space-large);
+    }
+
+    &--vertical {
+        @include flex-column($space-large, $space-large);
+    }
+
+    &--highlighted {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+    }
+
+    .grow {
+        flex: 1;
+    }
+
+    &__header {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    &__body {
+        @include flex-column(0, $space-large);
+        flex: 1;
+        overflow: hidden;
+    }
+
+    &__footer {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: space-between;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    &__title {
+        font-size: get-font-size(primary, large);
+        font-weight: 700;
+        color: map-get($black, dark);
+        overflow-wrap: break-word;
+    }
+
+    &__subtitle {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: map-get($black, light);
+        overflow-wrap: break-word;
+    }
+
+    &__info {
+        font-size: get-font-size(primary, small);
+        font-weight: 500;
+        color: map-get($black, dark);
+        overflow-wrap: break-word;
+    }
+
+    &__detail {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: map-get($black, dark);
+        overflow-wrap: break-word;
+    }
+
+    &__label {
+        font-size: get-font-size(secondary, medium);
+        font-weight: 700;
+        color: map-get($black, dark);
+        overflow-wrap: break-word;
+    }
+
+    &__pairing {
+        @include flex-column(0, $space-small);
+        overflow: hidden;
+    }
+
+    &__row {
+        @include flex-row(0, $space-large);
+
+        &--centered {
+            align-items: center;
+        }
+
+        &--baselined {
+            align-items: baseline;
+        }
+    }
+
+    &__column {
+        @include flex-column(0, $space-large);
+        overflow: hidden;
+    }
+
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+    }
+}
+
+.account {
+    opacity: 100;
+}
+
+.ad\@account {
+    @include has-shadow;
+    border: 1px solid map-get($light, dark);
+    background-color: #ffffff;
+    
+    &__main {
+        @include flex-row(0, $space-large);
+    }
+
+    &__image{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
+    }
+
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);        
+        justify-content: center;
+        font-weight: 700;
+        color: get_theme_attr($gunmetal_theme, active, bg);
+    }
+
+    &__actions {
+        @include flex-row(0, $space-small $space-large);
+        flex-wrap: wrap;
+    }
+
+    @media only screen and (max-width: 400px) {
+       &__image {
+            width: 100%;
+       }
+
+       &__main {
+            @include flex-column(0, $space-large);
+       }
+    }
+}
+
+.ad\@search {
+    &__image{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
+    }
+
+    &__main {
+        @include flex-row(0, $space-large);
+   }
+
+    @media only screen and (max-width: 400px) {
+       &__image {
+            width: 100%;
+       }
+
+       &__main {
+            @include flex-column(0, $space-large);
+       }
+    }
+}
+
+.highlight\@frontpage {
+    $self: &;
+    background-color: #ffffff;
+    border: 1px solid map-get($light, dark); 
+    flex: 1 0 0;
+    overflow: hidden;
+    min-width: 15rem;
+
+    &__image {
+        background-color: #ffffff;
+        width: 4rem;
+        height: 4rem;
+        border: 1px solid map-get($light, dark); 
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
+    }
+
+    &__price {
+        color: $red;
+        font-weight: bold;
+    }
+
+    &__item {
+        box-shadow: unset;
+    }
+}
+
+.gallery\@frontpage {
+    @include has-shadow;
+    border: 1px solid map-get($light, dark);
+    background-color: #ffffff;
+
+    &__ads {
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+            height: $space-small;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+        }
+    
+        &::-webkit-scrollbar-corner {
+            background-color: transparent;
+        }
+        
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: hsla(112, 6%, 25%, 0.201);
+        }
+    }
+}
+
+.ad\@frontpage {
+    @include flex-column(0, $space-medium);
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    &--featured {
+        width: 10rem;
+    }
+
+    &--normal {
+        width: 9.75rem;
+    }
+
+    &__image {
+        @include has-shadow;
+        width: 100%;
+        background-color: #ffffff;
+        aspect-ratio: 1 / 1;
+        border-radius: $radius-medium;
+        border: 1px solid map-get($light, dark);
+        overflow: clip;
+    
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__title {
+        @include ellipsis;
+        font-size: get-font-size(primary, medium);
+        color: map-get($black, dark);
+        font-weight: 500;
+    }
+
+    &__price {
+        @include ellipsis;
+        font-size: get-font-size(primary, medium);
+        color: map-get($black, dark);
+        font-weight: 700;
+        
+        [data-role="price-symbol"] {
+            font-size: get-font-size(secondary, small);
+        }
+    }
+
+    &__pricetag {
+        @include has-shadow;
+        @include base-button;
+        @include small-button;
+        background-color: $red;
+        color: #ffffff;
+        font-size: get-font-size(secondary, medium);
+        font-weight: 700;
+        position: absolute;
+        top: $space-small;
+        right: $space-small;
+        user-select: none;
+    }   
+}
+
+.dropdown {
+    position: relative;
+
+    &__content {
+        position: absolute;
+    }
+
+    .dropdown[data-state="open"] &__content {
+        visibility: visible;
+    }
+
+    .dropdown[data-state="closed"] &__content {
+        visibility: hidden;
+    }
+}
+
+.header\@app {
+    $self: &;
+    @include has-shadow;
+    z-index: 1;
+
+    &__section {
+        display: grid;
+        grid-template-columns: [full-width-start] minmax(0, 2.5rem) [padded-start] minmax(auto, 1fr) [padded-end] minmax(0, 2.5rem) [full-width-end];
+        padding: $space-medium $space-large; 
+
+        > #{$self}__content {
+            @include flex-row(0, $space-large);
+            align-items: center;
+        }
+
+        &--top {
+            background-color: #ffffff;
+
+            > #{$self}__content {
+                grid-column: full-width;
+                justify-content: space-between;
+                gap: $space-large;
+            }
+        }
+    
+        &--bottom {
+            border-bottom: 1px solid map-get($light, dark);
+            background-color: #ffffff;
+        }
+    
+        &--main {
+            border-bottom: 1px solid map-get($light, dark);
+            border-top: 1px solid map-get($light, dark);
+            background-color: $orange;
+
+            
+            > #{$self}__content {
+                justify-self: center;
+                grid-column: full-width;
+                max-width: 49rem;
+                width: 100%
+            }
+        }
+    }
+
+    &__group {
+        @include flex-row(0, $space-large);
+        align-items: center;
+    }
+
+    
+    &__directory {
+        @include base-button;
+        @include flex-row(0, $space-small);
+        align-items: center;
+        color: map-get($black, dark);
+
+        [data-role="text"] {
+            font-weight: 500;
+            font-size: get-font-size(secondary, small);
+            color: map-get($black, dark);
+        }
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    &__post-ad {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+
+        @media only screen and (max-width: 500px) {
+            gap: 0px;
+
+            [data-role="text"] {
+                width: 0px;
+                overflow: hidden;
+            }
+        }
+    }
+
+    &__logo {
+        @include base-button;
+        @include flex-column(0, 0);
+        font-size: get-font-size(secondary, small);
+        font-weight: 700;
+        color: map-get($black, dark);
+
+        div {
+            @include ellipsis;
+            width: fit-content;
+        }
+    }
+
+    &__search-widget {
+        @include flex-row(0, 0);
+        overflow: hidden;
+        flex-grow: 1;
+        height: 100%;
+    }
+
+    &__search-field {
+        @include flex-row(0, 0);
+        border-radius: $radius-small 0 0 $radius-small;
+        overflow: hidden;
+        flex-grow: 1;
+
+        [data-role="input"] {
+            @include medium-button;
+            border-radius: 0;
+            position: relative;
+            background-color: transparent;
+            flex-grow: 1;
+
+            input {
+                @include absolute-boundary(0, 0, 0, 0);
+                @include ellipsis;
+                padding: $space-small;
+                background-color: map-get($light, light);
+                border: 1px solid map-get($light, dark);
+                box-sizing: border-box;
+            }
+        }
+    }
+
+    &__search-button {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($gunmetal_theme, neutral, $hover: active);
+        border-radius: 0 $radius-small $radius-small 0;
+    }
+
+    &__account {
+        &[data-state="open"] .dropdown__trigger  {
+            border-top: 1px solid map-get($light, dark);
+            border-left: 1px solid map-get($light, dark);
+            border-right: 1px solid map-get($light, dark);
+        }
+
+        &[data-state="closed"] .dropdown__trigger  {
+            border-top: 1px solid transparent;
+            border-left: 1px solid transparent;
+            border-right: 1px solid transparent;
+        }
+
+        .dropdown__trigger {
+            padding: 0 $space-large;
+            background-color: #ffffff;
+            position: relative;
+            z-index: 2;
+        }
+
+        .dropdown__content {
+            width: 10rem;
+            transform: translateY(-1px);
+            z-index: 1;
+        }
+
+        @media only screen and (max-width: 400px) {
+            #{$self}__directory [data-role="text"] {
+                display: none !important;
+            }
+        }
+    }
+
+    &__menu {
+        @include flex-column(0, 0);
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+        background-color: #ffffff;
+        
+        > * {
+            @include base-button;
+            @include flex-row($space-medium $space-large, $space-medium);
+            color: map-get($black, dark);
+            font-size: get-font-size(secondary, medium);
+            font-weight: 400;
+
+            [data-role="funds"] {
+                font-size: get-font-size(secondary, small);
+            }
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+.profile\@account {
+    &__image{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+        min-width: 6rem;
+        width: 6rem;
+        aspect-ratio: 1 / 1;
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    }
+
+    &__main {
+        @include flex-row(0, $space-large);
+    }
+
+    @media only screen and (max-width: 400px) {
+        &__image {
+            width: 100%;
+       }
+
+       &__main {
+            @include flex-column(0, $space-large);
+       }
+    }
+}
+
+.is-link {
+    color: #0E30D8 !important;
+    cursor: pointer;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.is-error {
+    color: $red !important;
+}
+
+.settings {
+    &__display {
+        @include has-shadow;
+        border: 1px solid map-get($light, dark);
+    }
+
+    &__edit {
+        @include base-button;
+        font-weight: 500;
+    }
+}
+
+.select {
+    &[data-state="open"] &__option-list {
+        visibility: visible;
+    }
+
+    &[data-state="closed"] &__option-list {
+        visibility: hidden;
+    }
+
+    &[data-state="open"] [data-role="marker"] {
+        transform: rotate(90deg);
+    }
+
+    [data-role="marker"] {
+        @include ignore-height;
+    }
+
+    &__root {
+        justify-content: space-between;
+    }
+
+    &__option-list {
+        display: fixed;
+    }
+
+    &__option {
+        @include input-replacement;
+    }
+}
+
+.select\@prompt {
+    border: 1px solid map-get($light, dark);
+    overflow-y: auto;
+    border-radius: $radius-small;
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        font-weight: 500;
+        border-bottom: 1px solid map-get($light, dark);
+        border-radius: 0;
+        justify-content: space-between;
+
+        &:last-of-type {
+            border: 0;
+        }
+
+        .icon {
+            color: map-get($black, light);
+        }
+
+        &--selected, &:hover {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.select\@form {
+    $self: &;
+
+    &[data-state="open"] {
+        #{$self}__root {
+            border-radius: $radius-small $radius-small 0 0;
+        }
+    }
+
+    &__root { 
+        @include base-button;
+        @include medium-button;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        font-weight: 500;
+        justify-content: space-between;
+
+        [data-role="label"] {
+            @include ellipsis;
+        }
+        
+        &:has(:checked), &:hover {
+            background-color: map-get($light, neutral);
+        }
+    }
+
+    &__option-list {
+        position: fixed;
+        background-color: map-get($light, light);
+        border-left: 1px solid map-get($light, dark);
+        border-right: 1px solid map-get($light, dark);
+        border-bottom: 1px solid map-get($light, dark);
+        box-sizing: border-box;
+        border-radius: 0 0 $radius-small $radius-small;
+        overflow: auto;
+    }
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        background-color: map-get($light, light);
+        font-weight: 500;
+        border-radius: 0;
+
+        &:has(:checked), &:hover {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    gap: $space-large;
+
+    &__item {
+        @include base-button;
+        align-items: unset;
+
+        &:hover, &--selected {
+            background-color: map-get($light, light);
+        }
+    }
+}
+
+.address, .bank-account {
+    .prop__detail {
+        @include ellipsis;
+    }
+}
+
+.drawer {
+    $self: &;
+    background-color: map-get($light, neutral);
+    border-bottom: 1px solid map-get($light, dark);
+
+    &__branch {
+        border-left: 1px solid map-get($light, dark);
+        border-right: 1px solid map-get($light, dark);
+        border-top: 1px solid map-get($light, dark);
+    
+        & & {
+            margin-left: $space-large;
+        }
+    }
+
+    &__option {
+        @include base-button;
+        @include medium-button;
+        justify-content: space-between;
+        font-weight: 500;
+        border-radius: 0;
+        background-color: white;
+        outline: 1px solid map-get($light, dark);
+
+        .icon {
+            color: map-get($black, light);
+        }
+
+        &.is-selected, &:hover {
+            @include has-shadow;
+            z-index: 1;
+            position: relative;
+            background-color: map-get($light, light);
+        }
+
+        &.is-selected {
+            #{$self}__chevron {
+                transform: rotate(90deg);
+            }
+        }
+    }
+}
+
+.multi-image-input\@form {
+    $self: &;
+    @include flex-column(0, $space-large);
+
+    &__body {
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+        border-radius: $space-small;
+        flex-wrap: wrap;
+    }
+
+    &__element {
+        width: 7rem;
+        height: 5.25rem;
+        position: relative;
+        cursor: pointer;
+
+        &:hover #{$self}__remove {
+            visibility: visible;
+        }
+
+        &.is-input {
+            @include input-replacement;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid map-get($light, dark);
+            border-radius: $space-small;
+            box-sizing: border-box;
+            background-color: white;
+        }
+
+        &:not(.is-input).highlighted #{$self}__preview {
+            box-shadow: 0 2px 6px 0px rgba(black, 1);
+            z-index: 1;
+        }
+    }
+
+    &__preview {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border: 1px solid map-get($light, dark);
+        border-radius: $space-small;
+        background-color: map-get($light, dark);
+        transition: box-shadow 0.2s;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            overflow: clip;
+        }
+    }
+
+    &__uploading {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        font-size: get-font-size(secondary, small);
+        color: map-get($black, dark);
+
+        .icon {
+            @keyframes spin {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            animation: spin 4s linear infinite;
+        }
+    }
+
+    &__remove {
+        @include has-shadow;
+        position: absolute;
+        top: - $space-small;
+        right: - $space-small;
+        color: get_theme_attr($gunmetal_theme, neutral, bg);
+        visibility: hidden;
+        border-radius: 9999px;
+        overflow: hidden;
+        z-index: 100;
+        background-color: white;
+    }
+}
+
+.ad-boost-select\@form {
+    @include base-button;
+    display: grid;
+    align-items: center;
+    gap: $space-small $space-large;
+
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-rows: auto auto;
+
+    &__price {
+        grid-column: 4 / -1;
+        grid-row: 1 / 2;
+    }
+
+    &__description {
+        text-wrap: pretty;
+        grid-column: 2 / -1;
+        grid-row: 2 / -1;
+    }
+}
+
+.search {
+    @include flex-column(0, $space-large);
+
+    &__mobile-section {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+        border-bottom: 1px solid map-get($light, dark);
+    }
+}
+
+.filter {
+    position: fixed;
+    inset: 0;
+    background-color: white;
+    z-index: 1000;
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+    }
+
+    &__option {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+    }
+}
+
+.cart {
+    &__checkout {
+        @include base-button;
+        @include large-button;
+        background-color: $red;
+        color: #FAFCFC;
+        font-weight: 700;
+        justify-content: center;
+    }
+}
+
+.ad\@cart {
+
+    &__body {
+        overflow: hidden;
+    }
+
+    &__title {
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__amount {
+        @include small-button;
+        width: 4rem;
+        box-sizing: border-box;
+        padding: $space-small;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.specifications\@form {
+    &__input {
+        @include medium-button;
+        @include ellipsis;
+        box-sizing: border-box;
+        padding: $space-medium-large;
+        border: 1px solid map-get($light, dark);
+        background-color: map-get($light, light);
+
+        &--name {
+            width: 8rem;
+        }
+
+        &--value {
+            flex: 1;
+        }
+
+        &:focus {
+            background-color: map-get($light, neutral);
+        }
+    }
+}
+
+.ad-specification-select {
+    select {
+        width: 100%;
+    }
+}
+
+.pagination {
+    &__button {
+        @include base-button;
+        @include small-button;
+        @include has-shadow;
+        background-color: map-get($light, light);
+        border: 1px solid map-get($light, dark);
+        font-weight: bold;
+        height: 2rem;
+        box-sizing: border-box;
+        transition: transform 0.1s;
+    
+        &--selected, &:hover {
+            background-color: map-get($light, neutral);
+        }
+    
+        &--disabled {
+            color: map-get($light, dark);
+            border: 1px solid map-get($light, neutral);
+            cursor: no-drop;
+        }
+    }
+
+    &__select {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    &__sizes {
+        @include flex-row(0, $space-large);
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    &__size {
+        font-size: get-font-size(secondary, small);
+        font-weight: 400;
+        color: #0E30D8 !important;
+        cursor: pointer;
+        
+        &:hover, &--selected {
+            text-decoration: underline;
+        }
+    }
+}
+
+.checkout {
+    &__body {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-template-rows: auto;
+        gap: $space-large;
+    }
+
+    &__form {
+        grid-column: 1 / 9;    
+        grid-row: 1 / -1;
+    }
+
+    &__total {
+        grid-column: 9 / -1;
+        height: fit-content;
+    }
+
+    &__button {
+        @include base-button;
+        @include medium-button;
+        @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        justify-content: center;
+        font-weight: 500;
+    }
+
+    @media only screen and (max-width: 720px) {
+        &__form {
+            grid-column: 1 / -1;    
+            grid-row: 2 / -1;
+        }
+    
+        &__total {
+            grid-column: 1 / -1;
+            grid-row: 1 / 2;
+        }
+    }
+}
+
+.order {
+    @include flex-column(0, 0);
+
+    &__header {
+        @include flex-row($space-large, $space-large);
+        justify-content: space-between;
+        background-color: map-get($light, light);
+    }
+
+    &__body {
+        padding: $space-large;
+        gap: $space-large;
+        display: grid;
+        grid-template-columns: 1fr 200px;
+    }
+
+    &__button {
+        @include has-shadow;
+        @include base-button;
+        @include medium-button;
+        justify-content: center;
+        font-weight: 500;
+
+        &--highlighted {
+            @include colors-from-theme($yellow_theme, $initial: neutral, $hover: active);
+        }
+
+        &--normal {
+            border: 1px solid map-get($light, dark);
+
+            &:hover {
+                background-color: map-get($light, neutral);
+            }
+        }
+    }
+
+    @media only screen and (max-width: 500px) {
+        &__header {
+            display: grid;
+            grid-template-columns: minmax(auto, 1fr) minmax(auto, 1fr);
+            grid-template-rows: auto;
+            align-items: center;
+            justify-content: space-between;
+            gap: $space-large;
+        }
+
+        &__body {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+
+        }
     }
 }
